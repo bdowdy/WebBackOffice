@@ -15,7 +15,7 @@ namespace MSaleWebServer.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return View("~/Views/CheckReview/Index.cshtml");
+            return View("~/Views/MSaleAdmin/CheckReview.cshtml");
         }
 
         [HttpGet]

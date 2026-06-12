@@ -24,15 +24,15 @@ namespace MSaleWebServer.Controllers
         {
             return View();
         }
-       // public IActionResult TenderAdmin()
-       // {
-        //    return View("~/Views/MSaleAdmin/TenderAdmin.cshtml");
-       // }
+        public IActionResult TenderAdmin()
+        {
+            return View("~/Views/MSaleAdmin/TenderAdmin.cshtml");
+        }
 
-       // public IActionResult CouponAssignments()
-       // {
-        //    return View("~/Views/MSaleAdmin/CouponAssignments.cshtml");
-        //}
+        public IActionResult CouponAssignments()
+        {
+            return View("~/Views/MSaleAdmin/CouponAssignments.cshtml");
+        }
 
         
         public IActionResult Edit(string id)

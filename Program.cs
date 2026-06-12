@@ -12,7 +12,7 @@ app.UseStaticFiles();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=MSaleAdmin}/{action=Index}/{id?}");
 
 // Keep API endpoints working too
 app.MapControllers();
