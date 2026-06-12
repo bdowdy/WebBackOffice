@@ -1,217 +1,58 @@
-﻿@{
+@{
     ViewData["Title"] = "Order Buttons";
+    ViewData["Subtitle"] = "Assign POS functions first. Add colors later if needed.";
 }
 
-<style>
-    body {
-        background: #3f3f3f;
-        font-family: Arial, sans-serif;
-    }
+<div class="space-y-6">
 
-    .page {
-        max-width: 1250px;
-        margin: 25px auto;
-        padding: 24px;
-        background: #d9d9d9;
-        border-radius: 14px;
-        box-shadow: 0 6px 20px rgba(0,0,0,.25);
-    }
-
-    .header {
-        background: #2c3e50;
-        color: white;
-        padding: 20px;
-        border-radius: 12px;
-        text-align: center;
-        margin-bottom: 18px;
-    }
-
-        .header h2 {
-            margin: 0;
-        }
-
-    .top-bar {
-        display: flex;
-        justify-content: center;
-        gap: 12px;
-        margin-bottom: 18px;
-        flex-wrap: wrap;
-    }
-
-    .layout {
-        display: grid;
-        grid-template-columns: 320px 1fr;
-        gap: 20px;
-    }
-
-    .panel {
-        background: white;
-        border: 1px solid #888;
-        border-radius: 12px;
-        padding: 16px;
-        box-shadow: 0 3px 10px rgba(0,0,0,.15);
-    }
-
-    .panel-title {
-        font-size: 20px;
-        font-weight: bold;
-        color: #2c3e50;
-        margin-bottom: 10px;
-    }
-
-    .hint {
-        font-size: 13px;
-        color: #555;
-        margin-bottom: 12px;
-    }
-
-    select {
-        width: 100%;
-        padding: 8px;
-        border-radius: 8px;
-        border: 1px solid #aaa;
-        margin-bottom: 12px;
-    }
-
-    #functionList {
-        height: 460px;
-    }
-
-    button {
-        border: none;
-        border-radius: 8px;
-        padding: 10px 18px;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    .btn-save {
-        background: #27ae60;
-    }
-
-    .btn-reload {
-        background: #3498db;
-    }
-
-    .btn-clear {
-        background: #7f8c8d;
-    }
-
-    .btn-exit {
-        background: #e74c3c;
-    }
-
-    #buttonCanvas {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 12px;
-        background: #202020;
-        padding: 18px;
-        border: 3px solid #777;
-        border-radius: 12px;
-        min-height: 560px;
-    }
-
-    .button-wrap {
-        text-align: center;
-    }
-
-    .pos-label {
-        color: #eee;
-        font-size: 13px;
-        margin-bottom: 4px;
-    }
-
-    .order-btn {
-        width: 100%;
-        height: 72px;
-        background: #c0c0c0;
-        color: #000;
-        border: 2px solid #aaa;
-        border-radius: 8px;
-        cursor: pointer;
-        text-align: center;
-        padding: 6px;
-        font-size: 13px;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        user-select: none;
-        white-space: normal;
-    }
-
-        .order-btn:hover {
-            border-color: #00ccff;
-        }
-
-    .selected-btn {
-        outline: 4px solid yellow;
-    }
-
-    .color-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-</style>
-
-<div class="page">
-
-    <div class="header">
-        <h2>Order Buttons Setup</h2>
-        <div>Assign POS functions first. Add colors later if needed.</div>
+    <div class="flex flex-wrap items-center gap-2">
+        <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" type="button" onclick="loadButtons()">Reload</button>
+        <button class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" type="button" onclick="saveButtons()">Save</button>
+        <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" type="button" onclick="clearSelectedButton()">Clear Selected</button>
+        <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50" type="button" onclick="location.href='/MSaleAdmin/Dashboard'">Exit</button>
     </div>
 
-    <div class="top-bar">
-        <button class="btn-reload" type="button" onclick="loadButtons()">Reload</button>
-        <button class="btn-save" type="button" onclick="saveButtons()">Save</button>
-        <button class="btn-clear" type="button" onclick="clearSelectedButton()">Clear Selected</button>
-        <button class="btn-exit" type="button" onclick="location.href='/MSaleAdmin/Dashboard'">Exit</button>
-    </div>
+    <div class="grid gap-6 lg:grid-cols-[320px_1fr]">
 
-    <div class="layout">
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
 
-        <div class="panel">
+            <h2 class="text-base font-semibold text-slate-900">POS Functions</h2>
 
-            <div class="panel-title">POS Functions</div>
-
-            <div class="hint">
+            <p class="mt-1 text-sm text-slate-500">
                 Select a function, then click a button position.
-            </div>
+            </p>
 
-            <select id="functionList" size="25"></select>
+            <select id="functionList" size="25" class="mt-3 block h-[460px] w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
 
-            <div class="panel-title">Button Colors</div>
+            <h2 class="mt-6 text-base font-semibold text-slate-900">Button Colors</h2>
 
-            <div class="hint">
+            <p class="mt-1 text-sm text-slate-500">
                 Select a button first, then change colors if needed.
-            </div>
+            </p>
 
-            <div class="color-grid">
+            <div class="mt-3 grid grid-cols-2 gap-3">
                 <div>
-                    <label>Background</label>
-                    <select id="backColorSelect" onchange="applySelectedColors()"></select>
+                    <label class="block text-sm font-medium text-slate-700">Background</label>
+                    <select id="backColorSelect" onchange="applySelectedColors()" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
                 </div>
 
                 <div>
-                    <label>Text</label>
-                    <select id="foreColorSelect" onchange="applySelectedColors()"></select>
+                    <label class="block text-sm font-medium text-slate-700">Text</label>
+                    <select id="foreColorSelect" onchange="applySelectedColors()" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
                 </div>
             </div>
 
         </div>
 
-        <div class="panel">
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
 
-            <div class="panel-title">Button Positions</div>
+            <h2 class="text-base font-semibold text-slate-900">Button Positions</h2>
 
-            <div class="hint">
+            <p class="mt-1 text-sm text-slate-500">
                 Click a button to assign the selected function. Double-click to clear.
-            </div>
+            </p>
 
-            <div id="buttonCanvas"></div>
+            <div id="buttonCanvas" class="mt-4 grid min-h-[560px] grid-cols-4 gap-3 rounded-xl bg-slate-900 p-4 ring-1 ring-slate-800"></div>
 
         </div>
 
@@ -225,6 +66,8 @@
 
     const DEFAULT_BACK_COLOR = 12632256; // Light Gray
     const DEFAULT_FORE_COLOR = 0;        // Black
+
+    const SELECTED_BTN_CLASSES = ["outline", "outline-4", "outline-yellow-400"];
 
     const functionList = [
         "Access Phone Order",
@@ -404,14 +247,14 @@
             .forEach(row => {
 
                 let wrap = document.createElement("div");
-                wrap.className = "button-wrap";
+                wrap.className = "text-center";
 
                 let label = document.createElement("div");
-                label.className = "pos-label";
+                label.className = "mb-1 text-xs font-medium text-slate-300";
                 label.innerText = "Position " + row.idxNo;
 
                 let btn = document.createElement("div");
-                btn.className = "order-btn";
+                btn.className = "order-btn flex h-[72px] w-full cursor-pointer select-none items-center justify-center whitespace-normal rounded-lg border-2 border-slate-400 p-1.5 text-center text-[13px] font-bold transition hover:border-sky-400";
                 btn.dataset.idx = row.idxNo;
 
                 btn.innerText = row.captionName || "";
@@ -440,10 +283,10 @@
 
     function selectButton(btn) {
         document.querySelectorAll(".order-btn")
-            .forEach(b => b.classList.remove("selected-btn"));
+            .forEach(b => b.classList.remove("selected-btn", ...SELECTED_BTN_CLASSES));
 
         selectedButtonElement = btn;
-        btn.classList.add("selected-btn");
+        btn.classList.add("selected-btn", ...SELECTED_BTN_CLASSES);
 
         let row = getButtonRow(btn);
 

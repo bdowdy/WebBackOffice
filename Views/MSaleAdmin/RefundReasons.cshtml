@@ -1,175 +1,48 @@
-﻿@{
+@{
     ViewData["Title"] = "Refund Reasons";
 }
 
-<style>
-
-    body {
-        background-color: #f4f6f9;
-    }
-
-    .page-container {
-        max-width: 900px;
-        margin: 40px auto;
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    }
-
-    .page-title {
-        font-size: 32px;
-        font-weight: bold;
-        margin-bottom: 25px;
-        color: #2c3e50;
-    }
-
-    .form-section {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        flex-wrap: wrap;
-        margin-bottom: 25px;
-    }
-
-    .textbox {
-        width: 350px;
-        height: 42px;
-        border: 1px solid #cfd6dd;
-        border-radius: 8px;
-        padding: 0 12px;
-        font-size: 16px;
-        transition: 0.2s;
-    }
-
-        .textbox:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52,152,219,0.4);
-        }
-
-    .btn-custom {
-        border: none;
-        border-radius: 8px;
-        padding: 10px 18px;
-        font-size: 15px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-        color: white;
-    }
-
-    .btn-save {
-        background-color: #27ae60;
-    }
-
-        .btn-save:hover {
-            background-color: #219150;
-        }
-
-    .btn-clear {
-        background-color: #7f8c8d;
-    }
-
-        .btn-clear:hover {
-            background-color: #707b7c;
-        }
-
-    .btn-delete {
-        background-color: #e74c3c;
-    }
-
-        .btn-delete:hover {
-            background-color: #cb4335;
-        }
-
-    .table-container {
-        overflow-y: auto;
-        max-height: 500px;
-        border-radius: 10px;
-        border: 1px solid #dcdfe3;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    thead {
-        background-color: #34495e;
-        color: white;
-        position: sticky;
-        top: 0;
-    }
-
-    th {
-        padding: 14px;
-        text-align: left;
-        font-size: 16px;
-    }
-
-    td {
-        padding: 14px;
-        border-bottom: 1px solid #ececec;
-        cursor: pointer;
-        font-size: 15px;
-    }
-
-    tr:hover {
-        background-color: #f0f7ff;
-    }
-
-    .empty-message {
-        text-align: center;
-        padding: 20px;
-        color: #999;
-    }
-
-</style>
-
-<div class="page-container">
-
-    <div class="page-title">
-        Refund Reasons
-    </div>
+<div class="space-y-6">
 
     <input type="hidden" id="refundId" />
 
-    <div class="form-section">
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div class="flex flex-wrap items-center gap-2">
 
-        <input type="text"
-               id="refundName"
-               class="textbox"
-               placeholder="Enter Refund Reason" />
+            <input type="text"
+                   id="refundName"
+                   class="block w-full max-w-sm rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500"
+                   placeholder="Enter Refund Reason" />
 
-        <button class="btn-custom btn-save"
-                onclick="saveRefundReason()">
-            Save
-        </button>
+            <button class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500"
+                    onclick="saveRefundReason()">
+                Save
+            </button>
 
-        <button class="btn-custom btn-clear"
-                onclick="clearForm()">
-            Clear
-        </button>
+            <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50"
+                    onclick="clearForm()">
+                Clear
+            </button>
 
-        <button class="btn-custom btn-delete"
-                onclick="deleteRefundReason()">
-            Delete
-        </button>
+            <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50"
+                    onclick="deleteRefundReason()">
+                Delete
+            </button>
 
+        </div>
     </div>
 
-    <div class="table-container">
+    <div class="max-h-[500px] overflow-y-auto rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
 
-        <table id="refundTable">
+        <table id="refundTable" class="min-w-full divide-y divide-slate-200 text-sm">
 
-            <thead>
+            <thead class="sticky top-0 bg-slate-50">
                 <tr>
-                    <th>Refund Name</th>
+                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Refund Name</th>
                 </tr>
             </thead>
 
-            <tbody>
+            <tbody class="divide-y divide-slate-100">
             </tbody>
 
         </table>
@@ -198,7 +71,7 @@
 
                     tbody.innerHTML =
                         `<tr>
-                            <td class="empty-message">
+                            <td class="px-4 py-8 text-center text-sm text-slate-400">
                                 No Refund Reasons Found
                             </td>
                          </tr>`;
@@ -210,8 +83,10 @@
 
                     let tr = document.createElement("tr");
 
+                    tr.className = "cursor-pointer hover:bg-slate-50";
+
                     tr.innerHTML =
-                        `<td onclick="editRefundReason('${item.refundName}')">
+                        `<td class="px-4 py-2.5 text-slate-700" onclick="editRefundReason('${item.refundName}')">
                             ${item.refundName}
                          </td>`;
 

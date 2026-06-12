@@ -1,39 +1,48 @@
-﻿@{
+@{
     ViewData["Title"] = "Payroll Summary";
+    ViewData["Subtitle"] = "Hours, wages, and tips by employee for a date range.";
 }
 
-<h2>Payroll Summary</h2>
+<div class="space-y-6">
 
-<div class="card">
-    <label>Begin Date</label>
-    <input type="date" id="beginDate" />
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div class="flex flex-wrap items-end gap-4">
+            <div>
+                <label for="beginDate" class="block text-sm font-medium text-slate-700">Begin Date</label>
+                <input type="date" id="beginDate" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
 
-    <label>End Date</label>
-    <input type="date" id="endDate" />
+            <div>
+                <label for="endDate" class="block text-sm font-medium text-slate-700">End Date</label>
+                <input type="date" id="endDate" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
 
-    <button onclick="loadPayroll()">Load Payroll</button>
+            <button onclick="loadPayroll()" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500">Load Payroll</button>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Employee</th>
+                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Department</th>
+                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Reg Hrs</th>
+                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">OT Hrs</th>
+                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Total Hrs</th>
+                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Wages</th>
+                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Declared</th>
+                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">CC Tips</th>
+                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Tips Paid</th>
+                    <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Sales</th>
+                </tr>
+            </thead>
+            <tbody id="payrollBody" class="divide-y divide-slate-100"></tbody>
+            <tfoot id="payrollFoot"></tfoot>
+        </table>
+    </div>
+
 </div>
-
-<br />
-
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Employee</th>
-            <th>Department</th>
-            <th>Reg Hrs</th>
-            <th>OT Hrs</th>
-            <th>Total Hrs</th>
-            <th>Wages</th>
-            <th>Declared</th>
-            <th>CC Tips</th>
-            <th>Tips Paid</th>
-            <th>Sales</th>
-        </tr>
-    </thead>
-    <tbody id="payrollBody"></tbody>
-    <tfoot id="payrollFoot"></tfoot>
-</table>
 
 <script>
     function money(v) {
@@ -73,30 +82,30 @@
 
                     body.innerHTML += `
                         <tr>
-                            <td>${row.employeeName}</td>
-                            <td>${row.departmentName}</td>
-                            <td>${money(row.regHours)}</td>
-                            <td>${money(row.otHours)}</td>
-                            <td>${money(row.totalHours)}</td>
-                            <td>${money(row.wages)}</td>
-                            <td>${money(row.declaredTips)}</td>
-                            <td>${money(row.creditCardTips)}</td>
-                            <td>${money(row.tipsPaidOut)}</td>
-                            <td>${money(row.sales)}</td>
+                            <td class="px-4 py-2.5 text-slate-700">${row.employeeName}</td>
+                            <td class="px-4 py-2.5 text-slate-700">${row.departmentName}</td>
+                            <td class="px-4 py-2.5 text-slate-700">${money(row.regHours)}</td>
+                            <td class="px-4 py-2.5 text-slate-700">${money(row.otHours)}</td>
+                            <td class="px-4 py-2.5 text-slate-700">${money(row.totalHours)}</td>
+                            <td class="px-4 py-2.5 text-slate-700">${money(row.wages)}</td>
+                            <td class="px-4 py-2.5 text-slate-700">${money(row.declaredTips)}</td>
+                            <td class="px-4 py-2.5 text-slate-700">${money(row.creditCardTips)}</td>
+                            <td class="px-4 py-2.5 text-slate-700">${money(row.tipsPaidOut)}</td>
+                            <td class="px-4 py-2.5 text-slate-700">${money(row.sales)}</td>
                         </tr>`;
                 });
 
                 foot.innerHTML = `
-                    <tr style="font-weight:bold;background:#eee;">
-                        <td colspan="2">Grand Total</td>
-                        <td>${money(reg)}</td>
-                        <td>${money(ot)}</td>
-                        <td>${money(total)}</td>
-                        <td>${money(wages)}</td>
-                        <td>${money(declared)}</td>
-                        <td>${money(ccTips)}</td>
-                        <td>${money(tipsPaid)}</td>
-                        <td>${money(sales)}</td>
+                    <tr class="bg-slate-50 font-semibold text-slate-900">
+                        <td colspan="2" class="px-4 py-2.5">Grand Total</td>
+                        <td class="px-4 py-2.5">${money(reg)}</td>
+                        <td class="px-4 py-2.5">${money(ot)}</td>
+                        <td class="px-4 py-2.5">${money(total)}</td>
+                        <td class="px-4 py-2.5">${money(wages)}</td>
+                        <td class="px-4 py-2.5">${money(declared)}</td>
+                        <td class="px-4 py-2.5">${money(ccTips)}</td>
+                        <td class="px-4 py-2.5">${money(tipsPaid)}</td>
+                        <td class="px-4 py-2.5">${money(sales)}</td>
                     </tr>`;
             });
     }

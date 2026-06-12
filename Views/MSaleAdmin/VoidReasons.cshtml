@@ -1,199 +1,75 @@
-﻿@{
+@{
     ViewData["Title"] = "Void Reasons";
+    ViewData["Subtitle"] = "Add, edit, delete, and control whether a void removes inventory.";
 }
 
-<style>
-    body {
-        background: #f4f6f9;
-    }
+<div class="max-w-3xl space-y-6">
 
-    .msale-page {
-        max-width: 1050px;
-        margin: 30px auto;
-        padding: 0 15px;
-    }
+    <input type="hidden" id="originalVoidName" />
 
-    .msale-card {
-        background: #fff;
-        border-radius: 18px;
-        box-shadow: 0 10px 30px rgba(0,0,0,.10);
-        overflow: hidden;
-        border: 1px solid #e5e7eb;
-    }
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
 
-    .msale-header {
-        background: linear-gradient(135deg, #12395c, #2563eb);
-        color: white;
-        padding: 24px 30px;
-    }
+        <div class="grid gap-4 sm:grid-cols-3">
 
-        .msale-header h2 {
-            margin: 0;
-            font-weight: 700;
-        }
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-slate-700">Void Reason</label>
+                <input id="voidName"
+                       class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500"
+                       placeholder="Example: Customer changed mind" />
+            </div>
 
-        .msale-header p {
-            margin: 5px 0 0;
-            opacity: .9;
-        }
+            <div class="flex items-end">
+                <div class="flex items-center gap-2 pb-2">
+                    <input id="inventory"
+                           type="checkbox"
+                           class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                    <label class="text-sm font-medium text-slate-700" for="inventory">
+                        Remove Inventory
+                    </label>
+                </div>
+            </div>
 
-    .msale-content {
-        padding: 28px;
-    }
-
-    .edit-panel {
-        background: #f8fafc;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 20px;
-        margin-bottom: 24px;
-    }
-
-    .button-row {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 18px;
-    }
-
-    .list-header,
-    .void-row {
-        display: grid;
-        grid-template-columns: 1fr 180px;
-        align-items: center;
-    }
-
-    .list-header {
-        background: #eaf1fb;
-        color: #1f2937;
-        font-weight: 700;
-        padding: 12px 16px;
-        border-radius: 12px 12px 0 0;
-        border: 1px solid #dbe3ef;
-    }
-
-    .void-list {
-        max-height: 420px;
-        overflow-y: auto;
-        border: 1px solid #dbe3ef;
-        border-top: none;
-        border-radius: 0 0 12px 12px;
-        background: white;
-    }
-
-    .void-row {
-        padding: 13px 16px;
-        border-bottom: 1px solid #edf2f7;
-        cursor: pointer;
-        transition: .15s ease;
-    }
-
-        .void-row:hover {
-            background: #f1f7ff;
-        }
-
-        .void-row.selected {
-            background: #dbeafe;
-            font-weight: 700;
-            border-left: 5px solid #2563eb;
-        }
-
-    .inventory-value {
-        text-align: center;
-    }
-
-    .pill {
-        display: inline-block;
-        min-width: 58px;
-        padding: 4px 10px;
-        border-radius: 999px;
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    .pill-yes {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .pill-no {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .empty-message {
-        padding: 20px;
-        color: #6b7280;
-        text-align: center;
-    }
-</style>
-
-<div class="msale-page">
-    <div class="msale-card">
-
-        <div class="msale-header">
-            <h2>Void Reasons</h2>
-            <p>Add, edit, delete, and control whether a void removes inventory.</p>
         </div>
 
-        <div class="msale-content">
+        <div class="flex flex-wrap items-center gap-2 pt-4">
+            <button type="button" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="saveVoidReason()">
+                Save
+            </button>
 
-            <input type="hidden" id="originalVoidName" />
+            <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50" onclick="deleteVoidReason()">
+                Delete
+            </button>
 
-            <div class="edit-panel">
-                <div class="row">
-                    <div class="col-md-8 mb-3">
-                        <label class="form-label fw-bold">Void Reason</label>
-                        <input id="voidName"
-                               class="form-control form-control-lg"
-                               placeholder="Example: Customer changed mind" />
-                    </div>
+            <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="clearVoidReason()">
+                Clear
+            </button>
+        </div>
 
-                    <div class="col-md-4 mb-3 d-flex align-items-end">
-                        <div class="form-check form-switch fs-5">
-                            <input id="inventory"
-                                   type="checkbox"
-                                   class="form-check-input" />
-                            <label class="form-check-label" for="inventory">
-                                Remove Inventory
-                            </label>
-                        </div>
-                    </div>
-                </div>
+    </div>
 
-                <div class="button-row">
-                    <button type="button" class="btn btn-primary px-4" onclick="saveVoidReason()">
-                        Save
-                    </button>
+    <div>
+        <div class="flex items-center justify-between">
+            <h5 class="text-base font-semibold text-slate-900">Existing Void Reasons</h5>
+            <span id="recordCount" class="text-sm text-slate-500"></span>
+        </div>
 
-                    <button type="button" class="btn btn-outline-danger px-4" onclick="deleteVoidReason()">
-                        Delete
-                    </button>
+        <div class="mt-3 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
 
-                    <button type="button" class="btn btn-outline-secondary px-4" onclick="clearVoidReason()">
-                        Clear
-                    </button>
-                </div>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h5 class="mb-0">Existing Void Reasons</h5>
-                <span id="recordCount" class="text-muted"></span>
-            </div>
-
-            <div class="list-header">
+            <div class="grid grid-cols-[1fr_180px] items-center border-b border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
                 <div>Void Reason</div>
-                <div class="inventory-value">Remove Inventory</div>
+                <div class="text-center">Remove Inventory</div>
             </div>
 
-            <div id="voidList" class="void-list"></div>
+            <div id="voidList" class="max-h-[420px] divide-y divide-slate-100 overflow-y-auto"></div>
 
         </div>
     </div>
+
 </div>
 
 <script>
     let selectedVoidRow = null;
+    const SEL = ['bg-emerald-50', 'text-emerald-900', 'font-medium'];
 
     document.addEventListener("DOMContentLoaded", function () {
         loadVoidReasons();
@@ -210,32 +86,32 @@
                 count.textContent = `${data.length} record${data.length === 1 ? '' : 's'}`;
 
                 if (!data || data.length === 0) {
-                    list.innerHTML = `<div class="empty-message">No void reasons found.</div>`;
+                    list.innerHTML = `<div class="px-4 py-6 text-center text-sm text-slate-500">No void reasons found.</div>`;
                     return;
                 }
 
                 data.forEach(function (x) {
                     const div = document.createElement('div');
-                    div.className = 'void-row';
+                    div.className = 'grid cursor-pointer grid-cols-[1fr_180px] items-center px-4 py-3 text-sm text-slate-700 hover:bg-slate-50';
 
                     const nameDiv = document.createElement('div');
                     nameDiv.textContent = x.voidName;
 
                     const invDiv = document.createElement('div');
-                    invDiv.className = 'inventory-value';
+                    invDiv.className = 'text-center';
                     invDiv.innerHTML = x.inventory
-                        ? '<span class="pill pill-yes">Yes</span>'
-                        : '<span class="pill pill-no">No</span>';
+                        ? '<span class="inline-block min-w-[58px] rounded-full bg-emerald-100 px-2.5 py-1 text-center text-xs font-semibold text-emerald-700">Yes</span>'
+                        : '<span class="inline-block min-w-[58px] rounded-full bg-rose-100 px-2.5 py-1 text-center text-xs font-semibold text-rose-700">No</span>';
 
                     div.appendChild(nameDiv);
                     div.appendChild(invDiv);
 
                     div.onclick = function () {
                         if (selectedVoidRow)
-                            selectedVoidRow.classList.remove('selected');
+                            selectedVoidRow.classList.remove('selected', ...SEL);
 
                         selectedVoidRow = div;
-                        selectedVoidRow.classList.add('selected');
+                        selectedVoidRow.classList.add('selected', ...SEL);
 
                         document.getElementById('voidName').value = x.voidName;
                         document.getElementById('originalVoidName').value = x.voidName;
@@ -306,7 +182,7 @@
         document.getElementById('inventory').checked = false;
 
         if (selectedVoidRow) {
-            selectedVoidRow.classList.remove('selected');
+            selectedVoidRow.classList.remove('selected', ...SEL);
             selectedVoidRow = null;
         }
     }

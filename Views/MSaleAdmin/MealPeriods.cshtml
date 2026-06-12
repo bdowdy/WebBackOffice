@@ -1,277 +1,107 @@
-﻿@{
+@{
     ViewData["Title"] = "Meal Periods";
+    ViewData["Subtitle"] = "Create meal periods and assign them to categories.";
 }
 
-<style>
-    body {
-        background: #f4f6f9;
-    }
+<div class="grid gap-6 lg:grid-cols-2">
 
-    .page {
-        max-width: 1150px;
-        margin: 35px auto;
-        background: white;
-        padding: 28px;
-        border-radius: 16px;
-        box-shadow: 0 5px 18px rgba(0,0,0,.12);
-    }
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
 
-    .header {
-        background: #2c3e50;
-        color: white;
-        padding: 24px;
-        border-radius: 14px;
-        margin-bottom: 24px;
-    }
+        <h2 class="text-base font-semibold text-slate-900">Create / Edit Meal Period</h2>
 
-        .header h2 {
-            margin: 0;
-            font-size: 32px;
-        }
+        <div class="mt-4 space-y-4">
 
-    .layout {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 22px;
-    }
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Existing Meal Periods</label>
 
-    .section {
-        border: 1px solid #e1e5ea;
-        background: #fafafa;
-        border-radius: 12px;
-        padding: 20px;
-    }
+                <select id="mealPeriodCombo"
+                        onchange="mealPeriodChanged()"
+                        class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                    <option value="">Select Meal Period</option>
+                </select>
 
-    .section-title {
-        font-size: 22px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 18px;
-    }
-
-    .grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-
-    label {
-        font-weight: 700;
-        color: #34495e;
-        margin-bottom: 6px;
-        display: block;
-    }
-
-    input, select {
-        width: 100%;
-        height: 42px;
-        border: 1px solid #cfd6dd;
-        border-radius: 8px;
-        padding: 0 12px;
-        box-sizing: border-box;
-        font-size: 15px;
-        background: white;
-    }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52,152,219,.35);
-        }
-
-    .required {
-        background: #fff8cc;
-    }
-
-    .button-bar {
-        display: flex;
-        gap: 12px;
-        justify-content: flex-end;
-        flex-wrap: wrap;
-        margin-top: 22px;
-    }
-
-    button {
-        border: none;
-        border-radius: 8px;
-        padding: 11px 22px;
-        font-weight: 700;
-        color: white;
-        cursor: pointer;
-    }
-
-    .btn-save {
-        background: #27ae60;
-    }
-
-    .btn-delete {
-        background: #e74c3c;
-    }
-
-    .btn-clear {
-        background: #7f8c8d;
-    }
-
-    button:hover {
-        opacity: .9;
-    }
-
-    .hint {
-        color: #7f8c8d;
-        font-size: 14px;
-        margin-top: 6px;
-    }
-
-    .divider {
-        height: 1px;
-        background: #ddd;
-        margin: 20px 0;
-    }
-
-    @@media(max-width:900px) {
-
-        .layout {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
-<div class="page">
-
-    <div class="header">
-        <h2>Meal Period Setup</h2>
-        <div>Create meal periods and assign them to categories.</div>
-    </div>
-
-    <div class="layout">
-
-        <div class="section">
-
-            <div class="section-title">
-                Create / Edit Meal Period
+                <p class="mt-1 text-sm text-slate-500">Select an existing meal period to edit.</p>
             </div>
 
-            <div class="grid">
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Meal Period Name</label>
 
-                <div>
-                    <label>Existing Meal Periods</label>
-
-                    <select id="mealPeriodCombo"
-                            onchange="mealPeriodChanged()">
-
-                        <option value="">
-                            Select Meal Period
-                        </option>
-
-                    </select>
-
-                    <div class="hint">
-                        Select an existing meal period to edit.
-                    </div>
-                </div>
-
-                <div>
-                    <label>Meal Period Name</label>
-
-                    <input type="text"
-                           id="periodName"
-                           class="required"
-                           placeholder="Breakfast, Lunch, Dinner" />
-                </div>
-
-                <div>
-                    <label>Timed Event</label>
-
-                    <select id="periodTime">
-
-                        <option value="">
-                            Select Timed Event
-                        </option>
-
-                    </select>
-                </div>
-
+                <input type="text"
+                       id="periodName"
+                       placeholder="Breakfast, Lunch, Dinner"
+                       class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
-            <div class="button-bar">
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Timed Event</label>
 
-                <button class="btn-clear"
-                        onclick="document.getElementById('periodName').value='';document.getElementById('periodTime').value='';document.getElementById('mealPeriodCombo').value='';">
-
-                    Clear
-
-                </button>
-
-                <button class="btn-delete"
-                        onclick="deleteMealPeriod()">
-
-                    Remove Meal Period
-
-                </button>
-
-                <button class="btn-save"
-                        onclick="saveMealPeriod()">
-
-                    Add / Save Meal Period
-
-                </button>
-
+                <select id="periodTime"
+                        class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                    <option value="">Select Timed Event</option>
+                </select>
             </div>
 
         </div>
 
-        <div class="section">
+        <div class="flex flex-wrap items-center justify-end gap-2 pt-6">
 
-            <div class="section-title">
-                Assign Meal Period To Category
+            <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50"
+                    onclick="document.getElementById('periodName').value='';document.getElementById('periodTime').value='';document.getElementById('mealPeriodCombo').value='';">
+                Clear
+            </button>
+
+            <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50"
+                    onclick="deleteMealPeriod()">
+                Remove Meal Period
+            </button>
+
+            <button class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500"
+                    onclick="saveMealPeriod()">
+                Add / Save Meal Period
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+
+        <h2 class="text-base font-semibold text-slate-900">Assign Meal Period To Category</h2>
+
+        <div class="mt-4 space-y-4">
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Category</label>
+
+                <select id="categoryName"
+                        onchange="loadCategoryMealPeriod()"
+                        class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                    <option value="">Select Category</option>
+                </select>
+
+                <p class="mt-1 text-sm text-slate-500">Select a category to assign a meal period.</p>
             </div>
 
-            <div class="grid">
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Meal Period</label>
 
-                <div>
-                    <label>Category</label>
-
-                    <select id="categoryName"
-                            onchange="loadCategoryMealPeriod()">
-
-                        <option value="">
-                            Select Category
-                        </option>
-
-                    </select>
-
-                    <div class="hint">
-                        Select a category to assign a meal period.
-                    </div>
-                </div>
-
-                <div>
-                    <label>Meal Period</label>
-
-                    <select id="mealPeriodAssign">
-
-                        <option value="">
-                            Select Meal Period
-                        </option>
-
-                    </select>
-                </div>
-
+                <select id="mealPeriodAssign"
+                        class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                    <option value="">Select Meal Period</option>
+                </select>
             </div>
 
-            <div class="divider"></div>
+        </div>
 
-            <div class="button-bar">
+        <div class="mt-6 border-t border-slate-200 pt-4">
+            <div class="flex flex-wrap items-center justify-end gap-2">
 
-                <button class="btn-save"
+                <button class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500"
                         onclick="saveCategoryMealPeriod()">
-
                     Save Category Assignment
-
                 </button>
 
             </div>
-
         </div>
 
     </div>

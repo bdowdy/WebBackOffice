@@ -1,246 +1,95 @@
-﻿@{
+@{
     ViewData["Title"] = "Category Setup";
+    ViewData["Subtitle"] = "Add, edit, or delete menu categories.";
 }
 
-<style>
-    body {
-        background: #f4f6f9;
-    }
+<div class="grid gap-6 lg:grid-cols-[330px_1fr]">
 
-    .page {
-        max-width: 1250px;
-        margin: 35px auto;
-        background: white;
-        padding: 28px;
-        border-radius: 16px;
-        box-shadow: 0 5px 18px rgba(0,0,0,.12);
-    }
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h2 class="text-base font-semibold text-slate-900">Existing Categories</h2>
+        <p class="mt-1 text-sm text-slate-500">Click a category to edit it.</p>
 
-    .header {
-        background: #2c3e50;
-        color: white;
-        padding: 24px;
-        border-radius: 14px;
-        margin-bottom: 24px;
-    }
+        <button type="button" onclick="newCategory()" class="mt-3 mb-3 inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500">
+            Add New Category
+        </button>
 
-        .header h2 {
-            margin: 0;
-        }
-
-    .layout {
-        display: grid;
-        grid-template-columns: 330px 1fr;
-        gap: 22px;
-    }
-
-    .panel {
-        border: 1px solid #e1e5ea;
-        background: #fafafa;
-        border-radius: 12px;
-        padding: 18px;
-    }
-
-    .panel-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 14px;
-    }
-
-    .category-list {
-        background: white;
-        border: 1px solid #dce1e6;
-        border-radius: 10px;
-        max-height: 620px;
-        overflow-y: auto;
-    }
-
-    .category-item {
-        padding: 12px 14px;
-        border-bottom: 1px solid #eee;
-        cursor: pointer;
-        font-weight: 600;
-    }
-
-        .category-item:hover {
-            background: #eef6ff;
-        }
-
-        .category-item.active {
-            background: #3498db;
-            color: white;
-        }
-
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit,minmax(230px,1fr));
-        gap: 16px;
-    }
-
-    label {
-        font-weight: 700;
-        color: #34495e;
-        margin-bottom: 6px;
-        display: block;
-    }
-
-    input, select {
-        width: 100%;
-        height: 42px;
-        border: 1px solid #cfd6dd;
-        border-radius: 8px;
-        padding: 0 12px;
-        box-sizing: border-box;
-        font-size: 15px;
-    }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52,152,219,.35);
-        }
-
-    .required {
-        background: #fff8cc;
-    }
-
-    .button-bar {
-        display: flex;
-        gap: 12px;
-        justify-content: flex-end;
-        flex-wrap: wrap;
-        margin-top: 22px;
-    }
-
-    button {
-        border: none;
-        border-radius: 8px;
-        padding: 11px 22px;
-        font-weight: 700;
-        color: white;
-        cursor: pointer;
-    }
-
-    .btn-new {
-        background: #3498db;
-    }
-
-    .btn-save {
-        background: #27ae60;
-    }
-
-    .btn-delete {
-        background: #e74c3c;
-    }
-
-    .btn-clear {
-        background: #7f8c8d;
-    }
-
-    .hint {
-        color: #7f8c8d;
-        font-size: 14px;
-        margin-bottom: 12px;
-    }
-</style>
-
-<div class="page">
-
-    <div class="header">
-        <h2>Category Setup</h2>
-        <div>Add, edit, or delete menu categories.</div>
+        <div id="categoryList" class="max-h-[620px] divide-y divide-slate-100 overflow-y-auto rounded-lg bg-white ring-1 ring-slate-200"></div>
     </div>
 
-    <div class="layout">
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h2 class="text-base font-semibold text-slate-900">Category Details</h2>
 
-        <div class="panel">
-            <div class="panel-title">Existing Categories</div>
-            <div class="hint">Click a category to edit it.</div>
+        <input type="hidden" id="originalCategoryName" />
 
-            <button class="btn-new" onclick="newCategory()" style="width:100%; margin-bottom:12px;">
-                Add New Category
-            </button>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
 
-            <div id="categoryList" class="category-list"></div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Category Name <span class="text-rose-500">*</span></label>
+                <input id="categoryName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Sort Level</label>
+                <input id="sortLevel" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Button Level</label>
+                <input id="buttonLevel" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Meal Period</label>
+                <select id="mealPeriod" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                    <option value="">Select Meal Period</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Mandatory</label>
+                <select id="mandatory" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Disable Mods</label>
+                <select id="disableMods" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Tip Exempt</label>
+                <select id="tipExempt" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Prompt</label>
+                <input id="prompt" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">BitMap</label>
+                <input id="bitMap" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Alias</label>
+                <input id="alias" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
+
         </div>
 
-        <div class="panel">
-            <div class="panel-title">Category Details</div>
-
-            <input type="hidden" id="originalCategoryName" />
-
-            <div class="grid">
-
-                <div>
-                    <label>Category Name</label>
-                    <input id="categoryName" class="required" />
-                </div>
-
-                <div>
-                    <label>Sort Level</label>
-                    <input id="sortLevel" />
-                </div>
-
-                <div>
-                    <label>Button Level</label>
-                    <input id="buttonLevel" />
-                </div>
-
-                <div>
-                    <label>Meal Period</label>
-                    <select id="mealPeriod">
-                        <option value="">Select Meal Period</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label>Mandatory</label>
-                    <select id="mandatory">
-                        <option value="No">No</option>
-                        <option value="Yes">Yes</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label>Disable Mods</label>
-                    <select id="disableMods">
-                        <option value="No">No</option>
-                        <option value="Yes">Yes</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label>Tip Exempt</label>
-                    <select id="tipExempt">
-                        <option value="No">No</option>
-                        <option value="Yes">Yes</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label>Prompt</label>
-                    <input id="prompt" />
-                </div>
-
-                <div>
-                    <label>BitMap</label>
-                    <input id="bitMap" />
-                </div>
-
-                <div>
-                    <label>Alias</label>
-                    <input id="alias" />
-                </div>
-
-            </div>
-
-            <div class="button-bar">
-                <button class="btn-clear" onclick="newCategory()">Clear</button>
-                <button class="btn-delete" onclick="deleteCategory()">Delete</button>
-                <button class="btn-save" onclick="saveCategory()">Save Category</button>
-            </div>
-
+        <div class="mt-6 flex flex-wrap items-center justify-end gap-2">
+            <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="newCategory()">Clear</button>
+            <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50" onclick="deleteCategory()">Delete</button>
+            <button type="button" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="saveCategory()">Save Category</button>
         </div>
 
     </div>
@@ -248,6 +97,8 @@
 </div>
 
 <script>
+    const ACTIVE_CLASSES = ["bg-emerald-50", "text-emerald-900", "font-medium"];
+
     document.addEventListener("DOMContentLoaded", function () {
         loadCategoryNames();
         loadMealPeriods();
@@ -262,14 +113,14 @@
 
                 data.forEach(function (name) {
                     let div = document.createElement("div");
-                    div.className = "category-item";
+                    div.className = "category-item cursor-pointer px-4 py-2.5 text-sm hover:bg-slate-50";
                     div.innerText = name;
 
                     div.onclick = function () {
                         document.querySelectorAll(".category-item")
-                            .forEach(x => x.classList.remove("active"));
+                            .forEach(x => x.classList.remove("active", ...ACTIVE_CLASSES));
 
-                        div.classList.add("active");
+                        div.classList.add("active", ...ACTIVE_CLASSES);
                         loadCategoryByName(name);
                     };
 
@@ -354,7 +205,7 @@
         document.getElementById("alias").value = "";
 
         document.querySelectorAll(".category-item")
-            .forEach(x => x.classList.remove("active"));
+            .forEach(x => x.classList.remove("active", ...ACTIVE_CLASSES));
 
         document.getElementById("categoryName").focus();
     }

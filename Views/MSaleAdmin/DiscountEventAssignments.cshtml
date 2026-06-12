@@ -1,135 +1,27 @@
-﻿@{
+@{
     ViewData["Title"] = "Discount Event Assignments";
+    ViewData["Subtitle"] = "Select an event and check the discounts assigned to that event.";
 }
 
-<style>
-    body {
-        background: #f4f6f9;
-    }
+<div class="max-w-2xl space-y-6">
 
-    .page {
-        max-width: 900px;
-        margin: 35px auto;
-        background: white;
-        padding: 28px;
-        border-radius: 16px;
-        box-shadow: 0 5px 18px rgba(0,0,0,.12);
-    }
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <label class="block text-sm font-medium text-slate-700">Event Name</label>
 
-    .header {
-        background: #2c3e50;
-        color: white;
-        padding: 24px;
-        border-radius: 14px;
-        margin-bottom: 24px;
-    }
-
-    .section {
-        border: 1px solid #e1e5ea;
-        background: #fafafa;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 22px;
-    }
-
-    label {
-        font-weight: 700;
-        color: #34495e;
-        margin-bottom: 6px;
-        display: block;
-    }
-
-    select, input {
-        width: 100%;
-        height: 42px;
-        border: 1px solid #cfd6dd;
-        border-radius: 8px;
-        padding: 0 12px;
-        box-sizing: border-box;
-        font-size: 15px;
-    }
-
-    .discount-list {
-        max-height: 420px;
-        overflow-y: auto;
-        background: white;
-        border: 1px solid #dce1e6;
-        border-radius: 10px;
-        padding: 10px;
-    }
-
-    .discount-item {
-        display: block;
-        padding: 10px;
-        border-bottom: 1px solid #eee;
-        cursor: pointer;
-        font-weight: 600;
-    }
-
-        .discount-item:hover {
-            background: #eef6ff;
-        }
-
-        .discount-item input {
-            width: auto;
-            height: auto;
-            margin-right: 8px;
-        }
-
-    .button-bar {
-        display: flex;
-        gap: 12px;
-        justify-content: flex-end;
-        flex-wrap: wrap;
-        margin-top: 20px;
-    }
-
-    button {
-        border: none;
-        border-radius: 8px;
-        padding: 11px 22px;
-        font-weight: 700;
-        color: white;
-        cursor: pointer;
-    }
-
-    .btn-save {
-        background: #27ae60;
-    }
-
-    .btn-delete {
-        background: #e74c3c;
-    }
-
-    .btn-clear {
-        background: #7f8c8d;
-    }
-</style>
-
-<div class="page">
-
-    <div class="header">
-        <h2>Discount Event Assignments</h2>
-        <div>Select an event and check the discounts assigned to that event.</div>
-    </div>
-
-    <div class="section">
-        <label>Event Name</label>
-
-        <select id="eventName" onchange="loadSelectedEvent()">
+        <select id="eventName" onchange="loadSelectedEvent()" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
             <option value="">Select Event</option>
         </select>
     </div>
 
-    <div class="section">
-        <label>Discounts</label>
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <label class="block text-sm font-medium text-slate-700">Discounts</label>
 
-        <div id="discountList" class="discount-list"></div>
+        <div id="discountList" class="mt-1 max-h-96 divide-y divide-slate-100 overflow-y-auto rounded-lg bg-white ring-1 ring-slate-200"></div>
 
-        <div class="button-bar">
-            <button class="btn-clear" onclick="clearPickList()">Clear</button>
-            <button class="btn-delete" onclick="deleteEvent()">Delete</button>
-            <button class="btn-save" onclick="saveEvent()">Save</button>
+        <div class="flex flex-wrap items-center justify-end gap-2 pt-4">
+            <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="clearPickList()">Clear</button>
+            <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50" onclick="deleteEvent()">Delete</button>
+            <button class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="saveEvent()">Save</button>
         </div>
     </div>
 
@@ -168,11 +60,11 @@
 
                 data.forEach(function (name, index) {
                     let label = document.createElement("label");
-                    label.className = "discount-item";
+                    label.className = "flex cursor-pointer select-none items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50";
 
                     label.innerHTML =
                         `<input type="checkbox"
-                                class="discount-check"
+                                class="discount-check h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                                 data-pos="${index}"
                                 value="${escapeAttr(name)}" />
                          ${escapeHtml(name)}`;

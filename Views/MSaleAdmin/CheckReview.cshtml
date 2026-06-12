@@ -1,222 +1,59 @@
-﻿@{
+@{
     ViewData["Title"] = "Check Review";
+    ViewData["Subtitle"] = "Review closed checks, menu items, voids, payments, tips, and totals.";
 }
 
-<style>
-    body {
-        background: #f4f6f9;
-    }
+<div class="space-y-6">
 
-    .review-page {
-        max-width: 1450px;
-        margin: 25px auto;
-        padding: 0 15px;
-    }
-
-    .review-card {
-        background: white;
-        border-radius: 18px;
-        box-shadow: 0 10px 30px rgba(0,0,0,.12);
-        border: 1px solid #e5e7eb;
-        overflow: hidden;
-    }
-
-    .review-header {
-        background: linear-gradient(135deg,#12395c,#2563eb);
-        color: white;
-        padding: 24px 30px;
-    }
-
-        .review-header h2 {
-            margin: 0;
-            font-weight: 700;
-        }
-
-    .review-content {
-        padding: 24px;
-    }
-
-    .filter-panel {
-        background: #f8fafc;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 18px;
-        margin-bottom: 20px;
-    }
-
-    .main-grid {
-        display: grid;
-        grid-template-columns: 430px 1fr;
-        gap: 20px;
-    }
-
-    .check-list {
-        max-height: 680px;
-        overflow: auto;
-        border: 1px solid #dbe3ef;
-        border-radius: 12px;
-        background: white;
-    }
-
-    .check-row {
-        padding: 12px 14px;
-        border-bottom: 1px solid #edf2f7;
-        cursor: pointer;
-    }
-
-        .check-row:hover {
-            background: #eef6ff;
-        }
-
-        .check-row.selected {
-            background: #dbeafe;
-            border-left: 5px solid #2563eb;
-            font-weight: 700;
-        }
-
-    .check-number {
-        font-size: 18px;
-        font-weight: 800;
-        color: #12395c;
-    }
-
-    .muted {
-        color: #6b7280;
-        font-size: 13px;
-    }
-
-    .summary-grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 12px;
-        margin-bottom: 16px;
-    }
-
-    .summary-box {
-        background: #f8fafc;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 12px;
-    }
-
-        .summary-box b {
-            display: block;
-            font-size: 13px;
-            color: #374151;
-        }
-
-        .summary-box span {
-            font-size: 20px;
-            font-weight: 800;
-            color: #12395c;
-        }
-
-    .panel {
-        background: #f8fafc;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 18px;
-        margin-bottom: 18px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: white;
-        border-radius: 12px;
-        overflow: hidden;
-    }
-
-    th {
-        background: #eaf1fb;
-        padding: 10px;
-        border-bottom: 1px solid #dbe3ef;
-        text-align: left;
-    }
-
-    td {
-        padding: 9px 10px;
-        border-bottom: 1px solid #edf2f7;
-    }
-
-    .right {
-        text-align: right;
-    }
-
-    .voided {
-        color: #991b1b;
-        text-decoration: line-through;
-        background: #fff1f2;
-    }
-
-    .section-label {
-        font-weight: 800;
-        color: #12395c;
-        margin-bottom: 8px;
-        font-size: 18px;
-    }
-</style>
-
-<div class="review-page">
-    <div class="review-card">
-
-        <div class="review-header">
-            <h2>Check Review</h2>
-            <div>Review closed checks, menu items, voids, payments, tips, and totals.</div>
-        </div>
-
-        <div class="review-content">
-
-            <div class="filter-panel">
-                <div class="row">
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Business Date</label>
-                        <input id="businessDate" type="date" class="form-control" />
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Search Type</label>
-                        <select id="searchType" class="form-select">
-                            <option value="">All Checks</option>
-                            <option value="check">Check Number</option>
-                            <option value="server">Server Name</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">Search Value</label>
-                        <input id="searchValue" class="form-control" placeholder="Optional" />
-                    </div>
-
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button class="btn btn-primary w-100" onclick="loadChecks()">Load</button>
-                    </div>
-                </div>
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div class="grid gap-4 md:grid-cols-12">
+            <div class="md:col-span-3">
+                <label class="block text-sm font-medium text-slate-700">Business Date</label>
+                <input id="businessDate" type="date" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
-            <div class="main-grid">
-
-                <div>
-                    <div class="section-label">Closed Checks</div>
-                    <div id="checkList" class="check-list"></div>
-                </div>
-
-                <div>
-                    <div id="reviewArea">
-                        <div class="panel">
-                            Select a check to review.
-                        </div>
-                    </div>
-                </div>
-
+            <div class="md:col-span-3">
+                <label class="block text-sm font-medium text-slate-700">Search Type</label>
+                <select id="searchType" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                    <option value="">All Checks</option>
+                    <option value="check">Check Number</option>
+                    <option value="server">Server Name</option>
+                </select>
             </div>
 
+            <div class="md:col-span-4">
+                <label class="block text-sm font-medium text-slate-700">Search Value</label>
+                <input id="searchValue" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" placeholder="Optional" />
+            </div>
+
+            <div class="flex items-end md:col-span-2">
+                <button class="inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="loadChecks()">Load</button>
+            </div>
         </div>
     </div>
+
+    <div class="grid gap-6 lg:grid-cols-[430px_minmax(0,1fr)]">
+
+        <div>
+            <div class="mb-3 text-base font-semibold text-slate-900">Closed Checks</div>
+            <div id="checkList" class="max-h-[680px] divide-y divide-slate-100 overflow-y-auto rounded-xl bg-white shadow-sm ring-1 ring-slate-200"></div>
+        </div>
+
+        <div>
+            <div id="reviewArea" class="space-y-6">
+                <div class="rounded-xl bg-white p-6 text-sm text-slate-500 shadow-sm ring-1 ring-slate-200">
+                    Select a check to review.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
 </div>
 
 <script>
     let selectedCheckRow = null;
+    const SEL = ['bg-emerald-50', 'text-emerald-900', 'font-medium'];
 
     document.addEventListener("DOMContentLoaded", function () {
         businessDate.value = new Date().toISOString().substring(0, 10);
@@ -248,18 +85,18 @@
         checkList.innerHTML = '';
 
         if (!data || data.length === 0) {
-            checkList.innerHTML = `<div class="check-row">No checks found.</div>`;
+            checkList.innerHTML = `<div class="px-4 py-3 text-sm text-slate-500">No checks found.</div>`;
             return;
         }
 
         data.forEach(row => {
             const div = document.createElement('div');
-            div.className = 'check-row';
+            div.className = 'cursor-pointer px-4 py-3 text-sm text-slate-700 hover:bg-slate-50';
 
             div.innerHTML = `
-                <div class="check-number">Check #${row.checkNumber}</div>
+                <div class="text-base font-bold text-slate-900">Check #${row.checkNumber}</div>
                 <div>${row.serverName || ''}</div>
-                <div class="muted">
+                <div class="text-xs text-slate-500">
                     ${row.openTime || ''} - ${row.closeTime || ''}
                     &nbsp; | &nbsp; Total: $${money(row.checkTotal)}
                 </div>
@@ -267,10 +104,10 @@
 
             div.onclick = function () {
                 if (selectedCheckRow)
-                    selectedCheckRow.classList.remove('selected');
+                    selectedCheckRow.classList.remove('selected', ...SEL);
 
                 selectedCheckRow = div;
-                div.classList.add('selected');
+                div.classList.add('selected', ...SEL);
 
                 loadCheckReview(row.checkNumber, row.orderDate, row.closeOutDay);
             };
@@ -299,13 +136,13 @@
         let detailRows = '';
         data.details.forEach(x => {
             detailRows += `
-                <tr class="${x.voided ? 'voided' : ''}">
-                    <td>${x.seatNumber}</td>
-                    <td>${x.menuItem || ''}</td>
-                    <td class="right">${money(x.amount)}</td>
-                    <td>${x.voided ? 'VOID' : ''}</td>
-                    <td>${x.voidReason || ''}</td>
-                    <td>${x.voidedBy || ''}</td>
+                <tr class="${x.voided ? 'bg-rose-50 text-rose-700 line-through' : ''}">
+                    <td class="px-4 py-2.5">${x.seatNumber}</td>
+                    <td class="px-4 py-2.5">${x.menuItem || ''}</td>
+                    <td class="px-4 py-2.5 text-right">${money(x.amount)}</td>
+                    <td class="px-4 py-2.5">${x.voided ? 'VOID' : ''}</td>
+                    <td class="px-4 py-2.5">${x.voidReason || ''}</td>
+                    <td class="px-4 py-2.5">${x.voidedBy || ''}</td>
                 </tr>`;
         });
 
@@ -313,61 +150,67 @@
         data.payments.forEach(x => {
             paymentRows += `
                 <tr>
-                    <td>${x.paymentType || ''}</td>
-                    <td class="right">${money(x.paymentAmount)}</td>
-                    <td class="right">${money(x.tipAmount)}</td>
+                    <td class="px-4 py-2.5">${x.paymentType || ''}</td>
+                    <td class="px-4 py-2.5 text-right">${money(x.paymentAmount)}</td>
+                    <td class="px-4 py-2.5 text-right">${money(x.tipAmount)}</td>
                 </tr>`;
         });
 
         reviewArea.innerHTML = `
-            <div class="summary-grid">
-                <div class="summary-box"><b>Check</b><span>#${h.checkNumber}</span></div>
-                <div class="summary-box"><b>Total</b><span>$${money(h.checkTotal)}</span></div>
-                <div class="summary-box"><b>Items</b><span>$${money(totals.itemTotal)}</span></div>
-                <div class="summary-box"><b>Payments</b><span>$${money(totals.paymentTotal)}</span></div>
-                <div class="summary-box"><b>Tips</b><span>$${money(totals.tipTotal)}</span></div>
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200"><b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Check</b><span class="text-xl font-bold text-slate-900">#${h.checkNumber}</span></div>
+                <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200"><b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Total</b><span class="text-xl font-bold text-slate-900">$${money(h.checkTotal)}</span></div>
+                <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200"><b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Items</b><span class="text-xl font-bold text-slate-900">$${money(totals.itemTotal)}</span></div>
+                <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200"><b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Payments</b><span class="text-xl font-bold text-slate-900">$${money(totals.paymentTotal)}</span></div>
+                <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200"><b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Tips</b><span class="text-xl font-bold text-slate-900">$${money(totals.tipTotal)}</span></div>
             </div>
 
-            <div class="panel">
-                <div class="section-label">Check Header</div>
-                <div><b>Server:</b> ${h.serverName || ''}</div>
-                <div><b>Cashier:</b> ${h.cashierName || ''}</div>
-                <div><b>Table:</b> ${h.tableNumber || ''}</div>
-                <div><b>Order Type:</b> ${h.orderType || ''}</div>
-                <div><b>Opened:</b> ${h.orderDate || ''} ${h.openTime || ''}</div>
-                <div><b>Closed:</b> ${h.closeTime || ''}</div>
-                <div><b>Member:</b> ${h.memberName || ''}</div>
+            <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+                <div class="mb-3 text-base font-semibold text-slate-900">Check Header</div>
+                <div class="space-y-1 text-sm text-slate-700">
+                    <div><b class="font-semibold text-slate-900">Server:</b> ${h.serverName || ''}</div>
+                    <div><b class="font-semibold text-slate-900">Cashier:</b> ${h.cashierName || ''}</div>
+                    <div><b class="font-semibold text-slate-900">Table:</b> ${h.tableNumber || ''}</div>
+                    <div><b class="font-semibold text-slate-900">Order Type:</b> ${h.orderType || ''}</div>
+                    <div><b class="font-semibold text-slate-900">Opened:</b> ${h.orderDate || ''} ${h.openTime || ''}</div>
+                    <div><b class="font-semibold text-slate-900">Closed:</b> ${h.closeTime || ''}</div>
+                    <div><b class="font-semibold text-slate-900">Member:</b> ${h.memberName || ''}</div>
+                </div>
             </div>
 
-            <div class="panel">
-                <div class="section-label">Check Detail</div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Seat</th>
-                            <th>Menu Item</th>
-                            <th class="right">Amount</th>
-                            <th>Status</th>
-                            <th>Void Reason</th>
-                            <th>Voided By</th>
-                        </tr>
-                    </thead>
-                    <tbody>${detailRows}</tbody>
-                </table>
+            <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+                <div class="mb-3 text-base font-semibold text-slate-900">Check Detail</div>
+                <div class="overflow-x-auto rounded-lg ring-1 ring-slate-200">
+                    <table class="min-w-full divide-y divide-slate-200 text-sm text-slate-700">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Seat</th>
+                                <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Menu Item</th>
+                                <th class="px-4 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Amount</th>
+                                <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Status</th>
+                                <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Void Reason</th>
+                                <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Voided By</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">${detailRows}</tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="panel">
-                <div class="section-label">Payments</div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Payment Type</th>
-                            <th class="right">Amount</th>
-                            <th class="right">Tip</th>
-                        </tr>
-                    </thead>
-                    <tbody>${paymentRows}</tbody>
-                </table>
+            <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+                <div class="mb-3 text-base font-semibold text-slate-900">Payments</div>
+                <div class="overflow-x-auto rounded-lg ring-1 ring-slate-200">
+                    <table class="min-w-full divide-y divide-slate-200 text-sm text-slate-700">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Payment Type</th>
+                                <th class="px-4 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Amount</th>
+                                <th class="px-4 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Tip</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">${paymentRows}</tbody>
+                    </table>
+                </div>
             </div>
         `;
     }

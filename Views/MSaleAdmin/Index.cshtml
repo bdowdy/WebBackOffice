@@ -1,349 +1,73 @@
-﻿@{
-    ViewData["Title"] = "MSale Programming Dashboard";
+@{
+    ViewData["Title"] = "Programming Dashboard";
+    ViewData["Subtitle"] = "Add, edit, and manage POS setup records.";
 }
 
-<style>
-    body {
-        background: #f4f6f9;
-    }
-
-    .dash-wrap {
-        max-width: 1200px;
-        margin: 35px auto;
-        padding: 25px;
-    }
-
-    .dash-header {
-        background: #2c3e50;
-        color: white;
-        padding: 28px;
-        border-radius: 16px;
-        margin-bottom: 25px;
-        box-shadow: 0 5px 15px rgba(0,0,0,.15);
-    }
-
-        .dash-header h1 {
-            margin: 0;
-            font-size: 34px;
-            font-weight: 700;
-        }
-
-        .dash-header p {
-            margin: 8px 0 0;
-            color: #dfe6e9;
-            font-size: 16px;
-        }
-
-    .section-title {
-        font-size: 22px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin: 28px 0 15px;
-    }
-
-    .dash-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 18px;
-    }
-
-    .dash-card {
-        background: white;
-        border-radius: 14px;
-        padding: 22px;
-        text-decoration: none;
-        color: #2c3e50;
-        border: 1px solid #e1e5ea;
-        box-shadow: 0 3px 10px rgba(0,0,0,.08);
-        transition: all .2s ease;
-        min-height: 105px;
-        display: block;
-    }
-
-        .dash-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 7px 18px rgba(0,0,0,.16);
-            border-color: #3498db;
-            color: #2c3e50;
-            text-decoration: none;
-        }
-
-    .dash-card-title {
-        font-size: 19px;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
-
-    .dash-card-sub {
-        font-size: 14px;
-        color: #7f8c8d;
-        line-height: 1.35;
-    }
-
-    .blue {
-        border-left: 6px solid #3498db;
-    }
-
-    .green {
-        border-left: 6px solid #27ae60;
-    }
-
-    .orange {
-        border-left: 6px solid #f39c12;
-    }
-
-    .red {
-        border-left: 6px solid #e74c3c;
-    }
-
-    .purple {
-        border-left: 6px solid #8e44ad;
-    }
-
-    .gray {
-        border-left: 6px solid #7f8c8d;
-    }
-</style>
-
-<div class="dash-wrap">
-
-    <div class="dash-header">
-        <h1>MSale Programming Dashboard</h1>
-        <p>Select a programming area to add, edit, or manage POS setup records.</p>
+<div class="mb-6">
+    <div class="relative max-w-md">
+        <svg class="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+        </svg>
+        <input id="dash-search" type="search" placeholder="Search settings…"
+               class="w-full rounded-lg border-0 bg-white py-2 pl-9 pr-3 text-sm shadow-sm ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
     </div>
-
-    <div class="section-title">Discounts</div>
-
-    <div class="dash-grid">
-
-        <a class="dash-card blue" href="/MSaleAdmin/DiscountEventAssignments">
-            <div class="dash-card-title">Discount Events</div>
-            <div class="dash-card-sub">Assign discounts to delivery, gratuity, service charge, loyalty, and other events.</div>
-        </a>
-
-        <a class="dash-card blue" href="/MSaleAdmin/Discounts">
-            <div class="dash-card-title">Discount and Coupon Assignments</div>
-            <div class="dash-card-sub">Assign discounts to menu items, modifiers, and departments.</div>
-        </a>
-
-        <a class="dash-card blue" href="/MSaleAdmin/CouponAssignments">
-            <div class="dash-card-title">Discount Groups</div>
-            <div class="dash-card-sub">Manage discount grouping and discount setup lists.</div>
-        </a>
-       
-    </div>
-
-    <div class="section-title">Taxes</div>
-
-    <div class="dash-grid">
-
-        <a class="dash-card green" href="/MSaleAdmin/TaxSetup">
-            <div class="dash-card-title">Sales Tax</div>
-            <div class="dash-card-sub">Manage tax names, tax rates, and tax tables.</div>
-        </a>
-
-       
-
-    </div>
-
-    <div class="section-title">Menu & Pricing</div>
-
-    <div class="dash-grid">
-
-       
-
-        <a class="dash-card orange" href="/MSaleAdmin/TimedPricing">
-            <div class="dash-card-title">Timed Pricing</div>
-            <div class="dash-card-sub">Manage happy hour, day based pricing, and timed price changes.</div>
-        </a>
-
-        <a class="dash-card orange" href="/MSaleAdmin/OrderButtons">
-            <div class="dash-card-title">Order Buttons</div>
-            <div class="dash-card-sub">Program order buttons, page numbers, captions, and positions.</div>
-        </a>
-
-        <a class="dash-card orange" href="/MSaleAdmin/ButtonLayout">
-            <div class="dash-card-title">Button Layout</div>
-            <div class="dash-card-sub">Manage menu button layout, colors, sizes, icons, and placement.</div>
-        </a>
-        <a class="dash-card orange" href="/MSaleAdmin/Reportcategories">
-            <div class="dash-card-title">Department Setup</div>
-            <div class="dash-card-sub">Manage Departments, colors, sizes, icons, and placement.</div>
-        </a>
-        <a class="dash-card orange" href="/MSaleAdmin/CategorySetup">
-            <div class="dash-card-title">Category Setup</div>
-            <div class="dash-card-sub">Manage Category, colors, sizes, icons, and placement.</div>
-        </a>
-        <a class="dash-card orange" href="/MSaleAdmin/MealPeriods">
-            <div class="dash-card-title">MealPeriod Setup</div>
-            <div class="dash-card-sub">Manage Mealperiods, colors, sizes, icons, and placement.</div>
-        </a>
-         <a class="dash-card orange" href="/MSaleAdmin/ModifierPrefixes">
-            <div class="dash-card-title">Modifier Prefix Setup</div>
-            <div class="dash-card-sub">Manage Modifiers, colors, sizes, icons, and placement.</div>
-        </a>
-        <a class="dash-card orange" href="/MSaleAdmin/SubCategories">
-            <div class="dash-card-title">SubCategory Setup</div>
-            <div class="dash-card-sub">Manage Sub Categories, colors, sizes, icons, and placement.</div>
-        </a>
-    </div
-
-    <div class="section-title">Security & Access</div>
-
-    <div class="dash-grid">
-
-        <a class="dash-card purple" href="/MSaleAdmin/AccessLevels">
-            <div class="dash-card-title">Access Levels</div>
-            <div class="dash-card-sub">Manage employee access level names and security numbers.</div>
-        </a>
-
-        <a class="dash-card purple" href="/MSaleAdmin/MenuAccess">
-            <div class="dash-card-title">Menu Access</div>
-            <div class="dash-card-sub">Assign access requirements to menus and programming areas.</div>
-        </a>
-
-        <a class="dash-card purple" href="/MSaleAdmin/JobTitles">
-            <div class="dash-card-title">Job Titles</div>
-            <div class="dash-card-sub">Manage job titles, tipped positions, tip pool percent, 7shifts job codes, and drawer access.</div>
-        </a>
-        <a class="dash-card purple" href="/MSaleAdmin/Employees">
-            <div class="dash-card-title">Employee Maintenance</div>
-            <div class="dash-card-sub">Manage employees names and security numbers.</div>
-        </a>
-        <a class="dash-card blue" href="/CheckReview">
-           <div class="dash-card-title">Check Review</div>
-           <div class="dash-card-sub">Review closed checks and payments.</div>
-        </a>
-    </div>
-
-    <div class="section-title">Store Setup</div>
-
-    <div class="dash-grid">
-        <a class="dash-card gray" href="/MSaleAdmin/TenderAdmin">
-            <div class="dash-card-title">Tenders</div>
-            <div class="dash-card-sub">Manage Tender names</div>
-        </a>
-         <a class="dash-card gray" href="/MSaleAdmin/SuggestedTips">
-            <div class="dash-card-title">Suggested Tip</div>
-            <div class="dash-card-sub">Tip Helper setup</div>
-        </a>
-
-        <a class="dash-card gray" href="/MSaleAdmin/TareSetup">
-            <div class="dash-card-title">Tare</div>
-            <div class="dash-card-sub">Manage tare names and tare weights.</div>
-        </a>
-
-        <a class="dash-card gray" href="/MSaleAdmin/RefundReasons">
-            <div class="dash-card-title">Refund Reasons</div>
-            <div class="dash-card-sub">Add and edit refund reasons used by the POS.</div>
-        </a>
-
-        <a class="dash-card gray" href="/MSaleAdmin/Preferences">
-            <div class="dash-card-title">Preferences</div>
-            <div class="dash-card-sub">Manage preference names used in store programming.</div>
-        </a>
-
-        <a class="dash-card gray" href="/MSaleAdmin/StorePaidIn">
-            <div class="dash-card-title">Store Paid In</div>
-            <div class="dash-card-sub">Add, edit, and delete paid-in reason names.</div>
-        </a>
-
-        <a class="dash-card red" href="/MSaleAdmin/VoidReasons">
-            <div class="dash-card-title">Void Reasons</div>
-            <div class="dash-card-sub">Manage void reasons and inventory removal options.</div>
-        </a>
-
-        <a class="dash-card red" href="/MSaleAdmin/SpecialRequests">
-            <div class="dash-card-title">Special Requests</div>
-            <div class="dash-card-sub">Manage special request names, instructions, taxes, remotes, and open item options.</div>
-        </a>
-        <a class="dash-card red" href="/MSaleAdmin/Nutritional">
-            <div class="dash-card-title">Nutritional Setup</div>
-            <div class="dash-card-sub">Manage nutritional calorie information.</div>
-         </a>
-            <a class="dash-card green" href="/MSaleAdmin/RevenueAssignments">
-                <div class="dash-card-title">Non Sale Revenue</div>
-                <div class="dash-card-sub">Manage paid items that are not normal sales revenue.</div>
-            </a>
-            <a class="dash-card orange" href="/MSaleAdmin/MasterDepartments">
-                <div class="dash-card-title">Master Departments</div>
-                <div class="dash-card-sub">Manage master department names used for reporting.</div>
-            </a>
-            <a class="dash-card gray" href="/MSaleAdmin/ReceiptMessages">
-                <div class="dash-card-title">Receipt Messages</div>
-                <div class="dash-card-sub">Manage receipt footer and customer messages.</div>
-            </a>
-
-            <a class="dash-card red" href="/MSaleAdmin/DailySpecials">
-                <div class="dash-card-title">Daily Specials</div>
-                <div class="dash-card-sub">Manage daily specials and flash messages.</div>
-            </a>
-
-    </div>
-
-     <div class="section-title">Time Keeping and Reporting</div>
-
-    <div class="dash-grid">
-        <a class="dash-card purple" href="/MSaleAdmin/PayrollSummary">
-            <div class="dash-card-title">Payroll Summary Report</div>
-            <div class="dash-card-sub">Employee Payroll Summary Reporting.</div>
-        </a>
-        <a class="dash-card purple" href="/MSaleAdmin/TimeRecordEditor">
-        <div class="dash-card-title">Time Record Editor</div>
-        <div class="dash-card-sub">
-            Edit employee punches, breaks, tips, sales and pay rates.
-        </div>
-    </a>
-    <a class="dash-card purple" href="/MSaleAdmin/TipEditor">
-    <div class="dash-card-title">Tip Editor</div>
-    <div class="dash-card-sub">
-        Edit cash tips, credit card tips, tips paid out, tip share and gratuity.
-    </div>
-</a>
-
-<a class="dash-card purple" href="/MSaleAdmin/TimeMessages">
-    <div class="dash-card-title">Time Clock Messages</div>
-    <div class="dash-card-sub">
-        Send time clock messages to employees or departments.
-    </div>
-</a>
 </div>
 
-<div class="section-title">Modifier Management</div>
-<div class="dash-grid">
+<div class="space-y-10">
+    @foreach (var s in AdminNav.Sections)
+    {
+        <section id="@s.Id" data-section class="scroll-mt-24">
+            <div class="mb-3 flex items-center gap-2.5">
+                <span class="flex h-7 w-7 items-center justify-center rounded-md bg-@(s.Accent)-100 text-@(s.Accent)-600">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="@s.Icon" />
+                    </svg>
+                </span>
+                <h2 class="font-display text-sm font-medium uppercase tracking-wider text-slate-600">@s.Name</h2>
+                <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">@s.Links.Length</span>
+            </div>
+            <div class="divide-y divide-slate-100 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+                @foreach (var l in s.Links)
+                {
+                    <a href="@l.Href" data-row data-search="@l.Title.ToLower() @l.Sub.ToLower()"
+                       class="group flex items-center gap-4 px-5 py-3.5 transition hover:bg-slate-50">
+                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-@(s.Accent)-50 text-@(s.Accent)-600 ring-1 ring-inset ring-@(s.Accent)-100">
+                            <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="@s.Icon" />
+                            </svg>
+                        </span>
+                        <span class="min-w-0 flex-1">
+                            <span class="block text-sm font-medium text-slate-900">@l.Title</span>
+                            <span class="block truncate text-sm text-slate-500">@l.Sub</span>
+                        </span>
+                        <svg class="h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-slate-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </a>
+                }
+            </div>
+        </section>
+    }
+    <p id="dash-empty" class="hidden py-16 text-center text-sm text-slate-500">No settings match your search.</p>
+</div>
 
-
-<a class="dash-card blue" href="/ModifierMaintenance">
-    <div class="dash-card-title">Modifier Maintenance</div>
-    <div class="dash-card-sub">
-        Create modifier names and manage modifier items.
-    </div>
-</a>
-
-<a class="dash-card orange" href="/MSaleAdmin/ModifierPriceLevels">
-    <div class="dash-card-title">Modifier Price Levels</div>
-    <div class="dash-card-sub">
-        Maintain modifier price levels.
-    </div>
-</a>
-<a class="dash-card green" href="/MSaleAdmin/ModifierDetails">
-    <div class="dash-card-title">Modifier Details</div>
-    <div class="dash-card-sub">
-        Edit modifier item costs, taxes, printers, aliases, PLU, and options.
-    </div>
-</a>
-<a class="dash-card blue" href="/MenuItem">
-    <div class="dash-card-title">Menu Item Maintenance</div>
-    <div class="dash-card-sub">
-        Add and edit menu items.
-    </div>
-</a>
-    </div>
-
-
-   
-
-
-
-
-
+<script>
+    const search = document.getElementById('dash-search');
+    const sections = [...document.querySelectorAll('[data-section]')];
+    const empty = document.getElementById('dash-empty');
+    search.addEventListener('input', () => {
+        const q = search.value.trim().toLowerCase();
+        let any = false;
+        for (const section of sections) {
+            let visible = 0;
+            for (const row of section.querySelectorAll('[data-row]')) {
+                const show = !q || row.dataset.search.includes(q);
+                row.classList.toggle('hidden', !show);
+                if (show) visible++;
+            }
+            section.classList.toggle('hidden', visible === 0);
+            if (visible) any = true;
+        }
+        empty.classList.toggle('hidden', any);
+    });
+</script>

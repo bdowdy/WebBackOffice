@@ -1,80 +1,35 @@
-﻿@{
+@{
     ViewData["Title"] = "Discount / Coupon Reasons";
+    ViewData["Subtitle"] = "Add, edit, or delete coupon and discount reasons.";
 }
 
-<style>
-    .reason-page {
-        max-width: 800px;
-        margin: 25px auto;
-    }
+<div class="max-w-xl space-y-6">
 
-    .reason-card {
-        border-radius: 14px;
-        box-shadow: 0 4px 18px rgba(0,0,0,.10);
-        border: 1px solid #ddd;
-        background: #fff;
-    }
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
 
-    .reason-header {
-        background: linear-gradient(90deg, #1f4e79, #2d75b6);
-        color: white;
-        padding: 18px 24px;
-        border-radius: 14px 14px 0 0;
-    }
+        <input type="hidden" id="originalName" />
 
-    .reason-list {
-        max-height: 350px;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-    }
+        <label for="reasonName" class="block text-sm font-medium text-slate-700">Reason Name</label>
+        <input id="reasonName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" placeholder="Enter reason name" />
 
-    .reason-row {
-        padding: 10px 14px;
-        border-bottom: 1px solid #eee;
-        cursor: pointer;
-    }
-
-        .reason-row:hover {
-            background: #eef5ff;
-        }
-
-        .reason-row.selected {
-            background: #dbeafe;
-            font-weight: 600;
-        }
-</style>
-
-<div class="reason-page">
-    <div class="reason-card">
-
-        <div class="reason-header">
-            <h2 class="mb-0">Discount / Coupon Reasons</h2>
-            <div>Add, edit, or delete coupon and discount reasons.</div>
+        <div class="flex flex-wrap items-center gap-2 pt-4">
+            <button type="button" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="saveReason()">Save</button>
+            <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50" onclick="deleteReason()">Delete</button>
+            <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="clearReason()">Clear</button>
         </div>
 
-        <div class="p-4">
-
-            <input type="hidden" id="originalName" />
-
-            <label class="form-label fw-bold">Reason Name</label>
-            <input id="reasonName" class="form-control mb-3" placeholder="Enter reason name" />
-
-            <div class="mb-3">
-                <button type="button" class="btn btn-primary px-4" onclick="saveReason()">Save</button>
-                <button type="button" class="btn btn-danger px-4" onclick="deleteReason()">Delete</button>
-                <button type="button" class="btn btn-secondary px-4" onclick="clearReason()">Clear</button>
-            </div>
-
-            <h5>Existing Reasons</h5>
-            <div id="reasonList" class="reason-list"></div>
-
-        </div>
     </div>
+
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h2 class="text-base font-semibold text-slate-900">Existing Reasons</h2>
+        <div id="reasonList" class="mt-3 max-h-80 divide-y divide-slate-100 overflow-y-auto rounded-lg bg-white ring-1 ring-slate-200"></div>
+    </div>
+
 </div>
 
 <script>
     let selectedRow = null;
+    const SEL = ['bg-emerald-50', 'text-emerald-900', 'font-medium'];
 
     document.addEventListener("DOMContentLoaded", function () {
         loadReasons();
@@ -89,13 +44,13 @@
 
                 data.forEach(function (x) {
                     let div = document.createElement('div');
-                    div.className = 'reason-row';
+                    div.className = 'cursor-pointer px-4 py-2.5 text-sm hover:bg-slate-50';
                     div.textContent = x.name;
 
                     div.onclick = function () {
-                        if (selectedRow) selectedRow.classList.remove('selected');
+                        if (selectedRow) selectedRow.classList.remove('selected', ...SEL);
                         selectedRow = div;
-                        selectedRow.classList.add('selected');
+                        selectedRow.classList.add('selected', ...SEL);
 
                         document.getElementById('reasonName').value = x.name;
                         document.getElementById('originalName').value = x.name;
@@ -160,7 +115,7 @@
         document.getElementById('originalName').value = '';
 
         if (selectedRow) {
-            selectedRow.classList.remove('selected');
+            selectedRow.classList.remove('selected', ...SEL);
             selectedRow = null;
         }
     }

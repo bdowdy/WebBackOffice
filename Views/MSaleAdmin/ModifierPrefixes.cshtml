@@ -1,228 +1,62 @@
-﻿@{
+@{
     ViewData["Title"] = "Modifier Prefixes";
+    ViewData["Subtitle"] = "Add, edit, delete, and set upcharges for modifier prefixes.";
 }
 
-<style>
-    body {
-        background: #f4f6f9;
-    }
+<input type="hidden" id="originalPrefixName" />
 
-    .page {
-        max-width: 1050px;
-        margin: 35px auto;
-        background: white;
-        padding: 28px;
-        border-radius: 16px;
-        box-shadow: 0 5px 18px rgba(0,0,0,.12);
-    }
+<div class="grid gap-6 lg:grid-cols-2">
 
-    .header {
-        background: #2c3e50;
-        color: white;
-        padding: 24px;
-        border-radius: 14px;
-        margin-bottom: 24px;
-    }
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h3 class="text-base font-semibold text-slate-900">Prefix Setup</h3>
 
-        .header h2 {
-            margin: 0;
-            font-size: 32px;
-        }
+        <div class="mt-4 grid gap-4 sm:grid-cols-3">
 
-    .section {
-        border: 1px solid #e1e5ea;
-        background: #fafafa;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 22px;
-    }
-
-    .section-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 16px;
-    }
-
-    .grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 16px;
-    }
-
-    label {
-        font-weight: 700;
-        color: #34495e;
-        margin-bottom: 6px;
-        display: block;
-    }
-
-    input {
-        width: 100%;
-        height: 42px;
-        border: 1px solid #cfd6dd;
-        border-radius: 8px;
-        padding: 0 12px;
-        box-sizing: border-box;
-        font-size: 15px;
-        background: white;
-    }
-
-        input:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52,152,219,.35);
-        }
-
-    .required {
-        background: #fff8cc;
-    }
-
-    .button-bar {
-        display: flex;
-        gap: 12px;
-        justify-content: flex-end;
-        flex-wrap: wrap;
-        margin-top: 22px;
-    }
-
-    button {
-        border: none;
-        border-radius: 8px;
-        padding: 11px 22px;
-        font-weight: 700;
-        color: white;
-        cursor: pointer;
-    }
-
-    .btn-save {
-        background: #27ae60;
-    }
-
-    .btn-delete {
-        background: #e74c3c;
-    }
-
-    .btn-clear {
-        background: #7f8c8d;
-    }
-
-    button:hover {
-        opacity: .9;
-    }
-
-    .list-header {
-        display: grid;
-        grid-template-columns: 1fr 140px;
-        gap: 12px;
-        background: #34495e;
-        color: white;
-        padding: 13px 15px;
-        font-weight: 700;
-        border-radius: 10px 10px 0 0;
-    }
-
-    .prefix-list {
-        max-height: 420px;
-        overflow-y: auto;
-        border: 1px solid #dce1e6;
-        border-top: none;
-        border-radius: 0 0 10px 10px;
-        background: white;
-    }
-
-    .prefix-row {
-        display: grid;
-        grid-template-columns: 1fr 140px;
-        gap: 12px;
-        padding: 13px 15px;
-        border-bottom: 1px solid #eee;
-        cursor: pointer;
-        font-weight: 600;
-        color: #2c3e50;
-    }
-
-        .prefix-row:hover {
-            background: #eef6ff;
-        }
-
-        .prefix-row.selected {
-            background: #3498db;
-            color: white;
-        }
-
-    .upcharge-value {
-        text-align: right;
-    }
-
-    .hint {
-        color: #7f8c8d;
-        font-size: 14px;
-        margin-top: 6px;
-    }
-
-    @@media(max-width:800px) {
-        .grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
-<div class="page">
-
-    <div class="header">
-        <h2>Modifier Prefixes</h2>
-        <div>Add, edit, delete, and set upcharges for modifier prefixes.</div>
-    </div>
-
-    <input type="hidden" id="originalPrefixName" />
-
-    <div class="section">
-        <div class="section-title">Prefix Setup</div>
-
-        <div class="grid">
-
-            <div>
-                <label>Prefix Name</label>
+            <div class="sm:col-span-2">
+                <label for="prefixName" class="block text-sm font-medium text-slate-700">Prefix Name</label>
                 <input id="prefixName"
-                       class="required"
+                       class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500"
                        placeholder="Example: Extra, No, Light" />
-                <div class="hint">This is the prefix shown before a modifier.</div>
+                <div class="mt-1 text-xs text-slate-500">This is the prefix shown before a modifier.</div>
             </div>
 
             <div>
-                <label>Upcharge</label>
+                <label for="upcharge" class="block text-sm font-medium text-slate-700">Upcharge</label>
                 <input id="upcharge"
                        type="number"
                        step="0.01"
-                       value="0.00" />
-                <div class="hint">Leave 0.00 for no extra charge.</div>
+                       value="0.00"
+                       class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                <div class="mt-1 text-xs text-slate-500">Leave 0.00 for no extra charge.</div>
             </div>
 
         </div>
 
-        <div class="button-bar">
-            <button type="button" class="btn-clear" onclick="clearPrefix()">Clear</button>
-            <button type="button" class="btn-delete" onclick="deletePrefix()">Delete</button>
-            <button type="button" class="btn-save" onclick="savePrefix()">Save Prefix</button>
+        <div class="flex flex-wrap items-center justify-end gap-2 pt-4">
+            <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="clearPrefix()">Clear</button>
+            <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50" onclick="deletePrefix()">Delete</button>
+            <button type="button" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="savePrefix()">Save Prefix</button>
         </div>
     </div>
 
-    <div class="section">
-        <div class="section-title">Existing Modifier Prefixes</div>
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h3 class="text-base font-semibold text-slate-900">Existing Modifier Prefixes</h3>
 
-        <div class="list-header">
-            <div>Prefix Name</div>
-            <div class="upcharge-value">Upcharge</div>
+        <div class="mt-4 overflow-hidden rounded-lg ring-1 ring-slate-200">
+            <div class="grid grid-cols-[1fr_8rem] gap-3 bg-slate-50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <div>Prefix Name</div>
+                <div class="text-right">Upcharge</div>
+            </div>
+
+            <div id="prefixList" class="max-h-96 divide-y divide-slate-100 overflow-y-auto bg-white"></div>
         </div>
-
-        <div id="prefixList" class="prefix-list"></div>
     </div>
 
 </div>
 
 <script>
     let selectedPrefixRow = null;
+    const SEL = ['bg-emerald-50', 'text-emerald-900', 'font-medium'];
 
     document.addEventListener("DOMContentLoaded", function () {
         loadPrefixes();
@@ -237,13 +71,13 @@
 
                 data.forEach(function (x) {
                     let div = document.createElement('div');
-                    div.className = 'prefix-row';
+                    div.className = 'grid cursor-pointer grid-cols-[1fr_8rem] gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50';
 
                     let nameDiv = document.createElement('div');
                     nameDiv.textContent = x.prefixName;
 
                     let chargeDiv = document.createElement('div');
-                    chargeDiv.className = 'upcharge-value';
+                    chargeDiv.className = 'text-right tabular-nums';
                     chargeDiv.textContent = Number(x.upcharge || 0).toFixed(2);
 
                     div.appendChild(nameDiv);
@@ -251,11 +85,11 @@
 
                     div.onclick = function () {
                         if (selectedPrefixRow) {
-                            selectedPrefixRow.classList.remove('selected');
+                            selectedPrefixRow.classList.remove('selected', ...SEL);
                         }
 
                         selectedPrefixRow = div;
-                        selectedPrefixRow.classList.add('selected');
+                        selectedPrefixRow.classList.add('selected', ...SEL);
 
                         document.getElementById('prefixName').value = x.prefixName;
                         document.getElementById('originalPrefixName').value = x.prefixName;
@@ -327,7 +161,7 @@
         document.getElementById('upcharge').value = '0.00';
 
         if (selectedPrefixRow) {
-            selectedPrefixRow.classList.remove('selected');
+            selectedPrefixRow.classList.remove('selected', ...SEL);
             selectedPrefixRow = null;
         }
 

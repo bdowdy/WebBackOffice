@@ -1,68 +1,27 @@
-﻿@{
+@{
     ViewData["Title"] = "Store Paid Outs";
+    ViewData["Subtitle"] = "Add or edit paid out reasons.";
 }
 
-<style>
-    .paidout-page {
-        max-width: 800px;
-        margin: 25px auto;
-    }
+<div class="max-w-xl space-y-6">
 
-    .paidout-card {
-        border-radius: 14px;
-        box-shadow: 0 4px 18px rgba(0,0,0,.10);
-        border: 1px solid #ddd;
-        background: #fff;
-    }
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
 
-    .paidout-header {
-        background: linear-gradient(90deg, #1f4e79, #2d75b6);
-        color: white;
-        padding: 18px 24px;
-        border-radius: 14px 14px 0 0;
-    }
+        <label for="paidOutName" class="block text-sm font-medium text-slate-700">Paid Out Name</label>
+        <input id="paidOutName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" placeholder="Enter paid out name" />
 
-    .paidout-list {
-        max-height: 350px;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-    }
-
-    .paidout-row {
-        padding: 10px 14px;
-        border-bottom: 1px solid #eee;
-        cursor: pointer;
-    }
-
-    .paidout-row:hover {
-        background: #eef5ff;
-    }
-</style>
-
-<div class="paidout-page">
-    <div class="paidout-card">
-
-        <div class="paidout-header">
-            <h2 class="mb-0">Store Paid Outs</h2>
-            <div>Add or edit paid out reasons.</div>
+        <div class="flex flex-wrap items-center gap-2 pt-4">
+            <button type="button" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="savePaidOut()">Save</button>
+            <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="clearPaidOut()">Clear</button>
         </div>
 
-        <div class="p-4">
-
-            <label class="form-label fw-bold">Paid Out Name</label>
-            <input id="paidOutName" class="form-control mb-3" placeholder="Enter paid out name" />
-
-            <div class="mb-3">
-                <button type="button" class="btn btn-primary px-4" onclick="savePaidOut()">Save</button>
-                <button type="button" class="btn btn-secondary px-4" onclick="clearPaidOut()">Clear</button>
-            </div>
-
-            <h5>Existing Paid Outs</h5>
-            <div id="paidOutList" class="paidout-list"></div>
-
-        </div>
     </div>
+
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h2 class="text-base font-semibold text-slate-900">Existing Paid Outs</h2>
+        <div id="paidOutList" class="mt-3 max-h-80 divide-y divide-slate-100 overflow-y-auto rounded-lg bg-white ring-1 ring-slate-200"></div>
+    </div>
+
 </div>
 
 <script>
@@ -79,7 +38,7 @@
 
                 data.forEach(function (x) {
                     let div = document.createElement('div');
-                    div.className = 'paidout-row';
+                    div.className = 'cursor-pointer px-4 py-2.5 text-sm hover:bg-slate-50';
                     div.textContent = x.paidOutName;
 
                     div.onclick = function () {

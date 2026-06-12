@@ -1,187 +1,36 @@
-﻿@{
+@{
     ViewData["Title"] = "Store Paid In";
+    ViewData["Subtitle"] = "Add, edit, and delete store paid in records.";
 }
 
-<style>
-
-    body {
-        background-color: #f4f6f9;
-    }
-
-    .page-container {
-        max-width: 950px;
-        margin: 40px auto;
-        background: white;
-        padding: 30px;
-        border-radius: 14px;
-        box-shadow: 0 5px 16px rgba(0,0,0,0.12);
-    }
-
-    .page-title {
-        font-size: 34px;
-        font-weight: bold;
-        color: #2c3e50;
-        margin-bottom: 25px;
-    }
-
-    .form-panel {
-        background: #fafafa;
-        border: 1px solid #e1e5ea;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 25px;
-    }
-
-    .form-label {
-        font-size: 15px;
-        font-weight: 600;
-        color: #34495e;
-        margin-bottom: 8px;
-        display: block;
-    }
-
-    .textbox {
-        width: 100%;
-        max-width: 450px;
-        height: 44px;
-        border: 1px solid #cfd6dd;
-        border-radius: 8px;
-        padding: 0 14px;
-        font-size: 16px;
-        transition: all 0.2s;
-        margin-bottom: 18px;
-    }
-
-        .textbox:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52,152,219,0.4);
-        }
-
-    .button-bar {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .btn-custom {
-        border: none;
-        border-radius: 8px;
-        padding: 11px 20px;
-        font-size: 15px;
-        font-weight: 600;
-        color: white;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .btn-save {
-        background-color: #27ae60;
-    }
-
-        .btn-save:hover {
-            background-color: #1f8a4c;
-        }
-
-    .btn-clear {
-        background-color: #7f8c8d;
-    }
-
-        .btn-clear:hover {
-            background-color: #6c7778;
-        }
-
-    .btn-delete {
-        background-color: #e74c3c;
-    }
-
-        .btn-delete:hover {
-            background-color: #c0392b;
-        }
-
-    .table-panel {
-        border: 1px solid #dce1e6;
-        border-radius: 12px;
-        overflow: hidden;
-    }
-
-    .table-scroll {
-        max-height: 500px;
-        overflow-y: auto;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    thead {
-        background-color: #34495e;
-        color: white;
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
-
-    th {
-        text-align: left;
-        padding: 15px;
-        font-size: 15px;
-        font-weight: 600;
-    }
-
-    td {
-        padding: 14px 15px;
-        border-bottom: 1px solid #ececec;
-        font-size: 15px;
-        cursor: pointer;
-    }
-
-    tr:hover {
-        background-color: #eef6ff;
-    }
-
-    .empty-message {
-        text-align: center;
-        padding: 25px;
-        color: #999;
-        font-style: italic;
-    }
-
-</style>
-
-<div class="page-container">
-
-    <div class="page-title">
-        Store Paid In
-    </div>
+<div class="max-w-2xl space-y-6">
 
     <input type="hidden" id="paidInId" />
 
-    <div class="form-panel">
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
 
-        <label class="form-label">
+        <label class="block text-sm font-medium text-slate-700">
             Paid In Name
         </label>
 
         <input type="text"
                id="paidInName"
-               class="textbox"
+               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500"
                placeholder="Enter Paid In Name" />
 
-        <div class="button-bar">
+        <div class="flex flex-wrap items-center gap-2 pt-4">
 
-            <button class="btn-custom btn-save"
+            <button class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500"
                     onclick="savePaidIn()">
                 Save
             </button>
 
-            <button class="btn-custom btn-clear"
+            <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50"
                     onclick="clearForm()">
                 Clear
             </button>
 
-            <button class="btn-custom btn-delete"
+            <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50"
                     onclick="deletePaidIn()">
                 Delete
             </button>
@@ -190,19 +39,19 @@
 
     </div>
 
-    <div class="table-panel">
+    <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
 
-        <div class="table-scroll">
+        <div class="max-h-[500px] overflow-y-auto">
 
-            <table>
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
 
-                <thead>
+                <thead class="sticky top-0 bg-slate-50">
                     <tr>
-                        <th>Paid In Name</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Paid In Name</th>
                     </tr>
                 </thead>
 
-                <tbody id="paidInList">
+                <tbody id="paidInList" class="divide-y divide-slate-100">
                 </tbody>
 
             </table>
@@ -234,7 +83,7 @@
 
                     tbody.innerHTML =
                         `<tr>
-                            <td class="empty-message">
+                            <td class="px-4 py-6 text-center text-sm italic text-slate-400">
                                 No Store Paid In Records Found
                             </td>
                          </tr>`;
@@ -245,9 +94,10 @@
                 data.forEach(function(item) {
 
                     let tr = document.createElement("tr");
+                    tr.className = "cursor-pointer hover:bg-slate-50";
 
                     tr.innerHTML =
-                        `<td onclick="editPaidIn(${item.id},
+                        `<td class="px-4 py-2.5 text-slate-700" onclick="editPaidIn(${item.id},
                             '${item.paidInName}')">
 
                             ${item.paidInName}

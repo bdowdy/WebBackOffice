@@ -1,199 +1,133 @@
-﻿@{
+@{
     ViewData["Title"] = "Modifier Details";
+    ViewData["Subtitle"] = "Maintain item details, costs, taxes, and remote printers for each modifier.";
 }
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f3f0ea;
-    }
+<div class="space-y-6">
 
-    .page {
-        max-width: 1300px;
-        margin: 20px auto;
-        padding: 16px;
-    }
+    <div class="flex flex-wrap items-center gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+        <label for="modifierSelect" class="text-sm font-medium text-slate-700">Modifier Name</label>
+        <select id="modifierSelect" onchange="loadItems()" class="w-72 rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
 
-    h2 {
-        text-align: center;
-    }
+        <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="loadItems()">Reload</button>
+        <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="newItem()">New Item</button>
+        <button type="button" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="saveItem()">Save</button>
 
-    .toolbar, .panel {
-        background: white;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 12px;
-    }
+        <div class="flex-1"></div>
 
-    .toolbar {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-    }
-
-        .toolbar select {
-            width: 300px;
-        }
-
-    .main {
-        display: grid;
-        grid-template-columns: 320px 1fr;
-        gap: 14px;
-    }
-
-    select, input {
-        width: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-    }
-
-    button {
-        padding: 9px 14px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-        button.primary {
-            background: #e07a3c;
-            color: white;
-            border: 1px solid #e07a3c;
-        }
-
-    label {
-        font-weight: bold;
-        display: block;
-        margin-top: 10px;
-    }
-
-    #itemList {
-        height: 650px;
-        font-size: 15px;
-    }
-
-    .grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 12px;
-    }
-
-    .status {
-        margin-top: 10px;
-        font-weight: bold;
-        color: #444;
-    }
-</style>
-
-<div class="page">
-    <h2>Modifier Detail Maintenance</h2>
-
-    <div class="toolbar">
-        <label>Modifier Name</label>
-        <select id="modifierSelect" onchange="loadItems()"></select>
-
-        <button type="button" onclick="loadItems()">Reload</button>
-        <button type="button" onclick="newItem()">New Item</button>
-        <button type="button" class="primary" onclick="saveItem()">Save</button>
-
-        <div style="flex:1"></div>
-
-        <button type="button" onclick="location.href='/MSaleAdmin'">Dashboard</button>
-        <button type="button" onclick="location.href='/'">Exit</button>
+        <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="location.href='/MSaleAdmin'">Dashboard</button>
+        <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="location.href='/'">Exit</button>
     </div>
 
-    <div class="main">
-        <div class="panel">
-            <h3>Modifier Items</h3>
-            <select id="itemList" size="30" onchange="loadEditor()"></select>
-            <div id="itemStatus" class="status"></div>
+    <div class="grid gap-6 lg:grid-cols-[320px_1fr]">
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="text-base font-semibold text-slate-900">Modifier Items</h3>
+            <select id="itemList" size="30" onchange="loadEditor()" class="mt-3 block w-full rounded-lg border-0 bg-white p-1 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+            <div id="itemStatus" class="mt-3 text-sm font-medium text-slate-500"></div>
         </div>
 
-        <div class="panel">
-            <h3>Selected Modifier Item</h3>
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="text-base font-semibold text-slate-900">Selected Modifier Item</h3>
 
             <input type="hidden" id="originalModifierName" />
             <input type="hidden" id="originalModifierCategory" />
 
-            <div class="grid">
+            <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div>
-                    <label>Modifier Category</label>
-                    <input id="modifierCategory" />
+                    <label class="block text-sm font-medium text-slate-700">Modifier Category</label>
+                    <input id="modifierCategory" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
 
                 <div>
-                    <label>Modifier Cost</label>
-                    <input id="modifierCost" type="number" step="0.01" />
+                    <label class="block text-sm font-medium text-slate-700">Modifier Cost</label>
+                    <input id="modifierCost" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
 
                 <div>
-                    <label>Item Cost</label>
-                    <input id="itemCost" type="number" step="0.01" />
+                    <label class="block text-sm font-medium text-slate-700">Item Cost</label>
+                    <input id="itemCost" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
 
                 <div>
-                    <label>Price Level</label>
-                    <input id="priceLevel" />
+                    <label class="block text-sm font-medium text-slate-700">Price Level</label>
+                    <input id="priceLevel" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
 
                 <div>
-                    <label>Selection Quantity</label>
-                    <input id="selectionQuantity" type="number" />
+                    <label class="block text-sm font-medium text-slate-700">Selection Quantity</label>
+                    <input id="selectionQuantity" type="number" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
 
                 <div>
-                    <label>PLU</label>
-                    <input id="plu" />
+                    <label class="block text-sm font-medium text-slate-700">PLU</label>
+                    <input id="plu" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
 
                 <div>
-                    <label>Alias</label>
-                    <input id="alias" />
+                    <label class="block text-sm font-medium text-slate-700">Alias</label>
+                    <input id="alias" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
 
                 <div>
-                    <label>Comes With</label>
-                    <input id="comesWith" />
+                    <label class="block text-sm font-medium text-slate-700">Comes With</label>
+                    <input id="comesWith" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
 
                 <div>
-                    <label>Alt Modifier</label>
-                    <input id="altModifier" />
-                </div>
-            </div>
-
-            <h3>Taxes</h3>
-
-            <div class="grid">
-                <div>
-                    <label>Sales Tax</label>
-                    <select id="salesTax"></select>
-                </div>
-
-                <div>
-                    <label>Special Tax</label>
-                    <select id="specialTax"></select>
-                </div>
-
-                <div>
-                    <label>Liquor Tax</label>
-                    <select id="liquorTax"></select>
+                    <label class="block text-sm font-medium text-slate-700">Alt Modifier</label>
+                    <input id="altModifier" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
             </div>
 
-            <h3>Remote Printers</h3>
+            <h3 class="mt-6 text-base font-semibold text-slate-900">Taxes</h3>
 
-            <div class="grid">
-                <div><label>Remote Printer 1</label><select id="remote1"></select></div>
-                <div><label>Remote Printer 2</label><select id="remote2"></select></div>
-                <div><label>Remote Printer 3</label><select id="remote3"></select></div>
-                <div><label>Remote Printer 4</label><select id="remote4"></select></div>
-                <div><label>Remote Printer 5</label><select id="remote5"></select></div>
-                <div><label>Remote Printer 6</label><select id="remote6"></select></div>
+            <div class="mt-4 grid gap-4 sm:grid-cols-3">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Sales Tax</label>
+                    <select id="salesTax" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Special Tax</label>
+                    <select id="specialTax" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Liquor Tax</label>
+                    <select id="liquorTax" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
             </div>
 
-            <br />
+            <h3 class="mt-6 text-base font-semibold text-slate-900">Remote Printers</h3>
 
-            <button type="button" class="primary" style="width:100%" onclick="saveItem()">
+            <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Remote Printer 1</label>
+                    <select id="remote1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Remote Printer 2</label>
+                    <select id="remote2" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Remote Printer 3</label>
+                    <select id="remote3" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Remote Printer 4</label>
+                    <select id="remote4" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Remote Printer 5</label>
+                    <select id="remote5" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Remote Printer 6</label>
+                    <select id="remote6" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+            </div>
+
+            <button type="button" class="mt-6 inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="saveItem()">
                 Save Modifier Item
             </button>
         </div>

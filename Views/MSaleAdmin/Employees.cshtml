@@ -1,328 +1,167 @@
-﻿@{
+@{
     ViewData["Title"] = "Employee Setup";
+    ViewData["Subtitle"] = "Yellow fields are required.";
 }
 
-<style>
-    body {
-        background: #f4f6f9;
-    }
-
-    .page {
-        max-width: 1250px;
-        margin: 30px auto;
-        background: white;
-        padding: 28px;
-        border-radius: 16px;
-        box-shadow: 0 5px 18px rgba(0,0,0,.12);
-    }
-
-    .header {
-        background: #2c3e50;
-        color: white;
-        padding: 24px;
-        border-radius: 14px;
-        margin-bottom: 24px;
-    }
-
-        .header h2 {
-            margin: 0;
-        }
-
-    .section {
-        border: 1px solid #e1e5ea;
-        background: #fafafa;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 22px;
-    }
-
-    .section-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 16px;
-    }
-
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit,minmax(230px,1fr));
-        gap: 16px;
-    }
-
-    label {
-        font-weight: 700;
-        color: #34495e;
-        margin-bottom: 6px;
-        display: block;
-    }
-
-    input, select {
-        width: 100%;
-        height: 42px;
-        border: 1px solid #cfd6dd;
-        border-radius: 8px;
-        padding: 0 12px;
-        box-sizing: border-box;
-    }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52,152,219,.35);
-        }
-
-    .required {
-        background: #fff8cc;
-    }
-
-    .check-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 28px;
-        font-weight: 700;
-    }
-
-        .check-row input {
-            width: auto;
-            height: auto;
-        }
-
-    .buttons {
-        display: flex;
-        gap: 12px;
-        justify-content: flex-end;
-        margin-top: 20px;
-    }
-
-    button {
-        border: none;
-        border-radius: 8px;
-        padding: 11px 22px;
-        font-weight: 700;
-        color: white;
-        cursor: pointer;
-    }
-
-    .save {
-        background: #27ae60;
-    }
-
-    .clear {
-        background: #7f8c8d;
-    }
-
-    .delete {
-        background: #e74c3c;
-    }
-
-    .filter-bar {
-        display: flex;
-        gap: 12px;
-        margin-bottom: 15px;
-        flex-wrap: wrap;
-    }
-
-        .filter-bar button {
-            background: #34495e;
-        }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th {
-        background: #34495e;
-        color: white;
-        padding: 13px;
-        text-align: left;
-        position: sticky;
-        top: 0;
-    }
-
-    td {
-        padding: 12px;
-        border-bottom: 1px solid #eee;
-        cursor: pointer;
-    }
-
-    tr:hover {
-        background: #eef6ff;
-    }
-
-    .table-wrap {
-        max-height: 430px;
-        overflow-y: auto;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-    }
-</style>
-
-<div class="page">
-
-    <div class="header">
-        <h2>Employee Setup</h2>
-        <div>Yellow fields are required.</div>
-    </div>
+<div class="space-y-6">
 
     <input type="hidden" id="originalFirstName" />
     <input type="hidden" id="originalLastName" />
 
-    <div class="section">
-        <div class="section-title">General Data</div>
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h2 class="text-base font-semibold text-slate-900">General Data</h2>
 
-        <div class="grid">
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
             <div>
-                <label>First Name</label>
-                <input id="firstName" class="required" />
+                <label class="block text-sm font-medium text-slate-700">First Name</label>
+                <input id="firstName" class="mt-1 block w-full rounded-lg border-0 bg-amber-50 px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div>
-                <label>Middle Name</label>
-                <input id="middleName" />
+                <label class="block text-sm font-medium text-slate-700">Middle Name</label>
+                <input id="middleName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div>
-                <label>Last Name</label>
-                <input id="lastName" class="required" />
+                <label class="block text-sm font-medium text-slate-700">Last Name</label>
+                <input id="lastName" class="mt-1 block w-full rounded-lg border-0 bg-amber-50 px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div>
-                <label>Nick Name</label>
-                <input id="nickName" />
+                <label class="block text-sm font-medium text-slate-700">Nick Name</label>
+                <input id="nickName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div>
-                <label>Employee ID</label>
-                <input id="employeeId" />
+                <label class="block text-sm font-medium text-slate-700">Employee ID</label>
+                <input id="employeeId" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div>
-                <label>Company ID</label>
-                <input id="companyId" />
+                <label class="block text-sm font-medium text-slate-700">Company ID</label>
+                <input id="companyId" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
         </div>
     </div>
 
-    <div class="section">
-        <div class="section-title">Contact Information</div>
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h2 class="text-base font-semibold text-slate-900">Contact Information</h2>
 
-        <div class="grid">
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
             <div>
-                <label>Address</label>
-                <input id="address" />
+                <label class="block text-sm font-medium text-slate-700">Address</label>
+                <input id="address" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div>
-                <label>City</label>
-                <input id="city" />
+                <label class="block text-sm font-medium text-slate-700">City</label>
+                <input id="city" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div>
-                <label>State</label>
-                <input id="state" />
+                <label class="block text-sm font-medium text-slate-700">State</label>
+                <input id="state" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div>
-                <label>Zip</label>
-                <input id="zip" />
+                <label class="block text-sm font-medium text-slate-700">Zip</label>
+                <input id="zip" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div>
-                <label>Cell Phone</label>
-                <input id="homePhone" />
+                <label class="block text-sm font-medium text-slate-700">Cell Phone</label>
+                <input id="homePhone" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div>
-                <label>Email</label>
-                <input id="phone2" />
+                <label class="block text-sm font-medium text-slate-700">Email</label>
+                <input id="phone2" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
         </div>
     </div>
 
-    <div class="section">
-        <div class="section-title">Security / Access</div>
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h2 class="text-base font-semibold text-slate-900">Security / Access</h2>
 
-        <div class="grid">
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
             <div>
-                <label>Base Access Level</label>
-                <input id="accessLevel" class="required" />
+                <label class="block text-sm font-medium text-slate-700">Base Access Level</label>
+                <input id="accessLevel" class="mt-1 block w-full rounded-lg border-0 bg-amber-50 px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div>
-                <label>Primary Access Number</label>
-                <input id="accessNumber" class="required" />
+                <label class="block text-sm font-medium text-slate-700">Primary Access Number</label>
+                <input id="accessNumber" class="mt-1 block w-full rounded-lg border-0 bg-amber-50 px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div>
-                <label>Secondary Access Number</label>
-                <input id="secondaryAccess" />
+                <label class="block text-sm font-medium text-slate-700">Secondary Access Number</label>
+                <input id="secondaryAccess" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div>
-                <label>Language Preference</label>
-                <input id="language" />
+                <label class="block text-sm font-medium text-slate-700">Language Preference</label>
+                <input id="language" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
         </div>
     </div>
 
-    <div class="section">
-        <div class="section-title">Dates / Status</div>
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h2 class="text-base font-semibold text-slate-900">Dates / Status</h2>
 
-        <div class="grid">
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
             <div>
-                <label>Hire Date</label>
-                <input id="hireDate" type="date" />
+                <label class="block text-sm font-medium text-slate-700">Hire Date</label>
+                <input id="hireDate" type="date" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div>
-                <label>Date of Birth</label>
-                <input id="dob" type="date" />
+                <label class="block text-sm font-medium text-slate-700">Date of Birth</label>
+                <input id="dob" type="date" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
-            <div class="check-row">
-                <input id="terminated" type="checkbox" />
-                <span>Terminated</span>
+            <div class="flex items-center gap-2 pt-7">
+                <input id="terminated" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                <span class="text-sm font-medium text-slate-700">Terminated</span>
             </div>
 
         </div>
 
-        <div class="buttons">
-            <button class="save" onclick="saveEmployee()">Save</button>
-            <button class="clear" onclick="clearForm()">Clear</button>
-            <button class="delete" onclick="deleteEmployee()">Remove</button>
+        <div class="flex flex-wrap items-center justify-end gap-2 pt-4">
+            <button class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="saveEmployee()">Save</button>
+            <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="clearForm()">Clear</button>
+            <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50" onclick="deleteEmployee()">Remove</button>
         </div>
     </div>
 
-    <div class="section">
-        <div class="section-title">Current Employees</div>
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h2 class="text-base font-semibold text-slate-900">Current Employees</h2>
 
-        <div class="filter-bar">
-            <button onclick="loadEmployees(0)">Filter Active Employees</button>
-            <button onclick="loadEmployees(1)">Filter Terminated Employees</button>
+        <div class="mt-4 flex flex-wrap items-center gap-2">
+            <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="loadEmployees(0)">Filter Active Employees</button>
+            <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="loadEmployees(1)">Filter Terminated Employees</button>
         </div>
 
-        <div class="table-wrap">
-            <table>
-                <thead>
+        <div class="mt-4 max-h-[430px] overflow-x-auto overflow-y-auto rounded-lg ring-1 ring-slate-200">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="sticky top-0 bg-slate-50">
                     <tr>
-                        <th>Last Name</th>
-                        <th>First Name</th>
-                        <th>Nick Name</th>
-                        <th>Access Level</th>
-                        <th>Primary Access</th>
-                        <th>Employee ID</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Last Name</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">First Name</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Nick Name</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Access Level</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Primary Access</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Employee ID</th>
                     </tr>
                 </thead>
-                <tbody id="employeeList"></tbody>
+                <tbody id="employeeList" class="divide-y divide-slate-100"></tbody>
             </table>
         </div>
     </div>
@@ -343,18 +182,19 @@
 
                 data.forEach(e => {
                     let tr = document.createElement("tr");
+                    tr.className = "cursor-pointer hover:bg-slate-50";
 
                     tr.onclick = function () {
                         editEmployee(e);
                     };
 
                     tr.innerHTML = `
-                        <td>${safe(e.lastName)}</td>
-                        <td>${safe(e.firstName)}</td>
-                        <td>${safe(e.nickName)}</td>
-                        <td>${safe(e.accessLevel)}</td>
-                        <td>${safe(e.accessNumber)}</td>
-                        <td>${safe(e.employeeId)}</td>
+                        <td class="px-4 py-2.5 text-slate-700">${safe(e.lastName)}</td>
+                        <td class="px-4 py-2.5 text-slate-700">${safe(e.firstName)}</td>
+                        <td class="px-4 py-2.5 text-slate-700">${safe(e.nickName)}</td>
+                        <td class="px-4 py-2.5 text-slate-700">${safe(e.accessLevel)}</td>
+                        <td class="px-4 py-2.5 text-slate-700">${safe(e.accessNumber)}</td>
+                        <td class="px-4 py-2.5 text-slate-700">${safe(e.employeeId)}</td>
                     `;
 
                     tbody.appendChild(tr);

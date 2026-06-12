@@ -1,75 +1,69 @@
-﻿<button onclick="loadMasterDepartments()">
-    Load Master Departments
-</button>
+@{
+    ViewData["Title"] = "Revenue Assignments";
+    ViewData["Subtitle"] = "Link master departments and non-sale revenue items to a revenue item.";
+}
 
-<button onclick="loadNonSaleRevenue()">
-    Load Non Sale Revenue
-</button>
+<div class="max-w-2xl space-y-6">
 
-<button onclick="selectAllItems()">
-    Select All
-</button>
+    <div class="space-y-4 rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
 
-<button onclick="saveAssignments()">
-    Save
-</button>
+        <select id="revenueCombo" class="block w-full max-w-xs rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+            <option value="">Select Revenue Item</option>
+        </select>
 
-<div id="dlist"></div>
-<h2>Revenue Assignments</h2>
+        <div class="flex flex-wrap items-center gap-2">
 
-<div style="margin-bottom:15px;">
+            <button type="button" onclick="loadMasterDepartments()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">
+                Load Master Departments
+            </button>
 
-    <select id="revenueCombo" style="width:300px;">
-        <option value="">Select Revenue Item</option>
-    </select>
+            <button type="button" onclick="loadNonSaleRevenue()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">
+                Load Non Sale Revenue
+            </button>
 
-</div>
+            <button type="button" onclick="selectAllItems()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">
+                Select All
+            </button>
 
-<div style="margin-bottom:15px;">
+            <button type="button" onclick="saveAssignments()" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500">
+                Save
+            </button>
 
-    <button onclick="loadMasterDepartments()">
-        Load Master Departments
-    </button>
+        </div>
 
-    <button onclick="loadNonSaleRevenue()">
-        Load Non Sale Revenue
-    </button>
+        <div id="dlist" class="h-[500px] max-w-md divide-y divide-slate-100 overflow-y-auto rounded-lg bg-white ring-1 ring-slate-200"></div>
 
-    <button onclick="selectAllItems()">
-        Select All
-    </button>
+    </div>
 
-    <button onclick="saveAssignments()">
-        Save
-    </button>
+    <div class="space-y-3 rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
 
-</div>
+        <div class="flex flex-wrap items-center gap-2">
 
-<div id="dlist"
-     style="border:1px solid gray;
-    padding:10px;
-    width:400px;
-    height:500px;
-    overflow:auto;">
-</div>
-<div style="margin-bottom:15px;">
+            <input type="text"
+                   id="newRevenueName"
+                   placeholder="New Revenue Name"
+                   class="block w-64 rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
 
-    <input type="text"
-           id="newRevenueName"
-           placeholder="New Revenue Name"
-           style="width:250px;" />
+            <button type="button" onclick="addRevenueItem()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">
+                Add Revenue Item
+            </button>
 
-    <button onclick="addRevenueItem()">
-        Add Revenue Item
-    </button>
+        </div>
 
-    <input type="text"
-           id="newMasterDepartment"
-           placeholder="New Master Department" />
+        <div class="flex flex-wrap items-center gap-2">
 
-    <button onclick="addMasterDepartment()">
-        Add Master Department
-    </button>
+            <input type="text"
+                   id="newMasterDepartment"
+                   placeholder="New Master Department"
+                   class="block w-64 rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+
+            <button type="button" onclick="addMasterDepartment()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">
+                Add Master Department
+            </button>
+
+        </div>
+    </div>
+
 </div>
 
 
@@ -113,13 +107,13 @@ function addCheckItem(text) {
 
 let div = document.createElement("div");
 
-div.style.display = "block";
-div.style.marginBottom = "4px";
+div.className = "flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700";
 
 let chk = document.createElement("input");
 
 chk.type = "checkbox";
 chk.value = text;
+chk.className = "h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500";
 
 let lbl = document.createElement("span");
 

@@ -1,211 +1,83 @@
-﻿@{
+@{
     ViewData["Title"] = "Tip Editor";
+    ViewData["Subtitle"] = "Edit cash tips, credit card tips, paid out tips, tip share, and gratuity.";
 }
 
-<style>
-    body {
-        background: #f4f6f9;
-    }
+<div class="space-y-6">
 
-    .tip-page {
-        max-width: 1350px;
-        margin: 25px auto;
-        padding: 0 15px;
-    }
-
-    .tip-card {
-        background: white;
-        border-radius: 18px;
-        box-shadow: 0 10px 30px rgba(0,0,0,.12);
-        overflow: hidden;
-        border: 1px solid #e5e7eb;
-    }
-
-    .tip-header {
-        background: linear-gradient(135deg, #12395c, #2563eb);
-        color: white;
-        padding: 24px 30px;
-    }
-
-        .tip-header h2 {
-            margin: 0;
-            font-weight: 700;
-        }
-
-    .tip-content {
-        padding: 24px;
-    }
-
-    .edit-panel {
-        background: #f8fafc;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
-    .summary {
-        display: flex;
-        gap: 14px;
-        flex-wrap: wrap;
-        margin-bottom: 16px;
-    }
-
-    .summary-box {
-        background: #f8fafc;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 10px 14px;
-        min-width: 145px;
-    }
-
-        .summary-box b {
-            display: block;
-            color: #374151;
-            font-size: 13px;
-        }
-
-        .summary-box span {
-            font-size: 21px;
-            font-weight: 800;
-            color: #12395c;
-        }
-
-    .table-wrap {
-        max-height: 520px;
-        overflow: auto;
-        border: 1px solid #dbe3ef;
-        border-radius: 12px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 14px;
-    }
-
-    th {
-        position: sticky;
-        top: 0;
-        background: #eaf1fb;
-        z-index: 2;
-        padding: 10px;
-        border-bottom: 1px solid #dbe3ef;
-        white-space: nowrap;
-    }
-
-    td {
-        padding: 7px 9px;
-        border-bottom: 1px solid #edf2f7;
-        white-space: nowrap;
-    }
-
-    tr:hover {
-        background: #f1f7ff;
-    }
-
-    .money-input {
-        width: 105px;
-        text-align: right;
-    }
-
-    .readonly-cell {
-        color: #374151;
-        font-weight: 600;
-    }
-
-    .button-row {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-</style>
-
-<div class="tip-page">
-    <div class="tip-card">
-
-        <div class="tip-header">
-            <h2>Tip Editor</h2>
-            <div>Edit cash tips, credit card tips, paid out tips, tip share, and gratuity.</div>
-        </div>
-
-        <div class="tip-content">
-
-            <div class="edit-panel">
-                <div class="row">
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Employee</label>
-                        <select id="employeeName" class="form-select form-select-lg"></select>
-                    </div>
-
-                    <div class="col-md-6 d-flex align-items-end">
-                        <div class="button-row">
-                            <button class="btn btn-primary px-4" onclick="loadTips()">Load Tips</button>
-                            <button class="btn btn-success px-4" onclick="saveTips()">Save Changes</button>
-                        </div>
-                    </div>
-                </div>
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div class="grid gap-4 lg:grid-cols-2">
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Employee</label>
+                <select id="employeeName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
             </div>
 
-            <div class="summary">
-                <div class="summary-box">
-                    <b>Records</b>
-                    <span id="sumRecords">0</span>
-                </div>
-
-                <div class="summary-box">
-                    <b>Cash Tips</b>
-                    <span id="sumCash">0.00</span>
-                </div>
-
-                <div class="summary-box">
-                    <b>CC Tips</b>
-                    <span id="sumCC">0.00</span>
-                </div>
-
-                <div class="summary-box">
-                    <b>Tips Paid Out</b>
-                    <span id="sumPaidOut">0.00</span>
-                </div>
-
-                <div class="summary-box">
-                    <b>Tip Share</b>
-                    <span id="sumShare">0.00</span>
-                </div>
-
-                <div class="summary-box">
-                    <b>Net Tips</b>
-                    <span id="sumNet">0.00</span>
-                </div>
-
-                <div class="summary-box">
-                    <b>Gratuity</b>
-                    <span id="sumGrat">0.00</span>
+            <div class="flex items-end">
+                <div class="flex flex-wrap items-center gap-2">
+                    <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="loadTips()">Load Tips</button>
+                    <button class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="saveTips()">Save Changes</button>
                 </div>
             </div>
-
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Job Name</th>
-                            <th>Shift Date</th>
-                            <th>Time On</th>
-                            <th>Time Out</th>
-                            <th>Cash Tips</th>
-                            <th>Non Cash Tips</th>
-                            <th>Tips Paid Out</th>
-                            <th>Tip Share</th>
-                            <th>Total Tips</th>
-                            <th>Gratuity</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tipBody"></tbody>
-                </table>
-            </div>
-
         </div>
     </div>
+
+    <div class="flex flex-wrap gap-3">
+        <div class="min-w-[140px] rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
+            <b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Records</b>
+            <span id="sumRecords" class="text-xl font-bold text-slate-900">0</span>
+        </div>
+
+        <div class="min-w-[140px] rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
+            <b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Cash Tips</b>
+            <span id="sumCash" class="text-xl font-bold text-slate-900">0.00</span>
+        </div>
+
+        <div class="min-w-[140px] rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
+            <b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">CC Tips</b>
+            <span id="sumCC" class="text-xl font-bold text-slate-900">0.00</span>
+        </div>
+
+        <div class="min-w-[140px] rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
+            <b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Tips Paid Out</b>
+            <span id="sumPaidOut" class="text-xl font-bold text-slate-900">0.00</span>
+        </div>
+
+        <div class="min-w-[140px] rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
+            <b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Tip Share</b>
+            <span id="sumShare" class="text-xl font-bold text-slate-900">0.00</span>
+        </div>
+
+        <div class="min-w-[140px] rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
+            <b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Net Tips</b>
+            <span id="sumNet" class="text-xl font-bold text-slate-900">0.00</span>
+        </div>
+
+        <div class="min-w-[140px] rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
+            <b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Gratuity</b>
+            <span id="sumGrat" class="text-xl font-bold text-slate-900">0.00</span>
+        </div>
+    </div>
+
+    <div class="max-h-[520px] overflow-auto rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="sticky top-0 z-10 bg-slate-50">
+                <tr>
+                    <th class="whitespace-nowrap px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Job Name</th>
+                    <th class="whitespace-nowrap px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Shift Date</th>
+                    <th class="whitespace-nowrap px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Time On</th>
+                    <th class="whitespace-nowrap px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Time Out</th>
+                    <th class="whitespace-nowrap px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Cash Tips</th>
+                    <th class="whitespace-nowrap px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Non Cash Tips</th>
+                    <th class="whitespace-nowrap px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Tips Paid Out</th>
+                    <th class="whitespace-nowrap px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Tip Share</th>
+                    <th class="whitespace-nowrap px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Total Tips</th>
+                    <th class="whitespace-nowrap px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Gratuity</th>
+                </tr>
+            </thead>
+            <tbody id="tipBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+    </div>
+
 </div>
 
 <script>
@@ -273,24 +145,25 @@
             const totalTips = n(row.cashTips) + n(row.creditCardTips) + n(row.tipShare);
 
             const tr = document.createElement('tr');
+            tr.className = 'hover:bg-slate-50';
 
             tr.innerHTML = `
-                <td class="readonly-cell">${row.departmentName || ''}</td>
-                <td class="readonly-cell">${row.shiftDate || ''}</td>
-                <td class="readonly-cell">${row.timeIn || ''}</td>
-                <td class="readonly-cell">${row.timeOut || ''}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-medium text-slate-700">${row.departmentName || ''}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-medium text-slate-700">${row.shiftDate || ''}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-medium text-slate-700">${row.timeIn || ''}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-medium text-slate-700">${row.timeOut || ''}</td>
 
-                <td><input class="form-control money-input" type="number" step="0.01" value="${money(row.cashTips)}" onchange="changeValue(${index}, 'cashTips', this.value)" /></td>
+                <td class="whitespace-nowrap px-4 py-2.5"><input class="block w-24 rounded-md border-0 bg-white px-2 py-1 text-right text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" type="number" step="0.01" value="${money(row.cashTips)}" onchange="changeValue(${index}, 'cashTips', this.value)" /></td>
 
-                <td><input class="form-control money-input" type="number" step="0.01" value="${money(row.creditCardTips)}" onchange="changeValue(${index}, 'creditCardTips', this.value)" /></td>
+                <td class="whitespace-nowrap px-4 py-2.5"><input class="block w-24 rounded-md border-0 bg-white px-2 py-1 text-right text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" type="number" step="0.01" value="${money(row.creditCardTips)}" onchange="changeValue(${index}, 'creditCardTips', this.value)" /></td>
 
-                <td><input class="form-control money-input" type="number" step="0.01" value="${money(row.tipsPaidOut)}" onchange="changeValue(${index}, 'tipsPaidOut', this.value)" /></td>
+                <td class="whitespace-nowrap px-4 py-2.5"><input class="block w-24 rounded-md border-0 bg-white px-2 py-1 text-right text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" type="number" step="0.01" value="${money(row.tipsPaidOut)}" onchange="changeValue(${index}, 'tipsPaidOut', this.value)" /></td>
 
-                <td><input class="form-control money-input" type="number" step="0.01" value="${money(row.tipShare)}" onchange="changeValue(${index}, 'tipShare', this.value)" /></td>
+                <td class="whitespace-nowrap px-4 py-2.5"><input class="block w-24 rounded-md border-0 bg-white px-2 py-1 text-right text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" type="number" step="0.01" value="${money(row.tipShare)}" onchange="changeValue(${index}, 'tipShare', this.value)" /></td>
 
-                <td class="readonly-cell" id="totalTips_${index}">${money(totalTips)}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-medium text-slate-700" id="totalTips_${index}">${money(totalTips)}</td>
 
-                <td><input class="form-control money-input" type="number" step="0.01" value="${money(row.gratuity)}" onchange="changeValue(${index}, 'gratuity', this.value)" /></td>
+                <td class="whitespace-nowrap px-4 py-2.5"><input class="block w-24 rounded-md border-0 bg-white px-2 py-1 text-right text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" type="number" step="0.01" value="${money(row.gratuity)}" onchange="changeValue(${index}, 'gratuity', this.value)" /></td>
             `;
 
             body.appendChild(tr);

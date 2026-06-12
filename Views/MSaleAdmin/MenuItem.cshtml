@@ -1,222 +1,110 @@
-﻿@{
+@{
     ViewData["Title"] = "Menu Item Maintenance";
 }
 
-<div class="page">
-    <h2>Menu Item Maintenance</h2>
+<div class="space-y-6">
 
-    <div class="toolbar">
-        <label>Existing Menu Item</label>
-        <select id="menuItemSelect" onchange="loadMenuItem()"></select>
+    <div class="flex flex-wrap items-center gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+        <label for="menuItemSelect" class="text-sm font-medium text-slate-700">Existing Menu Item</label>
+        <select id="menuItemSelect" onchange="loadMenuItem()" class="block w-full max-w-md rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
 
-        <button type="button" onclick="newItem()">New</button>
-        <button type="button" class="primary" onclick="saveItem()">Save</button>
-        <button type="button" onclick="loadMenuItems()">Reload</button>
+        <button type="button" onclick="newItem()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">New</button>
+        <button type="button" onclick="saveItem()" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500">Save</button>
+        <button type="button" onclick="loadMenuItems()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Reload</button>
 
-        <div style="flex:1"></div>
+        <div class="flex-1"></div>
 
-        <button type="button" onclick="location.href='/MSaleAdmin'">Dashboard</button>
-        <button type="button" onclick="location.href='/'">Exit</button>
+        <button type="button" onclick="location.href='/MSaleAdmin'" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Dashboard</button>
+        <button type="button" onclick="location.href='/'" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Exit</button>
     </div>
 
-    <div class="main-grid">
-        <div class="panel">
-            <h3>Item Information</h3>
+    <div class="grid gap-6 lg:grid-cols-2">
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="text-base font-semibold text-slate-900">Item Information</h3>
 
             <input type="hidden" id="originalMenuItemName" />
 
-            <label>Menu Item Name</label>
-            <input id="menuItemName" />
+            <label for="menuItemName" class="mt-4 block text-sm font-medium text-slate-700">Menu Item Name</label>
+            <input id="menuItemName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
 
-            <label>Department</label>
-            <select id="departmentName"></select>
+            <label for="departmentName" class="mt-4 block text-sm font-medium text-slate-700">Department</label>
+            <select id="departmentName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
 
-            <label>Report Category</label>
-            <select id="reportCategory"></select>
+            <label for="reportCategory" class="mt-4 block text-sm font-medium text-slate-700">Report Category</label>
+            <select id="reportCategory" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
 
-            <div class="two-grid">
+            <div class="mt-4 grid grid-cols-2 gap-4">
                 <div>
-                    <label>Regular Price</label>
-                    <input id="regularPrice" type="number" step="0.01" />
+                    <label for="regularPrice" class="block text-sm font-medium text-slate-700">Regular Price</label>
+                    <input id="regularPrice" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
                 <div>
-                    <label>Inventory Amount</label>
-                    <input id="inventoryAmount" type="number" step="0.01" />
+                    <label for="inventoryAmount" class="block text-sm font-medium text-slate-700">Inventory Amount</label>
+                    <input id="inventoryAmount" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
                 <div>
-                    <label>Product Cost</label>
-                    <input id="productCost" type="number" step="0.01" />
+                    <label for="productCost" class="block text-sm font-medium text-slate-700">Product Cost</label>
+                    <input id="productCost" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
                 <div>
-                    <label>Up Charge</label>
-                    <input id="upCharge" type="number" step="0.01" />
+                    <label for="upCharge" class="block text-sm font-medium text-slate-700">Up Charge</label>
+                    <input id="upCharge" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
             </div>
 
-            <label>Item Information</label>
-            <textarea id="itemInfo"></textarea>
+            <label for="itemInfo" class="mt-4 block text-sm font-medium text-slate-700">Item Information</label>
+            <textarea id="itemInfo" class="mt-1 block min-h-[150px] w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></textarea>
         </div>
 
-        <div class="panel">
-            <h3>Item Codes / Options</h3>
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="text-base font-semibold text-slate-900">Item Codes / Options</h3>
 
-            <label>Barcode</label>
-            <input id="barCode" />
+            <label for="barCode" class="mt-4 block text-sm font-medium text-slate-700">Barcode</label>
+            <input id="barCode" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
 
-            <div class="three-grid">
+            <div class="mt-4 grid grid-cols-3 gap-4">
                 <div>
-                    <label>Sales Tax Table</label>
-                    <select id="salesTaxTable"></select>
+                    <label for="salesTaxTable" class="block text-sm font-medium text-slate-700">Sales Tax Table</label>
+                    <select id="salesTaxTable" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
                 </div>
                 <div>
-                    <label>Special Tax Table</label>
-                    <select id="specialTaxTable"></select>
+                    <label for="specialTaxTable" class="block text-sm font-medium text-slate-700">Special Tax Table</label>
+                    <select id="specialTaxTable" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
                 </div>
                 <div>
-                    <label>Surcharge</label>
-                    <select id="liquorTaxAmount"></select>
+                    <label for="liquorTaxAmount" class="block text-sm font-medium text-slate-700">Surcharge</label>
+                    <select id="liquorTaxAmount" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
                 </div>
             </div>
 
-            <hr />
+            <hr class="my-5 border-slate-200" />
 
-            <div class="two-grid">
-                <div><label>Remote Printer 1</label><select id="remote1"></select></div>
-                <div><label>Remote Printer 4</label><select id="remote4"></select></div>
-                <div><label>Remote Printer 2</label><select id="remote2"></select></div>
-                <div><label>Remote Printer 5</label><select id="remote5"></select></div>
-                <div><label>Remote Printer 3</label><select id="remote3"></select></div>
-                <div><label>Remote Printer 6</label><select id="remote6"></select></div>
+            <div class="grid grid-cols-2 gap-4">
+                <div><label for="remote1" class="block text-sm font-medium text-slate-700">Remote Printer 1</label><select id="remote1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select></div>
+                <div><label for="remote4" class="block text-sm font-medium text-slate-700">Remote Printer 4</label><select id="remote4" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select></div>
+                <div><label for="remote2" class="block text-sm font-medium text-slate-700">Remote Printer 2</label><select id="remote2" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select></div>
+                <div><label for="remote5" class="block text-sm font-medium text-slate-700">Remote Printer 5</label><select id="remote5" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select></div>
+                <div><label for="remote3" class="block text-sm font-medium text-slate-700">Remote Printer 3</label><select id="remote3" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select></div>
+                <div><label for="remote6" class="block text-sm font-medium text-slate-700">Remote Printer 6</label><select id="remote6" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select></div>
             </div>
 
-            <hr />
+            <hr class="my-5 border-slate-200" />
 
-            <div class="checkbox-grid">
-                <label><input type="checkbox" id="avalibility" /> Available</label>
-                <label><input type="checkbox" id="taxable" /> Taxable</label>
-                <label><input type="checkbox" id="useModifiers" /> Use Modifiers</label>
-                <label><input type="checkbox" id="modifiersAreOptional" /> Modifiers Optional</label>
-                <label><input type="checkbox" id="openPrice" /> Open Price</label>
-                <label><input type="checkbox" id="quickPick" /> Quick Pick</label>
-                <label><input type="checkbox" id="quickButton" /> Quick Button</label>
-                <label><input type="checkbox" id="onLine" /> On Line</label>
+            <div class="grid grid-cols-2 gap-2">
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="avalibility" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> Available</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="taxable" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> Taxable</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="useModifiers" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> Use Modifiers</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="modifiersAreOptional" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> Modifiers Optional</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="openPrice" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> Open Price</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="quickPick" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> Quick Pick</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="quickButton" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> Quick Button</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="onLine" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> On Line</label>
             </div>
 
-            <div id="status"></div>
+            <div id="status" class="mt-4 text-sm font-medium text-slate-600"></div>
         </div>
     </div>
 </div>
-
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f3f0ea;
-        margin: 0;
-    }
-
-    .page {
-        max-width: 1300px;
-        margin: 20px auto;
-        padding: 16px;
-    }
-
-    h2 {
-        text-align: center;
-    }
-
-    .toolbar, .panel {
-        background: white;
-        border: 1px solid #bbb;
-        border-radius: 8px;
-        padding: 14px;
-        margin-bottom: 14px;
-    }
-
-    .toolbar {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-        .toolbar select {
-            width: 500px;
-        }
-
-    .main-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 14px;
-    }
-
-    .two-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-
-    .three-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 12px;
-    }
-
-    label {
-        display: block;
-        font-weight: bold;
-        margin-top: 10px;
-        margin-bottom: 5px;
-    }
-
-    input, select, textarea {
-        width: 100%;
-        height: 44px;
-        padding: 10px;
-        box-sizing: border-box;
-        font-size: 16px;
-    }
-
-    textarea {
-        height: 150px;
-    }
-
-    button {
-        height: 42px;
-        padding: 0 18px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-        button.primary {
-            background: #e07a3c;
-            color: white;
-            border: 1px solid #e07a3c;
-        }
-
-    .checkbox-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
-
-        .checkbox-grid label {
-            background: #f7f7f7;
-            border: 1px solid #ddd;
-            padding: 10px;
-            font-weight: normal;
-        }
-
-    hr {
-        border: none;
-        border-top: 1px solid #ddd;
-        margin: 16px 0;
-    }
-
-    #status {
-        margin-top: 10px;
-        font-weight: bold;
-    }
-</style>
 
 <script>
     let isNewItem = false;

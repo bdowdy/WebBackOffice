@@ -1,0 +1,120 @@
+@{
+    var currentPath = (Context.Request.Path.Value ?? "/").TrimEnd('/');
+    if (currentPath.Length == 0) { currentPath = "/"; }
+
+    bool IsCurrent(string href)
+    {
+        if (href == "/")
+        {
+            return currentPath == "/" || currentPath.Equals("/MSaleAdmin", StringComparison.OrdinalIgnoreCase) || currentPath.Equals("/MSaleAdmin/Index", StringComparison.OrdinalIgnoreCase);
+        }
+        return currentPath.Equals(href, StringComparison.OrdinalIgnoreCase);
+    }
+}
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" />
+    <title>@(ViewData["Title"] ?? "MicroSale Back Office") · MicroSale</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+    <script>
+        /* MicroSale brand (Brand Guidelines V1): gold #D3A42B, black, light grey #F9F9F9;
+           secondary navy/forest/burnt red/beige used sparingly. Outfit = body, Oswald = headlines.
+           emerald/rose are remapped to brand gold/burnt-red so all views inherit the palette. */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'system-ui', 'sans-serif'],
+                        display: ['Oswald', 'system-ui', 'sans-serif']
+                    },
+                    colors: {
+                        gold: { 50: '#FBF7EB', 100: '#F6ECCF', 200: '#EDDCA3', 300: '#E3C76C', 400: '#DBB446', 500: '#D3A42B', 600: '#B98D23', 700: '#97711D', 800: '#7B5B1E', 900: '#684C1D', 950: '#3C2A0D' },
+                        emerald: { 50: '#FBF7EB', 100: '#F6ECCF', 200: '#EDDCA3', 300: '#E3C76C', 400: '#DBB446', 500: '#D3A42B', 600: '#B98D23', 700: '#97711D', 800: '#7B5B1E', 900: '#684C1D', 950: '#3C2A0D' },
+                        rose: { 50: '#FAF1EF', 100: '#F4DDD8', 200: '#EABCB1', 300: '#DB9484', 400: '#C76A55', 500: '#AE4B36', 600: '#9A3B2C', 700: '#812F23', 800: '#6B281F', 900: '#5A241D', 950: '#30110C' },
+                        navy: '#1B2E49',
+                        forest: '#2E4D2C',
+                        beige: '#F5F1E7'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Prevent iOS Safari zoom-on-focus: form controls must be >=16px below desktop widths */
+        @@media (max-width: 1023px) {
+            input, select, textarea { font-size: 16px !important; }
+        }
+    </style>
+</head>
+<body class="h-full bg-[#F9F9F9] font-sans text-slate-900 antialiased">
+    <div class="flex min-h-full">
+
+        <aside class="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col overflow-y-auto bg-black lg:flex">
+            <partial name="_SidebarNav" />
+        </aside>
+
+        <div id="mobile-sidebar" class="fixed inset-0 z-40 hidden lg:hidden" aria-hidden="true">
+            <div class="absolute inset-0 bg-black/60" onclick="msToggleNav(false)"></div>
+            <div class="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col overflow-y-auto bg-black pb-[env(safe-area-inset-bottom)]">
+                <button type="button" onclick="msToggleNav(false)" aria-label="Close menu"
+                        class="absolute right-3 top-5 flex h-9 w-9 items-center justify-center rounded-lg text-neutral-400 hover:bg-white/10 hover:text-white">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <partial name="_SidebarNav" />
+            </div>
+        </div>
+
+        <div class="flex min-h-screen min-w-0 flex-1 flex-col lg:pl-64">
+
+            <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur">
+                <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
+                    <div class="flex min-w-0 items-center gap-3">
+                        <button type="button" onclick="msToggleNav(true)" aria-label="Open menu"
+                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-500 ring-1 ring-inset ring-slate-200 transition hover:bg-slate-50 lg:hidden">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                            </svg>
+                        </button>
+                        @if (!IsCurrent("/"))
+                        {
+                            <a href="/" class="hidden h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 ring-1 ring-inset ring-slate-200 transition hover:bg-slate-50 hover:text-slate-600 sm:flex" title="Back to dashboard">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                                </svg>
+                            </a>
+                        }
+                        <div class="min-w-0">
+                            <h1 class="truncate font-display text-base font-semibold uppercase leading-tight tracking-wide sm:text-lg">@(ViewData["Title"] ?? "Back Office")</h1>
+                            @if (ViewData["Subtitle"] is string subtitle)
+                            {
+                                <p class="hidden truncate text-sm text-slate-500 sm:block">@subtitle</p>
+                            }
+                        </div>
+                    </div>
+                    @await RenderSectionAsync("HeaderActions", required: false)
+                </div>
+            </header>
+
+            <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+    <script>
+        function msToggleNav(show) {
+            const drawer = document.getElementById('mobile-sidebar');
+            drawer.classList.toggle('hidden', !show);
+            drawer.setAttribute('aria-hidden', String(!show));
+            document.body.classList.toggle('overflow-hidden', show);
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

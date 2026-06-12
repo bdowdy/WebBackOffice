@@ -1,137 +1,62 @@
-﻿@{
+@{
     ViewData["Title"] = "Nutritional Setup";
 }
 
-<style>
-    .page-box {
-        max-width: 720px;
-        margin: 25px auto;
-        padding: 25px;
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgba(0,0,0,.12);
-        font-family: Arial, sans-serif;
-    }
+<div class="max-w-2xl space-y-6">
 
-    h2 {
-        margin-top: 0;
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 10px;
-    }
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
 
-    .form-row {
-        margin-bottom: 18px;
-    }
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Menu Name</label>
+            <select id="menuName" onchange="loadNutritional()"
+                    class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                <option value="">Select Menu Item</option>
+            </select>
+        </div>
 
-    label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 6px;
-    }
+        <div class="mt-6 grid gap-4 sm:grid-cols-2">
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Calories</label>
+                <input id="calories" type="number" step="1"
+                       class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
 
-    select, input {
-        width: 100%;
-        padding: 9px;
-        border: 1px solid #bbb;
-        border-radius: 6px;
-        font-size: 15px;
-    }
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Fat</label>
+                <input id="fat" type="number" step="0.01"
+                       class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
 
-    .grid-box {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px 22px;
-    }
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Carbs</label>
+                <input id="carb" type="number" step="0.01"
+                       class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
 
-    .button-row {
-        margin-top: 25px;
-        display: flex;
-        gap: 10px;
-    }
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Protein</label>
+                <input id="protein" type="number" step="0.01"
+                       class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
 
-    button {
-        padding: 9px 22px;
-        border: none;
-        border-radius: 6px;
-        font-size: 15px;
-        cursor: pointer;
-    }
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Sodium</label>
+                <input id="sodium" type="number" step="0.01"
+                       class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
+        </div>
 
-    .save-btn {
-        background: #2d7d32;
-        color: white;
-    }
+        <div class="mt-6 flex flex-wrap items-center gap-2 pt-2">
+            <button class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="saveNutritional()">Save</button>
+            <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50" onclick="deleteNutritional()">Remove</button>
+            <button class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="clearForm()">Clear</button>
+        </div>
 
-    .remove-btn {
-        background: #b3261e;
-        color: white;
-    }
+        <div id="msg" class="mt-4 text-sm font-semibold text-emerald-700"></div>
 
-    .clear-btn {
-        background: #666;
-        color: white;
-    }
-
-    #msg {
-        margin-top: 18px;
-        font-weight: bold;
-        color: #2d7d32;
-    }
-</style>
-
-<div class="page-box">
-    <h2>Nutritional Setup</h2>
-
-    <div class="form-row">
-        <label>Menu Name</label>
-        <select id="menuName" onchange="loadNutritional()">
-            <option value="">Select Menu Item</option>
-        </select>
     </div>
 
-    <div class="grid-box">
-        <div>
-            <label>Calories</label>
-            <input id="calories" type="number" step="1" />
-        </div>
-
-        <div>
-            <label>Fat</label>
-            <input id="fat" type="number" step="0.01" />
-        </div>
-
-        <div>
-            <label>Carbs</label>
-            <input id="carb" type="number" step="0.01" />
-        </div>
-
-        <div>
-            <label>Protein</label>
-            <input id="protein" type="number" step="0.01" />
-        </div>
-
-        <div>
-            <label>Sodium</label>
-            <input id="sodium" type="number" step="0.01" />
-        </div>
-    </div>
-
-    <div class="button-row">
-        <button class="save-btn" onclick="saveNutritional()">Save</button>
-        <button class="remove-btn" onclick="deleteNutritional()">Remove</button>
-        <button class="clear-btn" onclick="clearForm()">Clear</button>
-    </div>
-
-    <div id="msg"></div>
-</div></div>
-
-<br />
-
-<button onclick="saveNutritional()">Save</button>
-<button onclick="deleteNutritional()">Remove</button>
-<button onclick="clearForm()">Clear</button>
-
-<div id="msg"></div>
+</div>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         loadMenuNames();
