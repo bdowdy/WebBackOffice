@@ -1,0 +1,336 @@
+﻿@{
+    ViewData["Title"] = "Modifier Prefixes";
+}
+
+<style>
+    body {
+        background: #f4f6f9;
+    }
+
+    .page {
+        max-width: 1050px;
+        margin: 35px auto;
+        background: white;
+        padding: 28px;
+        border-radius: 16px;
+        box-shadow: 0 5px 18px rgba(0,0,0,.12);
+    }
+
+    .header {
+        background: #2c3e50;
+        color: white;
+        padding: 24px;
+        border-radius: 14px;
+        margin-bottom: 24px;
+    }
+
+        .header h2 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+    .section {
+        border: 1px solid #e1e5ea;
+        background: #fafafa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 22px;
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 16px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+    }
+
+    label {
+        font-weight: 700;
+        color: #34495e;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    input {
+        width: 100%;
+        height: 42px;
+        border: 1px solid #cfd6dd;
+        border-radius: 8px;
+        padding: 0 12px;
+        box-sizing: border-box;
+        font-size: 15px;
+        background: white;
+    }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52,152,219,.35);
+        }
+
+    .required {
+        background: #fff8cc;
+    }
+
+    .button-bar {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        margin-top: 22px;
+    }
+
+    button {
+        border: none;
+        border-radius: 8px;
+        padding: 11px 22px;
+        font-weight: 700;
+        color: white;
+        cursor: pointer;
+    }
+
+    .btn-save {
+        background: #27ae60;
+    }
+
+    .btn-delete {
+        background: #e74c3c;
+    }
+
+    .btn-clear {
+        background: #7f8c8d;
+    }
+
+    button:hover {
+        opacity: .9;
+    }
+
+    .list-header {
+        display: grid;
+        grid-template-columns: 1fr 140px;
+        gap: 12px;
+        background: #34495e;
+        color: white;
+        padding: 13px 15px;
+        font-weight: 700;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .prefix-list {
+        max-height: 420px;
+        overflow-y: auto;
+        border: 1px solid #dce1e6;
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        background: white;
+    }
+
+    .prefix-row {
+        display: grid;
+        grid-template-columns: 1fr 140px;
+        gap: 12px;
+        padding: 13px 15px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+        .prefix-row:hover {
+            background: #eef6ff;
+        }
+
+        .prefix-row.selected {
+            background: #3498db;
+            color: white;
+        }
+
+    .upcharge-value {
+        text-align: right;
+    }
+
+    .hint {
+        color: #7f8c8d;
+        font-size: 14px;
+        margin-top: 6px;
+    }
+
+    @@media(max-width:800px) {
+        .grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="page">
+
+    <div class="header">
+        <h2>Modifier Prefixes</h2>
+        <div>Add, edit, delete, and set upcharges for modifier prefixes.</div>
+    </div>
+
+    <input type="hidden" id="originalPrefixName" />
+
+    <div class="section">
+        <div class="section-title">Prefix Setup</div>
+
+        <div class="grid">
+
+            <div>
+                <label>Prefix Name</label>
+                <input id="prefixName"
+                       class="required"
+                       placeholder="Example: Extra, No, Light" />
+                <div class="hint">This is the prefix shown before a modifier.</div>
+            </div>
+
+            <div>
+                <label>Upcharge</label>
+                <input id="upcharge"
+                       type="number"
+                       step="0.01"
+                       value="0.00" />
+                <div class="hint">Leave 0.00 for no extra charge.</div>
+            </div>
+
+        </div>
+
+        <div class="button-bar">
+            <button type="button" class="btn-clear" onclick="clearPrefix()">Clear</button>
+            <button type="button" class="btn-delete" onclick="deletePrefix()">Delete</button>
+            <button type="button" class="btn-save" onclick="savePrefix()">Save Prefix</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Existing Modifier Prefixes</div>
+
+        <div class="list-header">
+            <div>Prefix Name</div>
+            <div class="upcharge-value">Upcharge</div>
+        </div>
+
+        <div id="prefixList" class="prefix-list"></div>
+    </div>
+
+</div>
+
+<script>
+    let selectedPrefixRow = null;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadPrefixes();
+    });
+
+    function loadPrefixes() {
+        fetch('/MSaleAdmin/GetModifierPrefixes')
+            .then(r => r.json())
+            .then(data => {
+                let list = document.getElementById('prefixList');
+                list.innerHTML = '';
+
+                data.forEach(function (x) {
+                    let div = document.createElement('div');
+                    div.className = 'prefix-row';
+
+                    let nameDiv = document.createElement('div');
+                    nameDiv.textContent = x.prefixName;
+
+                    let chargeDiv = document.createElement('div');
+                    chargeDiv.className = 'upcharge-value';
+                    chargeDiv.textContent = Number(x.upcharge || 0).toFixed(2);
+
+                    div.appendChild(nameDiv);
+                    div.appendChild(chargeDiv);
+
+                    div.onclick = function () {
+                        if (selectedPrefixRow) {
+                            selectedPrefixRow.classList.remove('selected');
+                        }
+
+                        selectedPrefixRow = div;
+                        selectedPrefixRow.classList.add('selected');
+
+                        document.getElementById('prefixName').value = x.prefixName;
+                        document.getElementById('originalPrefixName').value = x.prefixName;
+                        document.getElementById('upcharge').value =
+                            Number(x.upcharge || 0).toFixed(2);
+                    };
+
+                    list.appendChild(div);
+                });
+            });
+    }
+
+    function savePrefix() {
+        let item = {
+            prefixName: document.getElementById('prefixName').value,
+            originalPrefixName: document.getElementById('originalPrefixName').value,
+            upcharge: parseFloat(document.getElementById('upcharge').value || 0)
+        };
+
+        if (!item.prefixName.trim()) {
+            alert("Enter a prefix name.");
+            return;
+        }
+
+        fetch('/MSaleAdmin/SaveModifierPrefix', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(item)
+        })
+        .then(r => r.json())
+        .then(result => {
+            alert(result.message || "Saved");
+            loadPrefixes();
+            clearPrefix();
+        });
+    }
+
+    function deletePrefix() {
+        let item = {
+            prefixName:
+                document.getElementById('originalPrefixName').value ||
+                document.getElementById('prefixName').value
+        };
+
+        if (!item.prefixName.trim()) {
+            alert("Select a prefix to delete.");
+            return;
+        }
+
+        if (!confirm("Delete prefix " + item.prefixName + "?"))
+            return;
+
+        fetch('/MSaleAdmin/DeleteModifierPrefix', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(item)
+        })
+        .then(r => r.json())
+        .then(result => {
+            alert(result.message || "Deleted");
+            loadPrefixes();
+            clearPrefix();
+        });
+    }
+
+    function clearPrefix() {
+        document.getElementById('prefixName').value = '';
+        document.getElementById('originalPrefixName').value = '';
+        document.getElementById('upcharge').value = '0.00';
+
+        if (selectedPrefixRow) {
+            selectedPrefixRow.classList.remove('selected');
+            selectedPrefixRow = null;
+        }
+
+        document.getElementById('prefixName').focus();
+    }
+</script>

@@ -1,0 +1,120 @@
+﻿@{
+    ViewData["Title"] = "Store Paid Outs";
+}
+
+<style>
+    .paidout-page {
+        max-width: 800px;
+        margin: 25px auto;
+    }
+
+    .paidout-card {
+        border-radius: 14px;
+        box-shadow: 0 4px 18px rgba(0,0,0,.10);
+        border: 1px solid #ddd;
+        background: #fff;
+    }
+
+    .paidout-header {
+        background: linear-gradient(90deg, #1f4e79, #2d75b6);
+        color: white;
+        padding: 18px 24px;
+        border-radius: 14px 14px 0 0;
+    }
+
+    .paidout-list {
+        max-height: 350px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+    }
+
+    .paidout-row {
+        padding: 10px 14px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+    }
+
+    .paidout-row:hover {
+        background: #eef5ff;
+    }
+</style>
+
+<div class="paidout-page">
+    <div class="paidout-card">
+
+        <div class="paidout-header">
+            <h2 class="mb-0">Store Paid Outs</h2>
+            <div>Add or edit paid out reasons.</div>
+        </div>
+
+        <div class="p-4">
+
+            <label class="form-label fw-bold">Paid Out Name</label>
+            <input id="paidOutName" class="form-control mb-3" placeholder="Enter paid out name" />
+
+            <div class="mb-3">
+                <button type="button" class="btn btn-primary px-4" onclick="savePaidOut()">Save</button>
+                <button type="button" class="btn btn-secondary px-4" onclick="clearPaidOut()">Clear</button>
+            </div>
+
+            <h5>Existing Paid Outs</h5>
+            <div id="paidOutList" class="paidout-list"></div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        loadPaidOuts();
+    });
+
+    function loadPaidOuts() {
+        fetch('/MSaleAdmin/GetStorePaidOuts')
+            .then(r => r.json())
+            .then(data => {
+                let list = document.getElementById('paidOutList');
+                list.innerHTML = '';
+
+                data.forEach(function (x) {
+                    let div = document.createElement('div');
+                    div.className = 'paidout-row';
+                    div.textContent = x.paidOutName;
+
+                    div.onclick = function () {
+                        document.getElementById('paidOutName').value = x.paidOutName;
+                    };
+
+                    list.appendChild(div);
+                });
+            });
+    }
+
+    function savePaidOut() {
+        let item = {
+            paidOutName: document.getElementById('paidOutName').value
+        };
+
+        if (!item.paidOutName.trim()) {
+            alert("Enter a paid out name.");
+            return;
+        }
+
+        fetch('/MSaleAdmin/SaveStorePaidOut', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(item)
+        })
+        .then(r => r.json())
+        .then(result => {
+            alert(result.message || "Saved");
+            loadPaidOuts();
+            clearPaidOut();
+        });
+    }
+
+    function clearPaidOut() {
+        document.getElementById('paidOutName').value = '';
+    }
+</script>

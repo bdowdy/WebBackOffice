@@ -1,0 +1,440 @@
+﻿@{
+    ViewData["Title"] = "Category Setup";
+}
+
+<style>
+    body {
+        background: #f4f6f9;
+    }
+
+    .page {
+        max-width: 1250px;
+        margin: 35px auto;
+        background: white;
+        padding: 28px;
+        border-radius: 16px;
+        box-shadow: 0 5px 18px rgba(0,0,0,.12);
+    }
+
+    .header {
+        background: #2c3e50;
+        color: white;
+        padding: 24px;
+        border-radius: 14px;
+        margin-bottom: 24px;
+    }
+
+        .header h2 {
+            margin: 0;
+        }
+
+    .layout {
+        display: grid;
+        grid-template-columns: 330px 1fr;
+        gap: 22px;
+    }
+
+    .panel {
+        border: 1px solid #e1e5ea;
+        background: #fafafa;
+        border-radius: 12px;
+        padding: 18px;
+    }
+
+    .panel-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 14px;
+    }
+
+    .category-list {
+        background: white;
+        border: 1px solid #dce1e6;
+        border-radius: 10px;
+        max-height: 620px;
+        overflow-y: auto;
+    }
+
+    .category-item {
+        padding: 12px 14px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+        .category-item:hover {
+            background: #eef6ff;
+        }
+
+        .category-item.active {
+            background: #3498db;
+            color: white;
+        }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(230px,1fr));
+        gap: 16px;
+    }
+
+    label {
+        font-weight: 700;
+        color: #34495e;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    input, select {
+        width: 100%;
+        height: 42px;
+        border: 1px solid #cfd6dd;
+        border-radius: 8px;
+        padding: 0 12px;
+        box-sizing: border-box;
+        font-size: 15px;
+    }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52,152,219,.35);
+        }
+
+    .required {
+        background: #fff8cc;
+    }
+
+    .button-bar {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        margin-top: 22px;
+    }
+
+    button {
+        border: none;
+        border-radius: 8px;
+        padding: 11px 22px;
+        font-weight: 700;
+        color: white;
+        cursor: pointer;
+    }
+
+    .btn-new {
+        background: #3498db;
+    }
+
+    .btn-save {
+        background: #27ae60;
+    }
+
+    .btn-delete {
+        background: #e74c3c;
+    }
+
+    .btn-clear {
+        background: #7f8c8d;
+    }
+
+    .hint {
+        color: #7f8c8d;
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+</style>
+
+<div class="page">
+
+    <div class="header">
+        <h2>Category Setup</h2>
+        <div>Add, edit, or delete menu categories.</div>
+    </div>
+
+    <div class="layout">
+
+        <div class="panel">
+            <div class="panel-title">Existing Categories</div>
+            <div class="hint">Click a category to edit it.</div>
+
+            <button class="btn-new" onclick="newCategory()" style="width:100%; margin-bottom:12px;">
+                Add New Category
+            </button>
+
+            <div id="categoryList" class="category-list"></div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">Category Details</div>
+
+            <input type="hidden" id="originalCategoryName" />
+
+            <div class="grid">
+
+                <div>
+                    <label>Category Name</label>
+                    <input id="categoryName" class="required" />
+                </div>
+
+                <div>
+                    <label>Sort Level</label>
+                    <input id="sortLevel" />
+                </div>
+
+                <div>
+                    <label>Button Level</label>
+                    <input id="buttonLevel" />
+                </div>
+
+                <div>
+                    <label>Meal Period</label>
+                    <select id="mealPeriod">
+                        <option value="">Select Meal Period</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Mandatory</label>
+                    <select id="mandatory">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Disable Mods</label>
+                    <select id="disableMods">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Tip Exempt</label>
+                    <select id="tipExempt">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Prompt</label>
+                    <input id="prompt" />
+                </div>
+
+                <div>
+                    <label>BitMap</label>
+                    <input id="bitMap" />
+                </div>
+
+                <div>
+                    <label>Alias</label>
+                    <input id="alias" />
+                </div>
+
+            </div>
+
+            <div class="button-bar">
+                <button class="btn-clear" onclick="newCategory()">Clear</button>
+                <button class="btn-delete" onclick="deleteCategory()">Delete</button>
+                <button class="btn-save" onclick="saveCategory()">Save Category</button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        loadCategoryNames();
+        loadMealPeriods();
+    });
+
+    function loadCategoryNames() {
+        fetch('/MSaleAdmin/GetCategoryNames')
+            .then(r => r.json())
+            .then(data => {
+                let list = document.getElementById("categoryList");
+                list.innerHTML = "";
+
+                data.forEach(function (name) {
+                    let div = document.createElement("div");
+                    div.className = "category-item";
+                    div.innerText = name;
+
+                    div.onclick = function () {
+                        document.querySelectorAll(".category-item")
+                            .forEach(x => x.classList.remove("active"));
+
+                        div.classList.add("active");
+                        loadCategoryByName(name);
+                    };
+
+                    list.appendChild(div);
+                });
+            });
+    }
+
+    function loadMealPeriods() {
+        fetch('/MSaleAdmin/GetMealPeriodNames')
+            .then(r => r.json())
+            .then(data => {
+                let combo = document.getElementById("mealPeriod");
+
+                combo.innerHTML =
+                    '<option value="">Select Meal Period</option>';
+
+                data.forEach(function (name) {
+                    let opt = document.createElement("option");
+                    opt.value = name;
+                    opt.text = name;
+                    combo.appendChild(opt);
+                });
+            });
+    }
+
+    function loadCategoryByName(categoryName) {
+        if (!categoryName) return;
+
+        fetch('/MSaleAdmin/GetCategory?categoryName='
+            + encodeURIComponent(categoryName))
+            .then(r => r.json())
+            .then(x => {
+                document.getElementById("originalCategoryName").value =
+                    x.categoryName || "";
+
+                document.getElementById("categoryName").value =
+                    x.categoryName || "";
+
+                document.getElementById("sortLevel").value =
+                    x.sortLevel || "";
+
+                document.getElementById("buttonLevel").value =
+                    x.buttonLevel || "";
+
+                document.getElementById("mandatory").value =
+                    x.mandatory || "No";
+
+                document.getElementById("disableMods").value =
+                    x.disableMods || "No";
+
+                document.getElementById("tipExempt").value =
+                    x.tipExempt || "No";
+
+                document.getElementById("prompt").value =
+                    x.prompt || "";
+
+                document.getElementById("mealPeriod").value =
+                    x.mealPeriod || "";
+
+                document.getElementById("bitMap").value =
+                    x.bitMap || "";
+
+                document.getElementById("alias").value =
+                    x.alias || "";
+            });
+    }
+
+    function newCategory() {
+        document.getElementById("originalCategoryName").value = "";
+        document.getElementById("categoryName").value = "";
+        document.getElementById("sortLevel").value = "";
+        document.getElementById("buttonLevel").value = "";
+
+        document.getElementById("mandatory").value = "No";
+        document.getElementById("disableMods").value = "No";
+        document.getElementById("tipExempt").value = "No";
+
+        document.getElementById("prompt").value = "";
+        document.getElementById("mealPeriod").value = "";
+        document.getElementById("bitMap").value = "";
+        document.getElementById("alias").value = "";
+
+        document.querySelectorAll(".category-item")
+            .forEach(x => x.classList.remove("active"));
+
+        document.getElementById("categoryName").focus();
+    }
+
+    function saveCategory() {
+        let model = {
+            originalCategoryName:
+                document.getElementById("originalCategoryName").value,
+
+            categoryName:
+                document.getElementById("categoryName").value,
+
+            sortLevel:
+                document.getElementById("sortLevel").value,
+
+            buttonLevel:
+                document.getElementById("buttonLevel").value,
+
+            mandatory:
+                document.getElementById("mandatory").value,
+
+            disableMods:
+                document.getElementById("disableMods").value,
+
+            tipExempt:
+                document.getElementById("tipExempt").value,
+
+            prompt:
+                document.getElementById("prompt").value,
+
+            mealPeriod:
+                document.getElementById("mealPeriod").value,
+
+            bitMap:
+                document.getElementById("bitMap").value,
+
+            alias:
+                document.getElementById("alias").value
+        };
+
+        if (!model.categoryName) {
+            alert("Enter Category Name");
+            return;
+        }
+
+        fetch('/MSaleAdmin/SaveCategory', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(model)
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert("Category Saved");
+            loadCategoryNames();
+        });
+    }
+
+    function deleteCategory() {
+        let categoryName =
+            document.getElementById("categoryName").value;
+
+        if (!categoryName) {
+            alert("Select Category");
+            return;
+        }
+
+        if (!confirm("Delete this category?"))
+            return;
+
+        fetch('/MSaleAdmin/DeleteCategory?categoryName='
+            + encodeURIComponent(categoryName), {
+            method: 'POST'
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert("Category Deleted");
+            newCategory();
+            loadCategoryNames();
+        });
+    }
+</script>

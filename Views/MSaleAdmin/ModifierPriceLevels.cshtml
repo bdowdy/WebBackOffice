@@ -1,0 +1,161 @@
+﻿@{
+    ViewData["Title"] = "Modifier Price Levels";
+}
+
+<style>
+    body {
+        font-family: Arial;
+        background: #f3f0ea;
+    }
+
+    .page {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 16px;
+    }
+
+    h2 {
+        text-align: center;
+    }
+
+    .toolbar, .panel {
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    .toolbar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    button {
+        padding: 9px 14px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+        button.primary {
+            background: #e07a3c;
+            color: white;
+            border: 1px solid #e07a3c;
+        }
+
+    select, input {
+        padding: 8px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 140px 120px 120px 1fr 90px;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .head {
+        font-weight: bold;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 6px;
+    }
+</style>
+
+<div class="page">
+    <h2>Modifier Price Levels</h2>
+
+    <div class="toolbar">
+        <button onclick="addRow()">Add Row</button>
+        <button class="primary" onclick="saveRows()">Save</button>
+        <button onclick="loadRows()">Reload</button>
+        <div style="flex:1"></div>
+        <button onclick="location.href='/MSaleAdmin'">Dashboard</button>
+        <button onclick="location.href='/'">Exit</button>
+    </div>
+
+    <div class="panel">
+        <div class="grid head">
+            <div>Modifier Title</div>
+            <div>Prefix</div>
+            <div>Price</div>
+            <div>Level</div>
+            <div>Modifier Category</div>
+            <div>Remove</div>
+        </div>
+
+        <div id="rows"></div>
+    </div>
+</div>
+
+<script>
+    let rows = [];
+
+    document.addEventListener("DOMContentLoaded", loadRows);
+
+    function loadRows() {
+        fetch('/ModifierPriceLevels/GetModifierPriceLevels')
+            .then(r => r.json())
+            .then(data => {
+                rows = data || [];
+                drawRows();
+            })
+            .catch(err => alert("Could not load price levels: " + err.message));
+    }
+
+    function drawRows() {
+        const div = document.getElementById("rows");
+        div.innerHTML = "";
+
+        rows.forEach((r, i) => {
+            const row = document.createElement("div");
+            row.className = "grid";
+            row.style.marginTop = "8px";
+
+            row.innerHTML = `
+                <input value="${safe(r.modifierTitle)}" onchange="rows[${i}].modifierTitle=this.value" />
+                <input value="${safe(r.prefix)}" onchange="rows[${i}].prefix=this.value" />
+                <input type="number" step="0.01" value="${r.price || 0}" onchange="rows[${i}].price=parseFloat(this.value||0)" />
+                <input type="number" value="${r.level || 0}" onchange="rows[${i}].level=parseInt(this.value||0)" />
+                <input value="${safe(r.modifierCategory)}" onchange="rows[${i}].modifierCategory=this.value" />
+                <button onclick="removeRow(${i})">X</button>
+            `;
+
+            div.appendChild(row);
+        });
+    }
+
+    function addRow() {
+        rows.push({
+            modifierTitle: "",
+            prefix: "",
+            price: 0,
+            level: 0,
+            modifierCategory: ""
+        });
+
+        drawRows();
+    }
+
+    function removeRow(i) {
+        rows.splice(i, 1);
+        drawRows();
+    }
+
+    function saveRows() {
+        fetch('/ModifierPriceLevels/SaveModifierPriceLevels', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(rows)
+        })
+        .then(r => r.json())
+        .then(x => alert(x.message || "Saved"))
+        .catch(err => alert("Save failed: " + err.message));
+    }
+
+    function safe(v) {
+        return (v || "").replaceAll('"', '&quot;');
+    }
+</script>

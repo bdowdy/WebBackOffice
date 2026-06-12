@@ -1,0 +1,546 @@
+﻿@{
+    ViewData["Title"] = "Meal Periods";
+}
+
+<style>
+    body {
+        background: #f4f6f9;
+    }
+
+    .page {
+        max-width: 1150px;
+        margin: 35px auto;
+        background: white;
+        padding: 28px;
+        border-radius: 16px;
+        box-shadow: 0 5px 18px rgba(0,0,0,.12);
+    }
+
+    .header {
+        background: #2c3e50;
+        color: white;
+        padding: 24px;
+        border-radius: 14px;
+        margin-bottom: 24px;
+    }
+
+        .header h2 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+    .layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+    }
+
+    .section {
+        border: 1px solid #e1e5ea;
+        background: #fafafa;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .section-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 18px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    label {
+        font-weight: 700;
+        color: #34495e;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    input, select {
+        width: 100%;
+        height: 42px;
+        border: 1px solid #cfd6dd;
+        border-radius: 8px;
+        padding: 0 12px;
+        box-sizing: border-box;
+        font-size: 15px;
+        background: white;
+    }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52,152,219,.35);
+        }
+
+    .required {
+        background: #fff8cc;
+    }
+
+    .button-bar {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        margin-top: 22px;
+    }
+
+    button {
+        border: none;
+        border-radius: 8px;
+        padding: 11px 22px;
+        font-weight: 700;
+        color: white;
+        cursor: pointer;
+    }
+
+    .btn-save {
+        background: #27ae60;
+    }
+
+    .btn-delete {
+        background: #e74c3c;
+    }
+
+    .btn-clear {
+        background: #7f8c8d;
+    }
+
+    button:hover {
+        opacity: .9;
+    }
+
+    .hint {
+        color: #7f8c8d;
+        font-size: 14px;
+        margin-top: 6px;
+    }
+
+    .divider {
+        height: 1px;
+        background: #ddd;
+        margin: 20px 0;
+    }
+
+    @@media(max-width:900px) {
+
+        .layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="page">
+
+    <div class="header">
+        <h2>Meal Period Setup</h2>
+        <div>Create meal periods and assign them to categories.</div>
+    </div>
+
+    <div class="layout">
+
+        <div class="section">
+
+            <div class="section-title">
+                Create / Edit Meal Period
+            </div>
+
+            <div class="grid">
+
+                <div>
+                    <label>Existing Meal Periods</label>
+
+                    <select id="mealPeriodCombo"
+                            onchange="mealPeriodChanged()">
+
+                        <option value="">
+                            Select Meal Period
+                        </option>
+
+                    </select>
+
+                    <div class="hint">
+                        Select an existing meal period to edit.
+                    </div>
+                </div>
+
+                <div>
+                    <label>Meal Period Name</label>
+
+                    <input type="text"
+                           id="periodName"
+                           class="required"
+                           placeholder="Breakfast, Lunch, Dinner" />
+                </div>
+
+                <div>
+                    <label>Timed Event</label>
+
+                    <select id="periodTime">
+
+                        <option value="">
+                            Select Timed Event
+                        </option>
+
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="button-bar">
+
+                <button class="btn-clear"
+                        onclick="document.getElementById('periodName').value='';document.getElementById('periodTime').value='';document.getElementById('mealPeriodCombo').value='';">
+
+                    Clear
+
+                </button>
+
+                <button class="btn-delete"
+                        onclick="deleteMealPeriod()">
+
+                    Remove Meal Period
+
+                </button>
+
+                <button class="btn-save"
+                        onclick="saveMealPeriod()">
+
+                    Add / Save Meal Period
+
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="section">
+
+            <div class="section-title">
+                Assign Meal Period To Category
+            </div>
+
+            <div class="grid">
+
+                <div>
+                    <label>Category</label>
+
+                    <select id="categoryName"
+                            onchange="loadCategoryMealPeriod()">
+
+                        <option value="">
+                            Select Category
+                        </option>
+
+                    </select>
+
+                    <div class="hint">
+                        Select a category to assign a meal period.
+                    </div>
+                </div>
+
+                <div>
+                    <label>Meal Period</label>
+
+                    <select id="mealPeriodAssign">
+
+                        <option value="">
+                            Select Meal Period
+                        </option>
+
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="button-bar">
+
+                <button class="btn-save"
+                        onclick="saveCategoryMealPeriod()">
+
+                    Save Category Assignment
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        loadTimedEvents();
+        loadMealPeriods();
+        loadCategories();
+
+    });
+
+    function loadMealPeriods() {
+
+        fetch('/MSaleAdmin/GetMealPeriods')
+            .then(r => r.json())
+            .then(data => {
+
+                let combo =
+                    document.getElementById("mealPeriodCombo");
+
+                let assign =
+                    document.getElementById("mealPeriodAssign");
+
+                combo.innerHTML =
+                    '<option value="">Select Meal Period</option>';
+
+                assign.innerHTML =
+                    '<option value="">Select Meal Period</option>';
+
+                data.forEach(function (item) {
+
+                    let periodName =
+                        item.periodName || item.PeriodName;
+
+                    let periodTime =
+                        item.periodTime || item.PeriodTime;
+
+                    let opt1 =
+                        document.createElement("option");
+
+                    opt1.value = periodName;
+                    opt1.text = periodName;
+                    opt1.dataset.periodTime = periodTime;
+
+                    combo.appendChild(opt1);
+
+                    let opt2 =
+                        document.createElement("option");
+
+                    opt2.value = periodName;
+                    opt2.text = periodName;
+
+                    assign.appendChild(opt2);
+                });
+            });
+    }
+
+    function loadTimedEvents() {
+
+        fetch('/MSaleAdmin/GetTimedEvents')
+            .then(r => r.json())
+            .then(data => {
+
+                let combo =
+                    document.getElementById("periodTime");
+
+                combo.innerHTML =
+                    '<option value="">Select Timed Event</option>';
+
+                data.forEach(function (name) {
+
+                    let opt =
+                        document.createElement("option");
+
+                    opt.value = name;
+                    opt.text = name;
+
+                    combo.appendChild(opt);
+                });
+            });
+    }
+
+    function mealPeriodChanged() {
+
+        let combo =
+            document.getElementById("mealPeriodCombo");
+
+        let selected =
+            combo.options[combo.selectedIndex];
+
+        if (!selected || !selected.value) {
+
+            document.getElementById("periodName").value = "";
+            document.getElementById("periodTime").value = "";
+
+            return;
+        }
+
+        document.getElementById("periodName").value =
+            selected.value;
+
+        document.getElementById("periodTime").value =
+            selected.dataset.periodTime || "";
+    }
+
+    function loadCategories() {
+
+        fetch('/MSaleAdmin/GetCategories')
+            .then(r => r.json())
+            .then(data => {
+
+                let combo =
+                    document.getElementById("categoryName");
+
+                combo.innerHTML =
+                    '<option value="">Select Category</option>';
+
+                data.forEach(function (name) {
+
+                    let opt =
+                        document.createElement("option");
+
+                    opt.value = name;
+                    opt.text = name;
+
+                    combo.appendChild(opt);
+                });
+            });
+    }
+
+    function saveMealPeriod() {
+
+        let periodName =
+            document.getElementById("periodName").value;
+
+        let periodTime =
+            document.getElementById("periodTime").value;
+
+        if (!periodName) {
+
+            alert("Enter Meal Period Name");
+            return;
+        }
+
+        fetch('/MSaleAdmin/SaveMealPeriod', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+
+                periodName: periodName,
+                periodTime: periodTime
+
+            })
+
+        })
+        .then(r => r.json())
+        .then(x => {
+
+            alert("Meal Period Saved");
+
+            loadMealPeriods();
+
+            document.getElementById("mealPeriodCombo").value =
+                periodName;
+        });
+    }
+
+    function deleteMealPeriod() {
+
+        let periodName =
+            document.getElementById("periodName").value;
+
+        if (!periodName) {
+
+            alert("Select or enter Meal Period Name");
+            return;
+        }
+
+        fetch('/MSaleAdmin/DeleteMealPeriod?periodName='
+            + encodeURIComponent(periodName), {
+
+            method: 'POST'
+
+        })
+        .then(r => r.json())
+        .then(x => {
+
+            alert("Meal Period Deleted");
+
+            document.getElementById("periodName").value = "";
+            document.getElementById("periodTime").value = "";
+
+            loadMealPeriods();
+        });
+    }
+
+    function loadCategoryMealPeriod() {
+
+        let categoryName =
+            document.getElementById("categoryName").value;
+
+        if (!categoryName)
+            return;
+
+        fetch('/MSaleAdmin/GetCategoryMealPeriod?categoryName='
+            + encodeURIComponent(categoryName))
+
+            .then(r => r.json())
+
+            .then(x => {
+
+                document.getElementById("mealPeriodAssign").value =
+                    x.mealPeriod || "";
+
+            });
+    }
+
+    function saveCategoryMealPeriod() {
+
+        let categoryName =
+            document.getElementById("categoryName").value;
+
+        let mealPeriod =
+            document.getElementById("mealPeriodAssign").value;
+
+        if (!categoryName) {
+
+            alert("Select Category");
+            return;
+        }
+
+        if (!mealPeriod) {
+
+            alert("Select Meal Period");
+            return;
+        }
+
+        fetch('/v/SaveCategoryMealPeriod', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+
+                categoryName: categoryName,
+                mealPeriod: mealPeriod
+
+            })
+
+        })
+        .then(r => r.json())
+        .then(x => {
+
+            alert("Category Assignment Saved");
+
+        });
+    }
+
+</script>

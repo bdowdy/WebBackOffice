@@ -1,0 +1,522 @@
+﻿@{
+    ViewData["Title"] = "Time Record Editor";
+}
+
+<style>
+    body {
+        background: #f4f6f9;
+    }
+
+    .page {
+        max-width: 1350px;
+        margin: 25px auto;
+        padding: 0 15px;
+    }
+
+    .card-main {
+        background: white;
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.12);
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+
+    .header {
+        background: linear-gradient(135deg,#12395c,#2563eb);
+        color: white;
+        padding: 24px 30px;
+    }
+
+        .header h2 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+    .content {
+        padding: 24px;
+    }
+
+    .edit-box {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+    }
+
+    .money-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 14px;
+        margin-top: 14px;
+    }
+
+    label {
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+    }
+
+    .table-wrap {
+        max-height: 520px;
+        overflow: auto;
+        border: 1px solid #dbe3ef;
+        border-radius: 12px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    th {
+        position: sticky;
+        top: 0;
+        background: #eaf1fb;
+        z-index: 2;
+        padding: 10px;
+        border-bottom: 1px solid #dbe3ef;
+        white-space: nowrap;
+    }
+
+    td {
+        padding: 9px 10px;
+        border-bottom: 1px solid #edf2f7;
+        white-space: nowrap;
+    }
+
+    tr:hover {
+        background: #f1f7ff;
+        cursor: pointer;
+    }
+
+    tr.selected {
+        background: #dbeafe;
+        font-weight: 700;
+    }
+
+    .summary {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+    }
+
+    .summary-box {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 10px 14px;
+        min-width: 140px;
+    }
+
+        .summary-box b {
+            display: block;
+            color: #374151;
+            font-size: 13px;
+        }
+
+        .summary-box span {
+            font-size: 20px;
+            font-weight: 800;
+            color: #12395c;
+        }
+</style>
+
+<div class="page">
+    <div class="card-main">
+
+        <div class="header">
+            <h2>Time Record Editor</h2>
+            <div>Edit employee punches, breaks, tips, sales, and pay rate.</div>
+        </div>
+
+        <div class="content">
+
+            <input type="hidden" id="recordId" />
+
+            <div class="edit-box">
+                <div class="grid">
+                    <div>
+                        <label>Employee</label>
+                        <input id="employeeName" class="form-control" list="employeeList" />
+                        <datalist id="employeeList"></datalist>
+                    </div>
+
+                    <div>
+                        <label>Department</label>
+                        <input id="departmentName" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label>Shift Date</label>
+                        <input id="shiftDate" type="date" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label>Punch Out Date</label>
+                        <input id="punchOutDate" type="date" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label>Time In</label>
+                        <input id="timeIn" type="time" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label>Break Out</label>
+                        <input id="breakOut" type="time" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label>Break In</label>
+                        <input id="breakIn" type="time" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label>Time Out</label>
+                        <input id="timeOut" type="time" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="money-grid">
+                    <div>
+                        <label>Rate of Pay</label>
+                        <input id="rateOfPay" type="number" step="0.01" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label>Tip Amount</label>
+                        <input id="tipAmount" type="number" step="0.01" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label>CC Tips</label>
+                        <input id="creditCardTips" type="number" step="0.01" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label>Tips Paid Out</label>
+                        <input id="tipsPaidOut" type="number" step="0.01" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label>Tip Share</label>
+                        <input id="tipShare" type="number" step="0.01" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label>Sales</label>
+                        <input id="sales" type="number" step="0.01" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary px-4" onclick="saveRecord()">Save</button>
+                    <button class="btn btn-outline-danger px-4" onclick="deleteRecord()">Delete</button>
+                    <button class="btn btn-outline-secondary px-4" onclick="clearEditor()">Clear</button>
+                </div>
+            </div>
+
+            <div class="edit-box">
+                <div class="grid">
+                    <div>
+                        <label>Begin Date</label>
+                        <input id="beginDate" type="date" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label>End Date</label>
+                        <input id="endDate" type="date" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label>Employee Filter</label>
+                        <input id="filterEmployee" class="form-control" list="employeeList" />
+                    </div>
+
+                    <div style="display:flex;align-items:end;">
+                        <button class="btn btn-success w-100" onclick="loadRecords()">Load Records</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary">
+                <div class="summary-box"><b>Records</b><span id="sumRecords">0</span></div>
+                <div class="summary-box"><b>Total Hours</b><span id="sumHours">0.00</span></div>
+                <div class="summary-box"><b>Sales</b><span id="sumSales">0.00</span></div>
+                <div class="summary-box"><b>CC Tips</b><span id="sumTips">0.00</span></div>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Dept</th>
+                            <th>Date</th>
+                            <th>In</th>
+                            <th>Break Out</th>
+                            <th>Break In</th>
+                            <th>Out</th>
+                            <th>Hours</th>
+                            <th>Rate</th>
+                            <th>Tips</th>
+                            <th>CC Tips</th>
+                            <th>Paid Out</th>
+                            <th>Sales</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timeBody"></tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedRow = null;
+    let currentData = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const today = new Date();
+        const prior = new Date();
+        prior.setDate(today.getDate() - 7);
+
+        beginDate.value = prior.toISOString().substring(0,10);
+        endDate.value = today.toISOString().substring(0,10);
+
+        loadEmployees();
+        loadRecords();
+    });
+
+    function n(v) {
+        return Number(v || 0);
+    }
+
+    function money(v) {
+        return n(v).toFixed(2);
+    }
+
+    function calcHours(row) {
+        if (!row.shiftDate || !row.timeIn || !row.timeOut)
+            return 0;
+
+        const outDate = row.punchOutDate || row.shiftDate;
+
+        let start = new Date(row.shiftDate + "T" + row.timeIn);
+        let end = new Date(outDate + "T" + row.timeOut);
+
+        if (end <= start)
+            return 0;
+
+        let hours = (end - start) / 3600000;
+
+        if (row.breakOut && row.breakIn) {
+            let bo = new Date(row.shiftDate + "T" + row.breakOut);
+            let bi = new Date(row.shiftDate + "T" + row.breakIn);
+
+            if (bi > bo)
+                hours -= (bi - bo) / 3600000;
+        }
+
+        return Math.max(0, hours);
+    }
+
+    function loadEmployees() {
+        fetch('/TimeRecordsEditor/GetTimeRecordEmployees')
+            .then(r => r.json())
+            .then(data => {
+                employeeList.innerHTML = '';
+                data.forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    employeeList.appendChild(opt);
+                });
+            });
+    }
+
+    function loadRecords() {
+        const b = beginDate.value;
+        const e = endDate.value;
+        const emp = encodeURIComponent(filterEmployee.value || '');
+
+        fetch(`/TimeRecordsEditor/GetTimeRecords?beginDate=${b}&endDate=${e}&employeeName=${emp}`)
+            .then(r => r.json())
+            .then(data => {
+                currentData = data;
+                renderTable();
+            });
+    }
+
+    function renderTable() {
+        timeBody.innerHTML = '';
+
+        let totalHours = 0;
+        let totalSales = 0;
+        let totalTips = 0;
+
+        currentData.forEach(row => {
+            const hrs = calcHours(row);
+            totalHours += hrs;
+            totalSales += n(row.sales);
+            totalTips += n(row.creditCardTips);
+
+            const tr = document.createElement('tr');
+
+            tr.innerHTML = `
+                <td>${row.employeeName || ''}</td>
+                <td>${row.departmentName || ''}</td>
+                <td>${row.shiftDate || ''}</td>
+                <td>${row.timeIn || ''}</td>
+                <td>${row.breakOut || ''}</td>
+                <td>${row.breakIn || ''}</td>
+                <td>${row.timeOut || ''}</td>
+                <td>${money(hrs)}</td>
+                <td>${money(row.rateOfPay)}</td>
+                <td>${money(row.tipAmount)}</td>
+                <td>${money(row.creditCardTips)}</td>
+                <td>${money(row.tipsPaidOut)}</td>
+                <td>${money(row.sales)}</td>
+            `;
+
+            tr.onclick = () => selectRecord(row, tr);
+            timeBody.appendChild(tr);
+        });
+
+        sumRecords.textContent = currentData.length;
+        sumHours.textContent = money(totalHours);
+        sumSales.textContent = money(totalSales);
+        sumTips.textContent = money(totalTips);
+    }
+
+    function selectRecord(row, tr) {
+        if (selectedRow)
+            selectedRow.classList.remove('selected');
+
+        selectedRow = tr;
+        tr.classList.add('selected');
+
+        recordId.value = row.recordId || '';
+        employeeName.value = row.employeeName || '';
+        departmentName.value = row.departmentName || '';
+        shiftDate.value = row.shiftDate || '';
+        punchOutDate.value = row.punchOutDate || row.shiftDate || '';
+        timeIn.value = row.timeIn || '';
+        breakOut.value = row.breakOut || '';
+        breakIn.value = row.breakIn || '';
+        timeOut.value = row.timeOut || '';
+        rateOfPay.value = row.rateOfPay || 0;
+        tipAmount.value = row.tipAmount || 0;
+        creditCardTips.value = row.creditCardTips || 0;
+        tipsPaidOut.value = row.tipsPaidOut || 0;
+        tipShare.value = row.tipShare || 0;
+        sales.value = row.sales || 0;
+    }
+
+    function saveRecord() {
+        const item = getEditorData();
+
+        if (!item.employeeName.trim()) {
+            alert("Employee name is required.");
+            return;
+        }
+
+        if (!item.shiftDate) {
+            alert("Shift date is required.");
+            return;
+        }
+
+        fetch('/TimeRecordsEditor/SaveTimeRecord', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(item)
+        })
+        .then(r => r.json())
+        .then(result => {
+            alert(result.message || "Saved");
+            loadRecords();
+            clearEditor();
+        });
+    }
+
+    function deleteRecord() {
+        if (!recordId.value) {
+            alert("Select a record to delete.");
+            return;
+        }
+
+        if (!confirm("Delete this time record?"))
+            return;
+
+        fetch('/TimeRecordsEditor/DeleteTimeRecord', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recordId: recordId.value })
+        })
+        .then(r => r.json())
+        .then(result => {
+            alert(result.message || "Deleted");
+            loadRecords();
+            clearEditor();
+        });
+    }
+
+    function getEditorData() {
+        return {
+            recordId: recordId.value,
+            employeeName: employeeName.value,
+            departmentName: departmentName.value,
+            shiftDate: shiftDate.value,
+            punchOutDate: punchOutDate.value || shiftDate.value,
+            timeIn: timeIn.value,
+            breakOut: breakOut.value,
+            breakIn: breakIn.value,
+            timeOut: timeOut.value,
+            rateOfPay: n(rateOfPay.value),
+            tipAmount: n(tipAmount.value),
+            creditCardTips: n(creditCardTips.value),
+            tipsPaidOut: n(tipsPaidOut.value),
+            tipShare: n(tipShare.value),
+            sales: n(sales.value),
+            shift: 0
+        };
+    }
+
+    function clearEditor() {
+        recordId.value = '';
+        employeeName.value = '';
+        departmentName.value = '';
+        shiftDate.value = '';
+        punchOutDate.value = '';
+        timeIn.value = '';
+        breakOut.value = '';
+        breakIn.value = '';
+        timeOut.value = '';
+        rateOfPay.value = 0;
+        tipAmount.value = 0;
+        creditCardTips.value = 0;
+        tipsPaidOut.value = 0;
+        tipShare.value = 0;
+        sales.value = 0;
+
+        if (selectedRow) {
+            selectedRow.classList.remove('selected');
+            selectedRow = null;
+        }
+    }
+</script>

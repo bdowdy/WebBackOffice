@@ -1,0 +1,207 @@
+﻿@{
+    ViewData["Title"] = "Receipt Messages";
+}
+
+<style>
+    .page {
+        max-width: 900px;
+        margin: 25px auto;
+        background: #333;
+        color: white;
+        padding: 20px;
+        font-family: Arial;
+        border-radius: 8px;
+    }
+
+    h2 {
+        text-align: center;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .box {
+        background: #e0e0e0;
+        color: black;
+        padding: 16px;
+        border-radius: 6px;
+        border: 1px solid #777;
+    }
+
+    .row {
+        display: grid;
+        grid-template-columns: 80px 1fr;
+        gap: 8px;
+        margin-bottom: 10px;
+        align-items: center;
+    }
+
+    input, select {
+        padding: 7px;
+        width: 100%;
+    }
+
+    button {
+        padding: 9px 14px;
+        margin: 4px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .buttons {
+        text-align: center;
+        margin-top: 12px;
+    }
+</style>
+
+<div class="page">
+
+    <h2>Receipt Messages</h2>
+
+    <div class="row" style="max-width:350px;margin:0 auto 20px auto;">
+        <label>Day</label>
+        <select id="day" onchange="loadBothMessages()">
+            <option value="Default">Default</option>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+        </select>
+    </div>
+
+    <div class="grid">
+
+        <div class="box">
+            <h3>Regular Receipt Message</h3>
+
+            <div class="row"><label>Line 1</label><input id="ticketLine1" maxlength="80" /></div>
+            <div class="row"><label>Line 2</label><input id="ticketLine2" maxlength="80" /></div>
+            <div class="row"><label>Line 3</label><input id="ticketLine3" maxlength="80" /></div>
+            <div class="row"><label>Line 4</label><input id="ticketLine4" maxlength="80" /></div>
+
+            <div class="buttons">
+                <button type="button" onclick="saveTicketInfo()">Save Receipt</button>
+                <button type="button" onclick="deleteTicketInfo()">Delete</button>
+            </div>
+        </div>
+
+        <div class="box">
+            <h3>Credit Card Slip Message</h3>
+
+            <div class="row"><label>Line 1</label><input id="ccLine1" maxlength="80" /></div>
+            <div class="row"><label>Line 2</label><input id="ccLine2" maxlength="80" /></div>
+            <div class="row"><label>Line 3</label><input id="ccLine3" maxlength="80" /></div>
+            <div class="row"><label>Line 4</label><input id="ccLine4" maxlength="80" /></div>
+
+            <div class="buttons">
+                <button type="button" onclick="saveCreditCardMessage()">Save CC Slip</button>
+                <button type="button" onclick="deleteCreditCardMessage()">Delete</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="buttons">
+        <button type="button" onclick="location.href='/'">Exit</button>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", loadBothMessages);
+
+    function currentDay() {
+        return document.getElementById("day").value;
+    }
+
+    function loadBothMessages() {
+        loadTicketInfo();
+        loadCreditCardMessage();
+    }
+
+    function loadTicketInfo() {
+        fetch('/MSaleAdmin/GetTicketInfo?day=' + encodeURIComponent(currentDay()))
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById("ticketLine1").value = d.line1 || "";
+                document.getElementById("ticketLine2").value = d.line2 || "";
+                document.getElementById("ticketLine3").value = d.line3 || "";
+                document.getElementById("ticketLine4").value = d.line4 || "";
+            });
+    }
+
+    function loadCreditCardMessage() {
+        fetch('/MSaleAdmin/GetCreditCardMessage?day=' + encodeURIComponent(currentDay()))
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById("ccLine1").value = d.line1 || "";
+                document.getElementById("ccLine2").value = d.line2 || "";
+                document.getElementById("ccLine3").value = d.line3 || "";
+                document.getElementById("ccLine4").value = d.line4 || "";
+            });
+    }
+
+    function saveTicketInfo() {
+        let data = {
+            day: currentDay(),
+            line1: document.getElementById("ticketLine1").value,
+            line2: document.getElementById("ticketLine2").value,
+            line3: document.getElementById("ticketLine3").value,
+            line4: document.getElementById("ticketLine4").value
+        };
+
+        fetch('/MSaleAdmin/SaveTicketInfo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(x => alert(x.message || "Saved"));
+    }
+
+    function saveCreditCardMessage() {
+        let data = {
+            day: currentDay(),
+            line1: document.getElementById("ccLine1").value,
+            line2: document.getElementById("ccLine2").value,
+            line3: document.getElementById("ccLine3").value,
+            line4: document.getElementById("ccLine4").value
+        };
+
+        fetch('/MSaleAdmin/SaveCreditCardMessage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(x => alert(x.message || "Saved"));
+    }
+
+    function deleteTicketInfo() {
+        fetch('/MSaleAdmin/DeleteTicketInfo?day=' + encodeURIComponent(currentDay()), {
+            method: 'POST'
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert(x.message || "Deleted");
+            loadTicketInfo();
+        });
+    }
+
+    function deleteCreditCardMessage() {
+        fetch('/MSaleAdmin/DeleteCreditCardMessage?day=' + encodeURIComponent(currentDay()), {
+            method: 'POST'
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert(x.message || "Deleted");
+            loadCreditCardMessage();
+        });
+    }
+</script>

@@ -1,0 +1,452 @@
+﻿@{
+    ViewData["Title"] = "Tare Setup";
+}
+
+<style>
+    :root {
+        --bg-page: #f7f4f0;
+        --card-bg: #ffffff;
+        --card-border: #ece6de;
+        --text-primary: #2a201a;
+        --text-secondary: #6b5d52;
+        --text-muted: #9c8d80;
+        --accent: #e07a3c;
+        --accent-hover: #f08a4c;
+        --accent-soft: rgba(224, 122, 60, 0.12);
+        --danger: #c0392b;
+        --danger-hover: #d44a3a;
+        --input-border: #d9d0c4;
+        --row-alt: #faf7f3;
+        --row-hover: #fbf3eb;
+        --shadow-sm: 0 1px 3px rgba(40, 20, 10, 0.06);
+        --shadow-md: 0 4px 14px rgba(40, 20, 10, 0.08);
+    }
+
+    body {
+        background: var(--bg-page);
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: var(--text-primary);
+    }
+
+    .tare-page {
+        max-width: 900px;
+        margin: 32px auto;
+        padding: 0 20px 48px 20px;
+    }
+
+    .page-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+
+    h2 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+    }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 22px;
+            background: var(--accent);
+            border-radius: 2px;
+            margin-right: 12px;
+            vertical-align: -3px;
+        }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 14px;
+    }
+
+    .card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .tare-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 28px;
+    }
+
+    /* ---------- Left side: existing tares list ---------- */
+    .list-pane label,
+    .form-pane label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-secondary);
+        margin-bottom: 6px;
+    }
+
+    .list-pane select {
+        width: 100%;
+        height: 320px;
+        padding: 6px;
+        font-family: inherit;
+        font-size: 14px;
+        color: var(--text-primary);
+        background: white;
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+        .list-pane select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .list-pane select option {
+            padding: 8px 10px;
+            border-radius: 4px;
+        }
+
+            .list-pane select option:checked {
+                background: var(--accent) linear-gradient(0deg, var(--accent), var(--accent));
+                color: white;
+            }
+
+    .list-count {
+        margin-top: 8px;
+        font-size: 12px;
+        color: var(--text-muted);
+        text-align: center;
+    }
+
+    /* ---------- Right side: form fields ---------- */
+    .form-pane .field {
+        margin-bottom: 16px;
+    }
+
+    .form-pane input[type="text"],
+    .form-pane input[type="number"],
+    .form-pane input:not([type]) {
+        width: 100%;
+        font-family: inherit;
+        font-size: 14px;
+        color: var(--text-primary);
+        background: white;
+        border: 1px solid var(--input-border);
+        border-radius: 7px;
+        padding: 10px 12px;
+        box-sizing: border-box;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .form-pane input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .input-suffix {
+        position: relative;
+    }
+
+        .input-suffix::after {
+            content: attr(data-suffix);
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .input-suffix input {
+            padding-right: 38px !important;
+            text-align: right;
+        }
+
+    /* ---------- Buttons ---------- */
+    .button-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid var(--card-border);
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 40px;
+        padding: 0 18px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: inherit;
+        border-radius: 7px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        background: white;
+        color: var(--text-primary);
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+        box-shadow: 0 2px 8px rgba(224, 122, 60, 0.3);
+        flex: 1;
+    }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(224, 122, 60, 0.4);
+        }
+
+    .btn-secondary {
+        background: white;
+        border-color: var(--input-border);
+        color: var(--text-primary);
+    }
+
+        .btn-secondary:hover {
+            background: #fbf6f0;
+            border-color: #c9b8a8;
+        }
+
+    .btn-danger {
+        background: white;
+        color: var(--danger);
+        border-color: #e8c7c2;
+    }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+    /* ---------- Inline message ---------- */
+    .msg {
+        margin-top: 16px;
+        padding: 10px 14px;
+        border-radius: 7px;
+        font-size: 13px;
+        min-height: 20px;
+        background: transparent;
+        color: var(--text-secondary);
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+    }
+
+        .msg.info {
+            background: var(--accent-soft);
+            border-color: rgba(224, 122, 60, 0.25);
+            color: #8a4615;
+        }
+
+        .msg.error {
+            background: #fde8e6;
+            border-color: #f3c4be;
+            color: var(--danger);
+        }
+
+        .msg.success {
+            background: #e3f5ea;
+            border-color: #b8e1c6;
+            color: #1f6b3e;
+        }
+
+    @@media (max-width: 700px) {
+        .tare-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .list-pane select {
+            height: 220px;
+        }
+    }
+</style>
+
+<div class="tare-page">
+
+    <div class="page-header">
+        <h2>Tare Setup</h2>
+        <span class="page-subtitle">Create, edit, and remove tare weights</span>
+    </div>
+
+    <div class="card">
+        <div class="tare-grid">
+
+            <!-- Left: existing tares -->
+            <div class="list-pane">
+                <label for="tareListBox">Existing Tares</label>
+                <select id="tareListBox" size="10" onchange="loadSelectedTare()"></select>
+                <div class="list-count" id="tareCount">0 tares</div>
+            </div>
+
+            <!-- Right: editor -->
+            <div class="form-pane">
+                <div class="field">
+                    <label for="tareName">Tare Name</label>
+                    <input id="tareName" placeholder="e.g. Small Container" />
+                </div>
+
+                <div class="field">
+                    <label for="tareWt">Tare Weight</label>
+                    <div class="input-suffix" data-suffix="lb">
+                        <input id="tareWt" type="number" step="0.01" value="0.00" />
+                    </div>
+                </div>
+
+                <div class="button-row">
+                    <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+                    <button class="btn btn-danger" onclick="deleteTare()">Remove</button>
+                    <button class="btn btn-primary" onclick="saveTare()">Save</button>
+                </div>
+
+                <div id="msg" class="msg"></div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let tares = [];
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadTares();
+    });
+
+    function showMsg(text, type) {
+        let el = document.getElementById("msg");
+        el.innerText = text || "";
+        el.className = "msg" + (text ? " " + (type || "info") : "");
+    }
+
+    function updateCount() {
+        let el = document.getElementById("tareCount");
+        el.innerText = tares.length + (tares.length === 1 ? " tare" : " tares");
+    }
+
+    function clearForm() {
+        document.getElementById("tareListBox").value = "";
+        document.getElementById("tareName").value = "";
+        document.getElementById("tareWt").value = "0.00";
+        showMsg("");
+    }
+
+    async function loadTares() {
+        try {
+            let r = await fetch('/MSaleAdmin/GetTares');
+            tares = await r.json();
+
+            let list = document.getElementById("tareListBox");
+            list.innerHTML = "";
+
+            tares.forEach(x => {
+                let opt = document.createElement("option");
+                opt.value = x.tareName;
+                opt.text = x.tareName;
+                list.appendChild(opt);
+            });
+
+            updateCount();
+        } catch (err) {
+            showMsg("Could not load tares.", "error");
+            console.log(err);
+        }
+    }
+
+    function loadSelectedTare() {
+        let name = document.getElementById("tareListBox").value;
+        let item = tares.find(x => x.tareName === name);
+
+        if (!item) return;
+
+        document.getElementById("tareName").value = item.tareName;
+        document.getElementById("tareWt").value = Number(item.tareWt).toFixed(2);
+        showMsg("Existing tare loaded.", "info");
+    }
+
+    async function saveTare() {
+        let name = document.getElementById("tareName").value.trim();
+        let wt = document.getElementById("tareWt").value;
+
+        if (name === "") {
+            showMsg("Tare name is required.", "error");
+            return;
+        }
+
+        let body = {
+            tareName: name,
+            tareWt: parseFloat(wt || 0)
+        };
+
+        try {
+            let r = await fetch('/MSaleAdmin/SaveTare', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            let result = await r.json();
+            showMsg(result.message, "success");
+
+            await loadTares();
+
+            document.getElementById("tareListBox").value = name;
+            document.getElementById("tareName").value = name;
+        } catch (err) {
+            showMsg("Could not save tare.", "error");
+            console.log(err);
+        }
+    }
+
+    async function deleteTare() {
+        let name = document.getElementById("tareName").value.trim();
+
+        if (name === "") {
+            showMsg("Nothing to delete.", "error");
+            return;
+        }
+
+        if (!confirm('Remove tare "' + name + '"?')) return;
+
+        let body = {
+            tareName: name,
+            tareWt: 0
+        };
+
+        try {
+            let r = await fetch('/MSaleAdmin/DeleteTare', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            let result = await r.json();
+            showMsg(result.message, "success");
+
+            await loadTares();
+            clearForm();
+        } catch (err) {
+            showMsg("Could not delete tare.", "error");
+            console.log(err);
+        }
+    }
+</script>

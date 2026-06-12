@@ -1,0 +1,418 @@
+﻿@{
+    ViewData["Title"] = "Job Titles";
+}
+
+<style>
+    body {
+        background: #f4f6f9;
+    }
+
+    .page {
+        max-width: 1150px;
+        margin: 35px auto;
+        background: white;
+        padding: 28px;
+        border-radius: 16px;
+        box-shadow: 0 5px 18px rgba(0,0,0,.12);
+    }
+
+    .header {
+        background: #2c3e50;
+        color: white;
+        padding: 24px;
+        border-radius: 14px;
+        margin-bottom: 24px;
+    }
+
+        .header h2 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+    .section {
+        border: 1px solid #e1e5ea;
+        background: #fafafa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 22px;
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 16px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 16px;
+    }
+
+    label {
+        font-weight: 700;
+        color: #34495e;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    input {
+        width: 100%;
+        height: 42px;
+        border: 1px solid #cfd6dd;
+        border-radius: 8px;
+        padding: 0 12px;
+        box-sizing: border-box;
+        font-size: 15px;
+        background: white;
+    }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52,152,219,.35);
+        }
+
+    .required {
+        background: #fff8cc;
+    }
+
+    .option-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    .option-card {
+        background: white;
+        border: 1px solid #dce1e6;
+        border-radius: 10px;
+        padding: 13px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+        .option-card:hover {
+            background: #eef6ff;
+            border-color: #3498db;
+        }
+
+        .option-card input {
+            width: auto;
+            height: auto;
+            margin-right: 8px;
+        }
+
+    .button-bar {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 22px;
+    }
+
+    button {
+        border: none;
+        border-radius: 8px;
+        padding: 11px 22px;
+        font-weight: 700;
+        color: white;
+        cursor: pointer;
+    }
+
+    .btn-save {
+        background: #27ae60;
+    }
+
+    .btn-delete {
+        background: #e74c3c;
+    }
+
+    .btn-clear {
+        background: #7f8c8d;
+    }
+
+    button:hover {
+        opacity: .9;
+    }
+
+    .list-header,
+    .job-row {
+        display: grid;
+        grid-template-columns: 1.4fr 100px 130px 150px 100px;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .list-header {
+        background: #34495e;
+        color: white;
+        padding: 13px 15px;
+        font-weight: 700;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .job-list {
+        max-height: 430px;
+        overflow-y: auto;
+        border: 1px solid #dce1e6;
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        background: white;
+    }
+
+    .job-row {
+        padding: 13px 15px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+        .job-row:hover {
+            background: #eef6ff;
+        }
+
+        .job-row.selected {
+            background: #3498db;
+            color: white;
+        }
+
+    .center-text {
+        text-align: center;
+    }
+
+    .right-text {
+        text-align: right;
+    }
+
+    .hint {
+        color: #7f8c8d;
+        font-size: 14px;
+        margin-top: 6px;
+    }
+
+    @@media(max-width:850px) {
+        .grid {
+            grid-template-columns: 1fr;
+        }
+
+        .list-header,
+        .job-row {
+            grid-template-columns: 1fr;
+        }
+
+        .center-text,
+        .right-text {
+            text-align: left;
+        }
+    }
+</style>
+
+<div class="page">
+
+    <div class="header">
+        <h2>Job Titles</h2>
+        <div>Manage tipped positions, tip pool percent, 7shifts job codes, and cash drawer access.</div>
+    </div>
+
+    <input type="hidden" id="originalJobTitle" />
+
+    <div class="section">
+        <div class="section-title">Job Title Setup</div>
+
+        <div class="grid">
+
+            <div>
+                <label>Job Title</label>
+                <input id="jobTitle"
+                       class="required"
+                       placeholder="Example: Server, Bartender, Cashier" />
+                <div class="hint">This is the job title shown in the POS.</div>
+            </div>
+
+            <div>
+                <label>7shifts Job Code</label>
+                <input id="jobCodeNumber"
+                       placeholder="Job code" />
+                <div class="hint">Used for 7shifts mapping.</div>
+            </div>
+
+            <div>
+                <label>Tip Pool %</label>
+                <input id="tipPoolPercent"
+                       type="number"
+                       step="0.01"
+                       value="0.00" />
+                <div class="hint">Enter 0.00 if not used.</div>
+            </div>
+
+        </div>
+
+        <div class="option-grid">
+
+            <label class="option-card">
+                <input id="tippedPosition"
+                       type="checkbox" />
+                Tipped Position - start audit / tip tracking
+            </label>
+
+            <label class="option-card">
+                <input id="drawer"
+                       type="checkbox" />
+                Opens Cash Drawer
+            </label>
+
+        </div>
+
+        <div class="button-bar">
+            <button type="button" class="btn-clear" onclick="clearJobTitle()">Clear</button>
+            <button type="button" class="btn-delete" onclick="deleteJobTitle()">Delete</button>
+            <button type="button" class="btn-save" onclick="saveJobTitle()">Save Job Title</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Existing Job Titles</div>
+
+        <div class="list-header">
+            <div>Job Title</div>
+            <div class="center-text">Tipped</div>
+            <div class="right-text">Tip Pool %</div>
+            <div>7shifts Code</div>
+            <div class="center-text">Drawer</div>
+        </div>
+
+        <div id="jobList" class="job-list"></div>
+    </div>
+
+</div>
+
+<script>
+    let selectedJobRow = null;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadJobTitles();
+    });
+
+    function loadJobTitles() {
+        fetch('/MSaleAdmin/GetJobTitles')
+            .then(r => r.json())
+            .then(data => {
+                let list = document.getElementById('jobList');
+                list.innerHTML = '';
+
+                data.forEach(function (x) {
+                    let div = document.createElement('div');
+                    div.className = 'job-row';
+
+                    div.innerHTML =
+                        '<div>' + escapeHtml(x.jobTitle || '') + '</div>' +
+                        '<div class="center-text">' + (x.tippedPosition ? 'Yes' : 'No') + '</div>' +
+                        '<div class="right-text">' + Number(x.tipPoolPercent || 0).toFixed(2) + '</div>' +
+                        '<div>' + escapeHtml(x.jobCodeNumber || '') + '</div>' +
+                        '<div class="center-text">' + (x.drawer ? 'Yes' : 'No') + '</div>';
+
+                    div.onclick = function () {
+                        if (selectedJobRow)
+                            selectedJobRow.classList.remove('selected');
+
+                        selectedJobRow = div;
+                        selectedJobRow.classList.add('selected');
+
+                        document.getElementById('jobTitle').value = x.jobTitle || '';
+                        document.getElementById('originalJobTitle').value = x.jobTitle || '';
+                        document.getElementById('tippedPosition').checked = x.tippedPosition === true;
+                        document.getElementById('tipPoolPercent').value = Number(x.tipPoolPercent || 0).toFixed(2);
+                        document.getElementById('jobCodeNumber').value = x.jobCodeNumber || '';
+                        document.getElementById('drawer').checked = x.drawer === true;
+                    };
+
+                    list.appendChild(div);
+                });
+            });
+    }
+
+    function saveJobTitle() {
+        let item = {
+            jobTitle: document.getElementById('jobTitle').value,
+            originalJobTitle: document.getElementById('originalJobTitle').value,
+            tippedPosition: document.getElementById('tippedPosition').checked,
+            tipPoolPercent: parseFloat(document.getElementById('tipPoolPercent').value || 0),
+            jobCodeNumber: document.getElementById('jobCodeNumber').value,
+            drawer: document.getElementById('drawer').checked
+        };
+
+        if (!item.jobTitle.trim()) {
+            alert("Enter a job title.");
+            return;
+        }
+
+        fetch('/MSaleAdmin/SaveJobTitle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(item)
+        })
+        .then(r => r.json())
+        .then(result => {
+            alert(result.message || "Saved");
+            loadJobTitles();
+            clearJobTitle();
+        });
+    }
+
+    function deleteJobTitle() {
+        let item = {
+            jobTitle:
+                document.getElementById('originalJobTitle').value ||
+                document.getElementById('jobTitle').value
+        };
+
+        if (!item.jobTitle.trim()) {
+            alert("Select a job title to delete.");
+            return;
+        }
+
+        if (!confirm("Delete job title " + item.jobTitle + "?"))
+            return;
+
+        fetch('/MSaleAdmin/DeleteJobTitle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(item)
+        })
+        .then(r => r.json())
+        .then(result => {
+            alert(result.message || "Deleted");
+            loadJobTitles();
+            clearJobTitle();
+        });
+    }
+
+    function clearJobTitle() {
+        document.getElementById('jobTitle').value = '';
+        document.getElementById('originalJobTitle').value = '';
+        document.getElementById('tippedPosition').checked = false;
+        document.getElementById('tipPoolPercent').value = '0.00';
+        document.getElementById('jobCodeNumber').value = '';
+        document.getElementById('drawer').checked = false;
+
+        if (selectedJobRow) {
+            selectedJobRow.classList.remove('selected');
+            selectedJobRow = null;
+        }
+
+        document.getElementById('jobTitle').focus();
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+</script>

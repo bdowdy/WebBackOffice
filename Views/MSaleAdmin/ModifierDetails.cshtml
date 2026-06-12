@@ -1,0 +1,450 @@
+﻿@{
+    ViewData["Title"] = "Modifier Details";
+}
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f3f0ea;
+    }
+
+    .page {
+        max-width: 1300px;
+        margin: 20px auto;
+        padding: 16px;
+    }
+
+    h2 {
+        text-align: center;
+    }
+
+    .toolbar, .panel {
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    .toolbar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+        .toolbar select {
+            width: 300px;
+        }
+
+    .main {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 14px;
+    }
+
+    select, input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+    }
+
+    button {
+        padding: 9px 14px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+        button.primary {
+            background: #e07a3c;
+            color: white;
+            border: 1px solid #e07a3c;
+        }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-top: 10px;
+    }
+
+    #itemList {
+        height: 650px;
+        font-size: 15px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+    }
+
+    .status {
+        margin-top: 10px;
+        font-weight: bold;
+        color: #444;
+    }
+</style>
+
+<div class="page">
+    <h2>Modifier Detail Maintenance</h2>
+
+    <div class="toolbar">
+        <label>Modifier Name</label>
+        <select id="modifierSelect" onchange="loadItems()"></select>
+
+        <button type="button" onclick="loadItems()">Reload</button>
+        <button type="button" onclick="newItem()">New Item</button>
+        <button type="button" class="primary" onclick="saveItem()">Save</button>
+
+        <div style="flex:1"></div>
+
+        <button type="button" onclick="location.href='/MSaleAdmin'">Dashboard</button>
+        <button type="button" onclick="location.href='/'">Exit</button>
+    </div>
+
+    <div class="main">
+        <div class="panel">
+            <h3>Modifier Items</h3>
+            <select id="itemList" size="30" onchange="loadEditor()"></select>
+            <div id="itemStatus" class="status"></div>
+        </div>
+
+        <div class="panel">
+            <h3>Selected Modifier Item</h3>
+
+            <input type="hidden" id="originalModifierName" />
+            <input type="hidden" id="originalModifierCategory" />
+
+            <div class="grid">
+                <div>
+                    <label>Modifier Category</label>
+                    <input id="modifierCategory" />
+                </div>
+
+                <div>
+                    <label>Modifier Cost</label>
+                    <input id="modifierCost" type="number" step="0.01" />
+                </div>
+
+                <div>
+                    <label>Item Cost</label>
+                    <input id="itemCost" type="number" step="0.01" />
+                </div>
+
+                <div>
+                    <label>Price Level</label>
+                    <input id="priceLevel" />
+                </div>
+
+                <div>
+                    <label>Selection Quantity</label>
+                    <input id="selectionQuantity" type="number" />
+                </div>
+
+                <div>
+                    <label>PLU</label>
+                    <input id="plu" />
+                </div>
+
+                <div>
+                    <label>Alias</label>
+                    <input id="alias" />
+                </div>
+
+                <div>
+                    <label>Comes With</label>
+                    <input id="comesWith" />
+                </div>
+
+                <div>
+                    <label>Alt Modifier</label>
+                    <input id="altModifier" />
+                </div>
+            </div>
+
+            <h3>Taxes</h3>
+
+            <div class="grid">
+                <div>
+                    <label>Sales Tax</label>
+                    <select id="salesTax"></select>
+                </div>
+
+                <div>
+                    <label>Special Tax</label>
+                    <select id="specialTax"></select>
+                </div>
+
+                <div>
+                    <label>Liquor Tax</label>
+                    <select id="liquorTax"></select>
+                </div>
+            </div>
+
+            <h3>Remote Printers</h3>
+
+            <div class="grid">
+                <div><label>Remote Printer 1</label><select id="remote1"></select></div>
+                <div><label>Remote Printer 2</label><select id="remote2"></select></div>
+                <div><label>Remote Printer 3</label><select id="remote3"></select></div>
+                <div><label>Remote Printer 4</label><select id="remote4"></select></div>
+                <div><label>Remote Printer 5</label><select id="remote5"></select></div>
+                <div><label>Remote Printer 6</label><select id="remote6"></select></div>
+            </div>
+
+            <br />
+
+            <button type="button" class="primary" style="width:100%" onclick="saveItem()">
+                Save Modifier Item
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let items = [];
+    let selectedIndex = -1;
+    let isNewItem = false;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadTaxLists();
+        loadRemotePrinters();
+        loadModifierNames();
+    });
+
+    function loadTaxLists() {
+        ["salesTax", "specialTax", "liquorTax"].forEach(id => {
+            const ddl = document.getElementById(id);
+            ddl.innerHTML = "";
+
+            for (let i = 0; i <= 5; i++) {
+                ddl.add(new Option(i.toString(), i.toString()));
+            }
+        });
+    }
+
+    function loadRemotePrinters() {
+        fetch('/ModifierDetails/GetSystemPrinters')
+            .then(r => r.json())
+            .then(data => {
+                ["remote1", "remote2", "remote3", "remote4", "remote5", "remote6"].forEach(id => {
+                    const ddl = document.getElementById(id);
+                    ddl.innerHTML = "";
+                    ddl.add(new Option("-- None --", ""));
+
+                    data.forEach(name => {
+                        ddl.add(new Option(name, name));
+                    });
+                });
+            })
+            .catch(err => alert("Could not load system printers: " + err.message));
+    }
+
+    function loadModifierNames() {
+        fetch('/ModifierDetails/GetModifierNames')
+            .then(r => r.json())
+            .then(data => {
+                const sel = document.getElementById("modifierSelect");
+                sel.innerHTML = "";
+                sel.add(new Option("-- Select Modifier --", ""));
+
+                data.forEach(x => {
+                    sel.add(new Option(x, x));
+                });
+
+                if (data.length > 0) {
+                    sel.value = data[0];
+                    loadItems();
+                }
+            })
+            .catch(err => alert("Could not load modifier names: " + err.message));
+    }
+
+    function loadItems() {
+        const modifierName = document.getElementById("modifierSelect").value;
+
+        if (!modifierName) {
+            items = [];
+            selectedIndex = -1;
+            isNewItem = false;
+            drawItems();
+            clearEditor();
+            return;
+        }
+
+        fetch('/ModifierDetails/GetModifierDetailItems?modifierName=' + encodeURIComponent(modifierName))
+            .then(r => r.json())
+            .then(data => {
+                items = data || [];
+                selectedIndex = -1;
+                isNewItem = false;
+                drawItems();
+            })
+            .catch(err => alert("Could not load modifier items: " + err.message));
+    }
+
+    function drawItems() {
+        const list = document.getElementById("itemList");
+        const status = document.getElementById("itemStatus");
+
+        list.innerHTML = "";
+
+        items.forEach((x, i) => {
+            list.add(new Option(x.modifierCategory || "", i.toString()));
+        });
+
+        status.innerText = items.length + " item(s) loaded";
+
+        if (items.length > 0) {
+            list.selectedIndex = 0;
+            selectedIndex = 0;
+            loadEditor();
+        } else {
+            selectedIndex = -1;
+            clearEditor();
+        }
+    }
+
+    function loadEditor() {
+        const list = document.getElementById("itemList");
+
+        if (list.selectedIndex < 0 || list.selectedIndex >= items.length) {
+            selectedIndex = -1;
+            clearEditor();
+            return;
+        }
+
+        isNewItem = false;
+        selectedIndex = list.selectedIndex;
+
+        const x = items[selectedIndex];
+
+        document.getElementById("originalModifierName").value = x.modifierName || "";
+        document.getElementById("originalModifierCategory").value = x.modifierCategory || "";
+
+        document.getElementById("modifierCategory").value = x.modifierCategory || "";
+        document.getElementById("modifierCost").value = x.modifierCost ?? 0;
+        document.getElementById("itemCost").value = x.itemCost ?? 0;
+        document.getElementById("priceLevel").value = x.priceLevel || "";
+        document.getElementById("selectionQuantity").value = x.selectionQuantity ?? 0;
+        document.getElementById("plu").value = x.plu || "";
+        document.getElementById("alias").value = x.alias || "";
+        document.getElementById("comesWith").value = x.comesWith || "";
+        document.getElementById("altModifier").value = x.altModifier || "";
+
+        document.getElementById("salesTax").value = x.salesTax ?? 0;
+        document.getElementById("specialTax").value = x.specialTax ?? 0;
+        document.getElementById("liquorTax").value = x.liquorTax ?? 0;
+
+        document.getElementById("remote1").value = x.remotePrinter1 || "";
+        document.getElementById("remote2").value = x.remotePrinter2 || "";
+        document.getElementById("remote3").value = x.remotePrinter3 || "";
+        document.getElementById("remote4").value = x.remotePrinter4 || "";
+        document.getElementById("remote5").value = x.remotePrinter5 || "";
+        document.getElementById("remote6").value = x.remotePrinter6 || "";
+
+        document.getElementById("itemStatus").innerText = "Editing existing item";
+    }
+
+    function newItem() {
+        const modifierName = document.getElementById("modifierSelect").value;
+
+        if (!modifierName) {
+            alert("Select a modifier name first.");
+            return;
+        }
+
+        isNewItem = true;
+        selectedIndex = -1;
+
+        document.getElementById("itemList").selectedIndex = -1;
+        clearEditor();
+
+        document.getElementById("itemStatus").innerText = "Adding new item";
+        document.getElementById("modifierCategory").focus();
+    }
+
+    function clearEditor() {
+        document.getElementById("originalModifierName").value = "";
+        document.getElementById("originalModifierCategory").value = "";
+
+        document.getElementById("modifierCategory").value = "";
+        document.getElementById("modifierCost").value = "0";
+        document.getElementById("itemCost").value = "0";
+        document.getElementById("priceLevel").value = "";
+        document.getElementById("selectionQuantity").value = "0";
+        document.getElementById("plu").value = "";
+        document.getElementById("alias").value = "";
+        document.getElementById("comesWith").value = "";
+        document.getElementById("altModifier").value = "";
+
+        document.getElementById("salesTax").value = "0";
+        document.getElementById("specialTax").value = "0";
+        document.getElementById("liquorTax").value = "0";
+
+        ["remote1", "remote2", "remote3", "remote4", "remote5", "remote6"].forEach(id => {
+            document.getElementById(id).value = "";
+        });
+    }
+
+    function saveItem() {
+        const modifierName = document.getElementById("modifierSelect").value;
+        const modifierCategory = document.getElementById("modifierCategory").value.trim();
+
+        if (!modifierName) {
+            alert("Select a modifier name first.");
+            return;
+        }
+
+        if (!modifierCategory) {
+            alert("Enter a modifier category.");
+            return;
+        }
+
+        const model = {
+            isNewItem: isNewItem,
+
+            modifierName: modifierName,
+            modifierCategory: modifierCategory,
+
+            originalModifierName: document.getElementById("originalModifierName").value,
+            originalModifierCategory: document.getElementById("originalModifierCategory").value,
+
+            modifierCost: parseFloat(document.getElementById("modifierCost").value || 0),
+            itemCost: parseFloat(document.getElementById("itemCost").value || 0),
+
+            salesTax: parseInt(document.getElementById("salesTax").value || 0),
+            specialTax: parseInt(document.getElementById("specialTax").value || 0),
+            liquorTax: parseInt(document.getElementById("liquorTax").value || 0),
+
+            remotePrinter1: document.getElementById("remote1").value,
+            remotePrinter2: document.getElementById("remote2").value,
+            remotePrinter3: document.getElementById("remote3").value,
+            remotePrinter4: document.getElementById("remote4").value,
+            remotePrinter5: document.getElementById("remote5").value,
+            remotePrinter6: document.getElementById("remote6").value,
+
+            priceLevel: document.getElementById("priceLevel").value,
+            altModifier: document.getElementById("altModifier").value,
+            selectionQuantity: parseInt(document.getElementById("selectionQuantity").value || 0),
+            alias: document.getElementById("alias").value,
+            comesWith: document.getElementById("comesWith").value,
+            plu: document.getElementById("plu").value
+        };
+
+        fetch('/ModifierDetails/SaveModifierDetailItem', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(model)
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert(x.message || "Saved");
+
+            if (x.success === true) {
+                isNewItem = false;
+                loadItems();
+            }
+        })
+        .catch(err => alert("Save failed: " + err.message));
+    }
+</script>

@@ -1,0 +1,465 @@
+﻿@{
+    ViewData["Title"] = "Menu Item Maintenance";
+}
+
+<div class="page">
+    <h2>Menu Item Maintenance</h2>
+
+    <div class="toolbar">
+        <label>Existing Menu Item</label>
+        <select id="menuItemSelect" onchange="loadMenuItem()"></select>
+
+        <button type="button" onclick="newItem()">New</button>
+        <button type="button" class="primary" onclick="saveItem()">Save</button>
+        <button type="button" onclick="loadMenuItems()">Reload</button>
+
+        <div style="flex:1"></div>
+
+        <button type="button" onclick="location.href='/MSaleAdmin'">Dashboard</button>
+        <button type="button" onclick="location.href='/'">Exit</button>
+    </div>
+
+    <div class="main-grid">
+        <div class="panel">
+            <h3>Item Information</h3>
+
+            <input type="hidden" id="originalMenuItemName" />
+
+            <label>Menu Item Name</label>
+            <input id="menuItemName" />
+
+            <label>Department</label>
+            <select id="departmentName"></select>
+
+            <label>Report Category</label>
+            <select id="reportCategory"></select>
+
+            <div class="two-grid">
+                <div>
+                    <label>Regular Price</label>
+                    <input id="regularPrice" type="number" step="0.01" />
+                </div>
+                <div>
+                    <label>Inventory Amount</label>
+                    <input id="inventoryAmount" type="number" step="0.01" />
+                </div>
+                <div>
+                    <label>Product Cost</label>
+                    <input id="productCost" type="number" step="0.01" />
+                </div>
+                <div>
+                    <label>Up Charge</label>
+                    <input id="upCharge" type="number" step="0.01" />
+                </div>
+            </div>
+
+            <label>Item Information</label>
+            <textarea id="itemInfo"></textarea>
+        </div>
+
+        <div class="panel">
+            <h3>Item Codes / Options</h3>
+
+            <label>Barcode</label>
+            <input id="barCode" />
+
+            <div class="three-grid">
+                <div>
+                    <label>Sales Tax Table</label>
+                    <select id="salesTaxTable"></select>
+                </div>
+                <div>
+                    <label>Special Tax Table</label>
+                    <select id="specialTaxTable"></select>
+                </div>
+                <div>
+                    <label>Surcharge</label>
+                    <select id="liquorTaxAmount"></select>
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="two-grid">
+                <div><label>Remote Printer 1</label><select id="remote1"></select></div>
+                <div><label>Remote Printer 4</label><select id="remote4"></select></div>
+                <div><label>Remote Printer 2</label><select id="remote2"></select></div>
+                <div><label>Remote Printer 5</label><select id="remote5"></select></div>
+                <div><label>Remote Printer 3</label><select id="remote3"></select></div>
+                <div><label>Remote Printer 6</label><select id="remote6"></select></div>
+            </div>
+
+            <hr />
+
+            <div class="checkbox-grid">
+                <label><input type="checkbox" id="avalibility" /> Available</label>
+                <label><input type="checkbox" id="taxable" /> Taxable</label>
+                <label><input type="checkbox" id="useModifiers" /> Use Modifiers</label>
+                <label><input type="checkbox" id="modifiersAreOptional" /> Modifiers Optional</label>
+                <label><input type="checkbox" id="openPrice" /> Open Price</label>
+                <label><input type="checkbox" id="quickPick" /> Quick Pick</label>
+                <label><input type="checkbox" id="quickButton" /> Quick Button</label>
+                <label><input type="checkbox" id="onLine" /> On Line</label>
+            </div>
+
+            <div id="status"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f3f0ea;
+        margin: 0;
+    }
+
+    .page {
+        max-width: 1300px;
+        margin: 20px auto;
+        padding: 16px;
+    }
+
+    h2 {
+        text-align: center;
+    }
+
+    .toolbar, .panel {
+        background: white;
+        border: 1px solid #bbb;
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 14px;
+    }
+
+    .toolbar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+        .toolbar select {
+            width: 500px;
+        }
+
+    .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    .two-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .three-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+    }
+
+    label {
+        display: block;
+        font-weight: bold;
+        margin-top: 10px;
+        margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        height: 44px;
+        padding: 10px;
+        box-sizing: border-box;
+        font-size: 16px;
+    }
+
+    textarea {
+        height: 150px;
+    }
+
+    button {
+        height: 42px;
+        padding: 0 18px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+        button.primary {
+            background: #e07a3c;
+            color: white;
+            border: 1px solid #e07a3c;
+        }
+
+    .checkbox-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+        .checkbox-grid label {
+            background: #f7f7f7;
+            border: 1px solid #ddd;
+            padding: 10px;
+            font-weight: normal;
+        }
+
+    hr {
+        border: none;
+        border-top: 1px solid #ddd;
+        margin: 16px 0;
+    }
+
+    #status {
+        margin-top: 10px;
+        font-weight: bold;
+    }
+</style>
+
+<script>
+    let isNewItem = false;
+    let lookupsReady = false;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        startup();
+    });
+
+    async function startup() {
+        loadTaxOptions();
+
+        await loadDepartments();
+        await loadReportCategories();
+        await loadSystemPrinters();
+        await loadMenuItems();
+
+        lookupsReady = true;
+        newItem();
+    }
+
+    function loadTaxOptions() {
+        ["salesTaxTable", "specialTaxTable", "liquorTaxAmount"].forEach(id => {
+            const ddl = document.getElementById(id);
+            ddl.innerHTML = "";
+
+            for (let i = 0; i <= 5; i++) {
+                ddl.add(new Option(i.toString(), i.toString()));
+            }
+        });
+    }
+
+    function loadDepartments() {
+        return fetch('/MenuItem/GetDepartments')
+            .then(r => r.json())
+            .then(data => {
+                const ddl = document.getElementById("departmentName");
+                ddl.innerHTML = "";
+                ddl.add(new Option("-- Select Department --", ""));
+                data.forEach(x => ddl.add(new Option(x, x)));
+            });
+    }
+
+    function loadReportCategories() {
+        return fetch('/MenuItem/GetReportCategories')
+            .then(r => r.json())
+            .then(data => {
+                const ddl = document.getElementById("reportCategory");
+                ddl.innerHTML = "";
+                ddl.add(new Option("-- Select Report Category --", ""));
+                data.forEach(x => ddl.add(new Option(x, x)));
+            });
+    }
+
+    function loadSystemPrinters() {
+        return fetch('/MenuItem/GetSystemPrinters')
+            .then(r => r.json())
+            .then(data => {
+                ["remote1", "remote2", "remote3", "remote4", "remote5", "remote6"].forEach(id => {
+                    const ddl = document.getElementById(id);
+                    ddl.innerHTML = "";
+                    ddl.add(new Option("-- None --", ""));
+                    data.forEach(x => ddl.add(new Option(x, x)));
+                });
+            });
+    }
+
+    function loadMenuItems() {
+        return fetch('/MenuItem/GetMenuItemNames')
+            .then(r => r.json())
+            .then(data => {
+                const ddl = document.getElementById("menuItemSelect");
+                ddl.innerHTML = "";
+                ddl.add(new Option("-- Select Menu Item --", ""));
+                data.forEach(x => ddl.add(new Option(x, x)));
+            });
+    }
+
+    function loadMenuItem() {
+        const name = document.getElementById("menuItemSelect").value;
+
+        if (!name) {
+            newItem();
+            return;
+        }
+
+        fetch('/MenuItem/GetMenuItem?menuItemName=' + encodeURIComponent(name))
+            .then(r => r.json())
+            .then(result => {
+                if (!result.success) {
+                    alert(result.message || "Item not found.");
+                    return;
+                }
+
+                const x = result.data;
+                isNewItem = false;
+
+                document.getElementById("originalMenuItemName").value = x.menuItemName || "";
+                document.getElementById("menuItemName").value = x.menuItemName || "";
+                document.getElementById("departmentName").value = x.departmentName || "";
+                document.getElementById("reportCategory").value = x.reportCategory || "";
+
+                document.getElementById("regularPrice").value = x.regularPrice ?? 0;
+                document.getElementById("inventoryAmount").value = x.inventoryAmount ?? 0;
+                document.getElementById("productCost").value = x.productCost ?? 0;
+                document.getElementById("upCharge").value = x.upCharge ?? 0;
+
+                document.getElementById("barCode").value = x.barCode || "";
+                document.getElementById("itemInfo").value = x.itemInfo || "";
+
+                document.getElementById("salesTaxTable").value = String(x.salesTaxTable ?? 0);
+                document.getElementById("specialTaxTable").value = String(x.specialTaxTable ?? 0);
+                document.getElementById("liquorTaxAmount").value = String(x.liquorTaxAmount ?? 0);
+
+                setPrinterValue("remote1", x.remote1);
+                setPrinterValue("remote2", x.remote2);
+                setPrinterValue("remote3", x.remote3);
+                setPrinterValue("remote4", x.remote4);
+                setPrinterValue("remote5", x.remote5);
+                setPrinterValue("remote6", x.remote6);
+
+                document.getElementById("avalibility").checked = x.avalibility === true;
+                document.getElementById("taxable").checked = x.taxable === true;
+                document.getElementById("useModifiers").checked = x.useModifiers === true;
+                document.getElementById("modifiersAreOptional").checked = x.modifiersAreOptional === true;
+                document.getElementById("openPrice").checked = x.openPrice === true;
+                document.getElementById("quickPick").checked = x.quickPick === true;
+                document.getElementById("quickButton").checked = x.quickButton === true;
+                document.getElementById("onLine").checked = x.onLine === true;
+
+                document.getElementById("status").innerText = "Editing existing item";
+            });
+    }
+
+    function setPrinterValue(id, value) {
+        const ddl = document.getElementById(id);
+        const val = value || "";
+
+        if (val && !Array.from(ddl.options).some(o => o.value === val)) {
+            ddl.add(new Option(val, val));
+        }
+
+        ddl.value = val;
+    }
+
+    function newItem() {
+        isNewItem = true;
+
+        document.getElementById("menuItemSelect").value = "";
+        document.getElementById("originalMenuItemName").value = "";
+        document.getElementById("menuItemName").value = "";
+        document.getElementById("departmentName").value = "";
+        document.getElementById("reportCategory").value = "";
+
+        document.getElementById("regularPrice").value = "0.00";
+        document.getElementById("inventoryAmount").value = "0";
+        document.getElementById("productCost").value = "0.00";
+        document.getElementById("upCharge").value = "0.00";
+
+        document.getElementById("barCode").value = "";
+        document.getElementById("itemInfo").value = "";
+
+        document.getElementById("salesTaxTable").value = "0";
+        document.getElementById("specialTaxTable").value = "0";
+        document.getElementById("liquorTaxAmount").value = "0";
+
+        ["remote1", "remote2", "remote3", "remote4", "remote5", "remote6"].forEach(id => {
+            document.getElementById(id).value = "";
+        });
+
+        document.getElementById("avalibility").checked = true;
+        document.getElementById("taxable").checked = true;
+        document.getElementById("useModifiers").checked = false;
+        document.getElementById("modifiersAreOptional").checked = false;
+        document.getElementById("openPrice").checked = false;
+        document.getElementById("quickPick").checked = false;
+        document.getElementById("quickButton").checked = false;
+        document.getElementById("onLine").checked = false;
+
+        document.getElementById("status").innerText = "Adding new menu item";
+    }
+
+    function saveItem() {
+        const name = document.getElementById("menuItemName").value.trim();
+
+        if (!name) {
+            alert("Enter a menu item name.");
+            return;
+        }
+
+        const model = {
+            isNewItem: isNewItem,
+            menuItemName: name,
+            originalMenuItemName: document.getElementById("originalMenuItemName").value,
+
+            departmentName: document.getElementById("departmentName").value,
+            reportCategory: document.getElementById("reportCategory").value,
+
+            regularPrice: parseFloat(document.getElementById("regularPrice").value || 0),
+            inventoryAmount: parseFloat(document.getElementById("inventoryAmount").value || 0),
+            productCost: parseFloat(document.getElementById("productCost").value || 0),
+            upCharge: parseFloat(document.getElementById("upCharge").value || 0),
+
+            barCode: document.getElementById("barCode").value,
+            itemInfo: document.getElementById("itemInfo").value,
+
+            salesTaxTable: parseInt(document.getElementById("salesTaxTable").value || 0),
+            specialTaxTable: parseInt(document.getElementById("specialTaxTable").value || 0),
+            liquorTaxAmount: parseInt(document.getElementById("liquorTaxAmount").value || 0),
+
+            remote1: document.getElementById("remote1").value,
+            remote2: document.getElementById("remote2").value,
+            remote3: document.getElementById("remote3").value,
+            remote4: document.getElementById("remote4").value,
+            remote5: document.getElementById("remote5").value,
+            remote6: document.getElementById("remote6").value,
+
+            avalibility: document.getElementById("avalibility").checked,
+            taxable: document.getElementById("taxable").checked,
+            useModifiers: document.getElementById("useModifiers").checked,
+            modifiersAreOptional: document.getElementById("modifiersAreOptional").checked,
+            openPrice: document.getElementById("openPrice").checked,
+            quickPick: document.getElementById("quickPick").checked,
+            quickButton: document.getElementById("quickButton").checked,
+            onLine: document.getElementById("onLine").checked
+        };
+
+        fetch('/MenuItem/SaveMenuItem', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(model)
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert(x.message || "Saved");
+
+            if (x.success === true) {
+                isNewItem = false;
+                document.getElementById("originalMenuItemName").value = name;
+                document.getElementById("status").innerText = "Saved";
+                loadMenuItems();
+            }
+        })
+        .catch(err => alert("Save failed: " + err.message));
+    }
+</script>

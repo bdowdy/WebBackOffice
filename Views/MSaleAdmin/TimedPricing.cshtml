@@ -1,0 +1,445 @@
+﻿@{
+    ViewData["Title"] = "Timed Pricing";
+}
+
+<style>
+    .page {
+        max-width: 1250px;
+        margin: 20px auto;
+        background: #e5e5e5;
+        padding: 20px;
+        border-radius: 8px;
+        font-family: Arial, sans-serif;
+    }
+
+    h2 {
+        text-align: center;
+    }
+
+    .top-bar {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    button {
+        padding: 8px 14px;
+        margin: 4px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .editor {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 20px;
+    }
+
+    .panel {
+        background: white;
+        border: 1px solid #999;
+        padding: 12px;
+        border-radius: 6px;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-top: 8px;
+    }
+
+    input {
+        width: 100%;
+        padding: 7px;
+        margin-top: 4px;
+    }
+
+    .days {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+        .days label {
+            font-weight: normal;
+            margin: 0;
+        }
+
+    #timeline {
+        position: relative;
+        background: #222;
+        border: 2px solid #555;
+        min-height: 520px;
+        padding-top: 35px;
+        overflow-x: auto;
+    }
+
+    .hour-line {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: #555;
+    }
+
+    .hour-label {
+        position: absolute;
+        top: 5px;
+        color: white;
+        font-size: 11px;
+        transform: translateX(-50%);
+    }
+
+    .day-row {
+        position: relative;
+        height: 62px;
+        border-top: 1px solid #444;
+        color: white;
+    }
+
+    .day-name {
+        position: absolute;
+        left: 5px;
+        top: 20px;
+        width: 75px;
+        font-weight: bold;
+    }
+
+    .event-block {
+        position: absolute;
+        top: 12px;
+        height: 38px;
+        background: #0088cc;
+        color: white;
+        border: 1px solid #fff;
+        border-radius: 5px;
+        font-size: 12px;
+        padding: 4px;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+        .event-block:hover {
+            background: #00aaff;
+        }
+
+    .selected {
+        outline: 3px solid yellow;
+    }
+</style>
+
+<div class="page">
+
+    <h2>Timed Pricing Visual Timeline</h2>
+
+    <div class="top-bar">
+        <button type="button" onclick="newEvent()">New</button>
+        <button type="button" onclick="saveEvents()">Save</button>
+        <button type="button" onclick="loadEvents()">Reload</button>
+        <button type="button" onclick="deleteSelected()">Delete Selected</button>
+        <button type="button" onclick="location.href='/'">Exit</button>
+    </div>
+
+    <div class="editor">
+
+        <div class="panel">
+            <h3>Selected Event</h3>
+
+            <label>Event Name</label>
+
+            <select id="eventName" class="form-control">
+                <option value="">-- Select Event --</option>
+            </select>
+
+           
+
+            <label>Start Time</label>
+            <input id="startTime" type="time" />
+
+            <label>End Time</label>
+            <input id="endTime" type="time" />
+
+            <label>Start Date</label>
+            <input id="startDate" type="date" />
+
+            <label>End Date</label>
+            <input id="endDate" type="date" />
+
+            <label>Price Off</label>
+            <input id="priceOff" type="number" step="0.01" />
+
+            <label>Days Active</label>
+            <div class="days">
+                <label><input type="checkbox" id="monday" /> Monday</label>
+                <label><input type="checkbox" id="tuesday" /> Tuesday</label>
+                <label><input type="checkbox" id="wednesday" /> Wednesday</label>
+                <label><input type="checkbox" id="thursday" /> Thursday</label>
+                <label><input type="checkbox" id="friday" /> Friday</label>
+                <label><input type="checkbox" id="saturday" /> Saturday</label>
+                <label><input type="checkbox" id="sunday" /> Sunday</label>
+            </div>
+
+            <br />
+            <button type="button" onclick="applyEditor()">Apply To Timeline</button>
+        </div>
+
+        <div class="panel">
+            <h3>Timeline</h3>
+            <div id="timeline"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    let events = [];
+    let selectedIndex = -1;
+
+    const days = [
+        { key: "monday", label: "Monday" },
+        { key: "tuesday", label: "Tuesday" },
+        { key: "wednesday", label: "Wednesday" },
+        { key: "thursday", label: "Thursday" },
+        { key: "friday", label: "Friday" },
+        { key: "saturday", label: "Saturday" },
+        { key: "sunday", label: "Sunday" }
+    ];
+
+    const leftPad = 85;
+    const hourWidth = 45;
+    const timelineWidth = leftPad + (24 * hourWidth);
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadEventNames();
+        loadEvents();
+    });
+
+    function loadEventNames() {
+        fetch('/MSaleAdmin/GetTimedEvents')
+            .then(r => r.json())
+            .then(data => {
+                const ddl = document.getElementById("eventName");
+                ddl.innerHTML = '<option value="">-- Select Event --</option>';
+
+                data.forEach(name => {
+                    const opt = document.createElement("option");
+                    opt.value = name;
+                    opt.textContent = name;
+                    ddl.appendChild(opt);
+                });
+            })
+            .catch(err => alert("Could not load event names: " + err.message));
+    }
+
+    function loadEvents() {
+        fetch('/MSaleAdmin/GetTimedPricing')
+            .then(r => r.json())
+            .then(result => {
+                if (Array.isArray(result)) {
+                    events = result;
+                } else if (result.success === true && Array.isArray(result.data)) {
+                    events = result.data;
+                } else {
+                    events = [];
+                }
+
+                selectedIndex = -1;
+                clearEditor();
+                drawTimeline();
+            })
+            .catch(err => {
+                events = [];
+                selectedIndex = -1;
+                clearEditor();
+                drawTimeline();
+                alert("Could not load timed pricing: " + err.message);
+            });
+    }
+
+    function drawTimeline() {
+        const tl = document.getElementById("timeline");
+        tl.innerHTML = "";
+        tl.style.width = timelineWidth + "px";
+
+        for (let h = 0; h <= 24; h++) {
+            const x = leftPad + h * hourWidth;
+
+            const line = document.createElement("div");
+            line.className = "hour-line";
+            line.style.left = x + "px";
+            tl.appendChild(line);
+
+            if (h < 24) {
+                const lbl = document.createElement("div");
+                lbl.className = "hour-label";
+                lbl.style.left = x + "px";
+                lbl.innerText = formatHour(h);
+                tl.appendChild(lbl);
+            }
+        }
+
+        days.forEach(d => {
+            const row = document.createElement("div");
+            row.className = "day-row";
+
+            const name = document.createElement("div");
+            name.className = "day-name";
+            name.innerText = d.label;
+            row.appendChild(name);
+
+            events.forEach((ev, index) => {
+                if (!ev[d.key]) return;
+
+                let start = timeToMinutes(ev.startTime);
+                let end = timeToMinutes(ev.endTime);
+
+                if (end <= start) end = start + 30;
+
+                const block = document.createElement("div");
+                block.className = "event-block";
+
+                if (index === selectedIndex) {
+                    block.classList.add("selected");
+                }
+
+                block.style.left = (leftPad + (start / 60) * hourWidth) + "px";
+                block.style.width = Math.max(35, ((end - start) / 60) * hourWidth) + "px";
+
+                block.innerText = ev.eventName + " $" + ev.priceOff;
+
+                block.onclick = function () {
+                    selectedIndex = index;
+                    loadEditor(index);
+                    drawTimeline();
+                };
+
+                row.appendChild(block);
+            });
+
+            tl.appendChild(row);
+        });
+    }
+
+    function newEvent() {
+        events.push({
+            eventName: "",
+            startTime: "09:00",
+            endTime: "17:00",
+            monday: true,
+            tuesday: true,
+            wednesday: true,
+            thursday: true,
+            friday: true,
+            saturday: false,
+            sunday: false,
+            startDate: null,
+            endDate: null,
+            priceOff: 0
+        });
+
+        selectedIndex = events.length - 1;
+        loadEditor(selectedIndex);
+        drawTimeline();
+    }
+
+    function loadEditor(index) {
+        const ev = events[index];
+
+        document.getElementById("eventName").value = ev.eventName || "";
+        document.getElementById("startTime").value = formatTime(ev.startTime);
+        document.getElementById("endTime").value = formatTime(ev.endTime);
+        document.getElementById("startDate").value = formatDate(ev.startDate);
+        document.getElementById("endDate").value = formatDate(ev.endDate);
+        document.getElementById("priceOff").value = ev.priceOff || 0;
+
+        days.forEach(d => {
+            document.getElementById(d.key).checked = !!ev[d.key];
+        });
+    }
+
+    function applyEditor() {
+        if (selectedIndex < 0) {
+            events.push({});
+            selectedIndex = events.length - 1;
+        }
+
+        const ev = events[selectedIndex];
+
+        ev.eventName = document.getElementById("eventName").value;
+        ev.startTime = document.getElementById("startTime").value;
+        ev.endTime = document.getElementById("endTime").value;
+        ev.startDate = document.getElementById("startDate").value || null;
+        ev.endDate = document.getElementById("endDate").value || null;
+        ev.priceOff = parseFloat(document.getElementById("priceOff").value || 0);
+
+        days.forEach(d => {
+            ev[d.key] = document.getElementById(d.key).checked;
+        });
+
+        drawTimeline();
+    }
+
+    function deleteSelected() {
+        if (selectedIndex < 0) return;
+        if (!confirm("Delete selected timed price event?")) return;
+
+        events.splice(selectedIndex, 1);
+        selectedIndex = -1;
+        clearEditor();
+        drawTimeline();
+    }
+
+    function saveEvents() {
+        if (selectedIndex >= 0) {
+            applyEditor();
+        }
+
+        fetch('/MSaleAdmin/SaveTimedPricing', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(events)
+        })
+            .then(r => r.json())
+            .then(x => {
+                alert(x.message || "Saved");
+                loadEventNames();
+                loadEvents();
+            })
+            .catch(err => alert("Save failed: " + err.message));
+    }
+
+    function clearEditor() {
+        document.querySelectorAll(".panel input").forEach(x => {
+            if (x.type === "checkbox") x.checked = false;
+            else x.value = "";
+        });
+
+        document.getElementById("eventName").value = "";
+    }
+
+    function timeToMinutes(v) {
+        v = formatTime(v);
+        if (!v) return 0;
+
+        const p = v.split(":");
+        return parseInt(p[0]) * 60 + parseInt(p[1]);
+    }
+
+    function formatTime(v) {
+        if (!v) return "";
+        return v.toString().substring(0, 5);
+    }
+
+    function formatDate(v) {
+        if (!v) return "";
+        return v.toString().substring(0, 10);
+    }
+
+    function formatHour(h) {
+        if (h === 0) return "12a";
+        if (h < 12) return h + "a";
+        if (h === 12) return "12p";
+        return (h - 12) + "p";
+    }
+</script>

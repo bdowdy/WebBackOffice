@@ -1,0 +1,368 @@
+﻿@{
+    ViewData["Title"] = "Modifier Maintenance";
+}
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f3f0ea;
+    }
+
+    .page {
+        max-width: 1400px;
+        margin: 20px auto;
+        padding: 16px;
+    }
+
+    h2 {
+        text-align: center;
+    }
+
+    .toolbar, .panel {
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    .toolbar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .main {
+        display: grid;
+        grid-template-columns: 320px 1fr 320px;
+        gap: 14px;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-top: 10px;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        margin-top: 4px;
+    }
+
+    button {
+        padding: 9px 14px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+        button.primary {
+            background: #e07a3c;
+            color: white;
+            border: 1px solid #e07a3c;
+        }
+
+    #itemList {
+        width: 100%;
+        height: 600px;
+        font-size: 15px;
+    }
+
+    .button-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+        .button-row button {
+            flex: 1;
+        }
+</style>
+
+<div class="page">
+
+    <h2>Modifier Maintenance</h2>
+
+    <div class="toolbar">
+        <button type="button" onclick="newModifier()">New Modifier</button>
+        <button type="button" class="primary" onclick="saveModifier()">Save Modifier</button>
+        <button type="button" onclick="deleteModifier()">Delete Modifier</button>
+        <button type="button" onclick="location.href='/MSaleAdmin'">Dashboard</button>
+        <button type="button" onclick="location.href='/'">Exit</button>
+    </div>
+
+    <div class="main">
+
+        <div class="panel">
+            <h3>Modifier Names</h3>
+
+            <label>Select Modifier</label>
+            <select id="modifierSelect" onchange="loadModifierItems()"></select>
+
+            <label>Modifier Name</label>
+            <input id="modifierName" />
+
+            <br /><br />
+            <button type="button" class="primary" style="width:100%" onclick="saveModifier()">
+                Save Modifier Name
+            </button>
+        </div>
+
+        <div class="panel">
+            <h3>Modifier Items</h3>
+
+            <select id="itemList" size="25" onchange="loadItemEditor()"></select>
+
+            <div class="button-row">
+                <button type="button" onclick="addItem()">Add Item</button>
+                <button type="button" onclick="removeItem()">Remove Item</button>
+                <button type="button" class="primary" onclick="saveItems()">Save Items</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>Selected Item</h3>
+
+            <label>Item Name</label>
+            <input id="itemName" />
+
+            <label>Sort Order</label>
+            <input id="itemSort" type="number" />
+
+            <br /><br />
+            <button type="button" class="primary" style="width:100%" onclick="applyItemEditor()">
+                Apply Item
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let modifierItems = [];
+    let selectedItemIndex = -1;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadModifiers();
+    });
+
+    function loadModifiers() {
+        fetch('/ModifierMaintenance/GetModifierNames')
+            .then(r => r.json())
+            .then(data => {
+                const sel = document.getElementById("modifierSelect");
+                sel.innerHTML = "";
+                sel.add(new Option("-- Select Modifier --", ""));
+
+                data.forEach(x => {
+                    sel.add(new Option(x, x));
+                });
+
+                if (data.length > 0) {
+                    sel.value = data[0];
+                    document.getElementById("modifierName").value = data[0];
+                    loadModifierItems();
+                }
+            })
+            .catch(err => alert("Could not load modifiers: " + err.message));
+    }
+
+    function loadModifierItems() {
+        const modName = document.getElementById("modifierSelect").value;
+        document.getElementById("modifierName").value = modName;
+
+        if (!modName) {
+            modifierItems = [];
+            selectedItemIndex = -1;
+            drawItems();
+            clearItemEditor();
+            return;
+        }
+
+        fetch('/ModifierMaintenance/GetModifierItems?modifierName=' + encodeURIComponent(modName))
+            .then(r => r.json())
+            .then(data => {
+                modifierItems = data || [];
+                selectedItemIndex = -1;
+                drawItems();
+                clearItemEditor();
+            })
+            .catch(err => alert("Could not load modifier items: " + err.message));
+    }
+
+    function drawItems() {
+        const list = document.getElementById("itemList");
+        list.innerHTML = "";
+
+        modifierItems.forEach((x, i) => {
+            const text = (x.modifierCategory || "");
+            list.add(new Option(text, i));
+        });
+    }
+
+    function newModifier() {
+        document.getElementById("modifierSelect").value = "";
+        document.getElementById("modifierName").value = "";
+
+        modifierItems = [];
+        selectedItemIndex = -1;
+
+        drawItems();
+        clearItemEditor();
+    }
+
+    function saveModifier() {
+        const name = document.getElementById("modifierName").value.trim();
+
+        if (!name) {
+            alert("Enter a modifier name.");
+            return;
+        }
+
+        fetch('/ModifierMaintenance/SaveModifierName', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ modifierName: name })
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert(x.message || "Saved");
+            loadModifiers();
+        })
+        .catch(err => alert("Save failed: " + err.message));
+    }
+
+    function deleteModifier() {
+        const name = document.getElementById("modifierSelect").value;
+
+        if (!name) {
+            alert("Select a modifier first.");
+            return;
+        }
+
+        if (!confirm("Delete modifier and its items?")) {
+            return;
+        }
+
+        fetch('/ModifierMaintenance/DeleteModifierName', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ modifierName: name })
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert(x.message || "Deleted");
+            newModifier();
+            loadModifiers();
+        })
+        .catch(err => alert("Delete failed: " + err.message));
+    }
+
+    function addItem() {
+        modifierItems.push({
+            modifierCategory: "New Item",
+            pos: modifierItems.length
+        });
+
+        selectedItemIndex = modifierItems.length - 1;
+
+        drawItems();
+
+        document.getElementById("itemList").value = selectedItemIndex;
+        loadItemEditor();
+    }
+
+    function removeItem() {
+        const list = document.getElementById("itemList");
+        const idx = parseInt(list.value);
+
+        if (isNaN(idx)) {
+            alert("Select an item first.");
+            return;
+        }
+
+        modifierItems.splice(idx, 1);
+
+        modifierItems.forEach((x, i) => {
+            x.pos = i;
+        });
+
+        selectedItemIndex = -1;
+
+        drawItems();
+        clearItemEditor();
+    }
+
+    function loadItemEditor() {
+        const idx = parseInt(document.getElementById("itemList").value);
+
+        if (isNaN(idx)) {
+            return;
+        }
+
+        selectedItemIndex = idx;
+
+        const item = modifierItems[idx];
+
+        document.getElementById("itemName").value = item.modifierCategory || "";
+        document.getElementById("itemSort").value = item.pos ?? idx;
+    }
+
+    function applyItemEditor() {
+        if (selectedItemIndex < 0) {
+            return;
+        }
+
+        const name = document.getElementById("itemName").value.trim();
+        const sort = parseInt(document.getElementById("itemSort").value || selectedItemIndex);
+
+        modifierItems[selectedItemIndex].modifierCategory = name;
+        modifierItems[selectedItemIndex].pos = sort;
+
+        modifierItems.sort((a, b) => {
+            return (a.pos ?? 0) - (b.pos ?? 0);
+        });
+
+        drawItems();
+        clearItemEditor();
+        selectedItemIndex = -1;
+    }
+
+    function clearItemEditor() {
+        document.getElementById("itemName").value = "";
+        document.getElementById("itemSort").value = "";
+    }
+
+    function saveItems() {
+        const modName = document.getElementById("modifierName").value.trim();
+
+        if (!modName) {
+            alert("Enter a modifier name first.");
+            return;
+        }
+
+        if (selectedItemIndex >= 0) {
+            applyItemEditor();
+        }
+
+        modifierItems.forEach((x, i) => {
+            x.pos = i;
+        });
+
+        fetch('/ModifierMaintenance/SaveModifierItems', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                modifierName: modName,
+                items: modifierItems
+            })
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert(x.message || "Saved");
+            loadModifiers();
+        })
+        .catch(err => alert("Save failed: " + err.message));
+    }
+</script>

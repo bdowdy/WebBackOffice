@@ -1,0 +1,21 @@
+@MSaleWebServer_HostAddress = http://localhost:5088
+
+
+### Get Employees
+GET {{MSaleWebServer_HostAddress}}/api/employees
+Accept: application/json
+
+###
+
+### Get Menu Items
+GET {{MSaleWebServer_HostAddress}}/api/menu-items
+Accept: application/json
+
+###
+
+### Create Employee
+POST {{MSaleWebServer_HostAddress}}/api/employees
+Content-Type: application/json
+
+
+###

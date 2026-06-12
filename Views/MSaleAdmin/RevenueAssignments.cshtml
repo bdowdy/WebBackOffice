@@ -1,0 +1,332 @@
+﻿<button onclick="loadMasterDepartments()">
+    Load Master Departments
+</button>
+
+<button onclick="loadNonSaleRevenue()">
+    Load Non Sale Revenue
+</button>
+
+<button onclick="selectAllItems()">
+    Select All
+</button>
+
+<button onclick="saveAssignments()">
+    Save
+</button>
+
+<div id="dlist"></div>
+<h2>Revenue Assignments</h2>
+
+<div style="margin-bottom:15px;">
+
+    <select id="revenueCombo" style="width:300px;">
+        <option value="">Select Revenue Item</option>
+    </select>
+
+</div>
+
+<div style="margin-bottom:15px;">
+
+    <button onclick="loadMasterDepartments()">
+        Load Master Departments
+    </button>
+
+    <button onclick="loadNonSaleRevenue()">
+        Load Non Sale Revenue
+    </button>
+
+    <button onclick="selectAllItems()">
+        Select All
+    </button>
+
+    <button onclick="saveAssignments()">
+        Save
+    </button>
+
+</div>
+
+<div id="dlist"
+     style="border:1px solid gray;
+    padding:10px;
+    width:400px;
+    height:500px;
+    overflow:auto;">
+</div>
+<div style="margin-bottom:15px;">
+
+    <input type="text"
+           id="newRevenueName"
+           placeholder="New Revenue Name"
+           style="width:250px;" />
+
+    <button onclick="addRevenueItem()">
+        Add Revenue Item
+    </button>
+
+    <input type="text"
+           id="newMasterDepartment"
+           placeholder="New Master Department" />
+
+    <button onclick="addMasterDepartment()">
+        Add Master Department
+    </button>
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+loadRevenueNames();
+
+document.getElementById("revenueCombo")
+.addEventListener("change", function () {
+
+loadExisting();
+
+});
+});
+function loadRevenueNames() {
+
+fetch('/MSaleAdmin/GetNonSaleRevenue')
+.then(r => r.json())
+.then(data => {
+
+let combo =
+document.getElementById("revenueCombo");
+
+combo.innerHTML =
+'<option value="">Select Revenue Item</option>';
+
+data.forEach(function (item) {
+
+let opt = document.createElement("option");
+
+opt.value = item;
+opt.text = item;
+
+combo.appendChild(opt);
+
+});
+});
+}
+function addCheckItem(text) {
+
+let div = document.createElement("div");
+
+div.style.display = "block";
+div.style.marginBottom = "4px";
+
+let chk = document.createElement("input");
+
+chk.type = "checkbox";
+chk.value = text;
+
+let lbl = document.createElement("span");
+
+lbl.innerText = " " + text;
+
+div.appendChild(chk);
+div.appendChild(lbl);
+
+document.getElementById("dlist")
+.appendChild(div);
+}
+function clearList() {
+
+document.getElementById("dlist").innerHTML = "";
+
+}
+function loadMasterDepartments() {
+
+clearList();
+
+    fetch('/MSaleAdmin/GetMasterDepartments')
+.then(r => r.json())
+.then(data => {
+
+data.forEach(function (item) {
+
+addCheckItem(item);
+
+});
+
+loadExisting();
+
+});
+}
+function loadNonSaleRevenue() {
+
+clearList();
+
+    fetch('/MSaleAdmin/GetNonSaleRevenue')
+.then(r => r.json())
+.then(data => {
+
+data.forEach(function (item) {
+
+addCheckItem(item);
+
+});
+
+loadExisting();
+
+});
+}
+function loadExisting() {
+
+let revenueName =
+document.getElementById("revenueCombo").value;
+
+if (!revenueName)
+return;
+
+    fetch('/MSaleAdmin/GetRevenueAssignments?revenueName='
++ encodeURIComponent(revenueName))
+
+.then(r => r.json())
+
+.then(saved => {
+
+document
+.querySelectorAll('#dlist input')
+
+.forEach(function (box) {
+
+if (saved.includes(box.value)) {
+
+box.checked = true;
+
+}
+});
+});
+}
+function selectAllItems() {
+
+document
+.querySelectorAll('#dlist input')
+
+.forEach(function (box) {
+
+box.checked = true;
+
+});
+}
+    function saveAssignments() {
+
+        let revenueName =
+            document.getElementById("revenueCombo").value;
+
+        if (!revenueName) {
+
+            alert("Select Revenue Item");
+            return;
+        }
+
+        let selected = [];
+
+        document
+            .querySelectorAll('#dlist input:checked')
+
+            .forEach(function (box) {
+
+                selected.push(box.value);
+
+            });
+
+            fetch('/MSaleAdmin/SaveRevenueAssignments', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+
+                revenueName: revenueName,
+                linkType: 'Revenue',
+                linkToNames: selected
+
+            })
+        })
+        .then(r => r.json())
+        .then(x => {
+
+            alert("Saved");
+
+        });
+    }
+</script>
+
+<script>
+    function addRevenueItem() {
+
+        let name =
+            document.getElementById("newRevenueName").value;
+
+        if (!name) {
+
+            alert("Enter Name");
+            return;
+        }
+
+        fetch('/MSaleAdmin/AddRevenueItem', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+                name: name
+            })
+
+        })
+        .then(r => r.json())
+
+        .then(x => {
+
+            alert("Added");
+
+            document.getElementById("newRevenueName").value = "";
+
+            loadRevenueNames();
+
+        });
+    }
+</script>
+<script>
+    function addMasterDepartment() {
+
+        let name =
+            document.getElementById("newMasterDepartment").value;
+
+        if (!name) {
+            alert("Enter Master Department");
+            return;
+        }
+
+        fetch('/MSaleAdmin/AddMasterDepartment', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+                name: name
+            })
+        })
+        .then(r => r.json())
+        .then(x => {
+
+            alert("Master Department Added");
+
+            document.getElementById("newMasterDepartment").value = "";
+
+            loadMasterDepartments();
+        });
+    }
+</script>

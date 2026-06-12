@@ -1,0 +1,245 @@
+﻿@{
+    ViewData["Title"] = "Nutritional Setup";
+}
+
+<style>
+    .page-box {
+        max-width: 720px;
+        margin: 25px auto;
+        padding: 25px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.12);
+        font-family: Arial, sans-serif;
+    }
+
+    h2 {
+        margin-top: 0;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+    }
+
+    .form-row {
+        margin-bottom: 18px;
+    }
+
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 6px;
+    }
+
+    select, input {
+        width: 100%;
+        padding: 9px;
+        border: 1px solid #bbb;
+        border-radius: 6px;
+        font-size: 15px;
+    }
+
+    .grid-box {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px 22px;
+    }
+
+    .button-row {
+        margin-top: 25px;
+        display: flex;
+        gap: 10px;
+    }
+
+    button {
+        padding: 9px 22px;
+        border: none;
+        border-radius: 6px;
+        font-size: 15px;
+        cursor: pointer;
+    }
+
+    .save-btn {
+        background: #2d7d32;
+        color: white;
+    }
+
+    .remove-btn {
+        background: #b3261e;
+        color: white;
+    }
+
+    .clear-btn {
+        background: #666;
+        color: white;
+    }
+
+    #msg {
+        margin-top: 18px;
+        font-weight: bold;
+        color: #2d7d32;
+    }
+</style>
+
+<div class="page-box">
+    <h2>Nutritional Setup</h2>
+
+    <div class="form-row">
+        <label>Menu Name</label>
+        <select id="menuName" onchange="loadNutritional()">
+            <option value="">Select Menu Item</option>
+        </select>
+    </div>
+
+    <div class="grid-box">
+        <div>
+            <label>Calories</label>
+            <input id="calories" type="number" step="1" />
+        </div>
+
+        <div>
+            <label>Fat</label>
+            <input id="fat" type="number" step="0.01" />
+        </div>
+
+        <div>
+            <label>Carbs</label>
+            <input id="carb" type="number" step="0.01" />
+        </div>
+
+        <div>
+            <label>Protein</label>
+            <input id="protein" type="number" step="0.01" />
+        </div>
+
+        <div>
+            <label>Sodium</label>
+            <input id="sodium" type="number" step="0.01" />
+        </div>
+    </div>
+
+    <div class="button-row">
+        <button class="save-btn" onclick="saveNutritional()">Save</button>
+        <button class="remove-btn" onclick="deleteNutritional()">Remove</button>
+        <button class="clear-btn" onclick="clearForm()">Clear</button>
+    </div>
+
+    <div id="msg"></div>
+</div></div>
+
+<br />
+
+<button onclick="saveNutritional()">Save</button>
+<button onclick="deleteNutritional()">Remove</button>
+<button onclick="clearForm()">Clear</button>
+
+<div id="msg"></div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        loadMenuNames();
+    });
+
+    function loadMenuNames() {
+        fetch('/MSaleAdmin/GetNutritionalMenuNames')
+            .then(r => r.json())
+            .then(data => {
+                let combo = document.getElementById("menuName");
+                combo.innerHTML = '<option value="">Select Menu Item</option>';
+
+                data.forEach(name => {
+                    let opt = document.createElement("option");
+                    opt.value = name;
+                    opt.textContent = name;
+                    combo.appendChild(opt);
+                });
+            });
+    }
+
+    function loadNutritional() {
+        let menuName = document.getElementById("menuName").value;
+        clearNumbers();
+
+        if (!menuName) return;
+
+        fetch('/MSaleAdmin/GetNutritional?menuName=' + encodeURIComponent(menuName))
+            .then(r => r.json())
+            .then(data => {
+                if (!data) return;
+
+                document.getElementById("sodium").value = data.sodium ?? "";
+                document.getElementById("carb").value = data.carb ?? "";
+                document.getElementById("fat").value = data.fat ?? "";
+                document.getElementById("protein").value = data.protein ?? "";
+                document.getElementById("calories").value = data.calories ?? "";
+            });
+    }
+
+    function saveNutritional() {
+        let menuName = document.getElementById("menuName").value;
+
+        if (!menuName) {
+            showMsg("Select a Menu Name first.");
+            return;
+        }
+
+        let data = {
+            menuName: menuName,
+            sodium: val("sodium"),
+            carb: val("carb"),
+            fat: val("fat"),
+            protein: val("protein"),
+            calories: val("calories")
+        };
+
+        fetch('/MSaleAdmin/SaveNutritional', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(result => {
+            showMsg(result.message);
+        });
+    }
+
+    function deleteNutritional() {
+        let menuName = document.getElementById("menuName").value;
+
+        if (!menuName) {
+            showMsg("Select a Menu Name first.");
+            return;
+        }
+
+        fetch('/MSaleAdmin/DeleteNutritional', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ menuName: menuName })
+        })
+        .then(r => r.json())
+        .then(result => {
+            clearNumbers();
+            showMsg(result.message);
+        });
+    }
+
+    function clearForm() {
+        document.getElementById("menuName").value = "";
+        clearNumbers();
+        showMsg("");
+    }
+
+    function clearNumbers() {
+        document.getElementById("sodium").value = "";
+        document.getElementById("carb").value = "";
+        document.getElementById("fat").value = "";
+        document.getElementById("protein").value = "";
+        document.getElementById("calories").value = "";
+    }
+
+    function val(id) {
+        let v = document.getElementById(id).value;
+        return v === "" ? 0 : parseFloat(v);
+    }
+
+    function showMsg(text) {
+        document.getElementById("msg").innerText = text;
+    }
+</script>

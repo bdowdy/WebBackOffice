@@ -1,0 +1,366 @@
+﻿@{
+    ViewData["Title"] = "Tip Editor";
+}
+
+<style>
+    body {
+        background: #f4f6f9;
+    }
+
+    .tip-page {
+        max-width: 1350px;
+        margin: 25px auto;
+        padding: 0 15px;
+    }
+
+    .tip-card {
+        background: white;
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.12);
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+
+    .tip-header {
+        background: linear-gradient(135deg, #12395c, #2563eb);
+        color: white;
+        padding: 24px 30px;
+    }
+
+        .tip-header h2 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+    .tip-content {
+        padding: 24px;
+    }
+
+    .edit-panel {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .summary {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+
+    .summary-box {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 10px 14px;
+        min-width: 145px;
+    }
+
+        .summary-box b {
+            display: block;
+            color: #374151;
+            font-size: 13px;
+        }
+
+        .summary-box span {
+            font-size: 21px;
+            font-weight: 800;
+            color: #12395c;
+        }
+
+    .table-wrap {
+        max-height: 520px;
+        overflow: auto;
+        border: 1px solid #dbe3ef;
+        border-radius: 12px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    th {
+        position: sticky;
+        top: 0;
+        background: #eaf1fb;
+        z-index: 2;
+        padding: 10px;
+        border-bottom: 1px solid #dbe3ef;
+        white-space: nowrap;
+    }
+
+    td {
+        padding: 7px 9px;
+        border-bottom: 1px solid #edf2f7;
+        white-space: nowrap;
+    }
+
+    tr:hover {
+        background: #f1f7ff;
+    }
+
+    .money-input {
+        width: 105px;
+        text-align: right;
+    }
+
+    .readonly-cell {
+        color: #374151;
+        font-weight: 600;
+    }
+
+    .button-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+</style>
+
+<div class="tip-page">
+    <div class="tip-card">
+
+        <div class="tip-header">
+            <h2>Tip Editor</h2>
+            <div>Edit cash tips, credit card tips, paid out tips, tip share, and gratuity.</div>
+        </div>
+
+        <div class="tip-content">
+
+            <div class="edit-panel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Employee</label>
+                        <select id="employeeName" class="form-select form-select-lg"></select>
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="button-row">
+                            <button class="btn btn-primary px-4" onclick="loadTips()">Load Tips</button>
+                            <button class="btn btn-success px-4" onclick="saveTips()">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary">
+                <div class="summary-box">
+                    <b>Records</b>
+                    <span id="sumRecords">0</span>
+                </div>
+
+                <div class="summary-box">
+                    <b>Cash Tips</b>
+                    <span id="sumCash">0.00</span>
+                </div>
+
+                <div class="summary-box">
+                    <b>CC Tips</b>
+                    <span id="sumCC">0.00</span>
+                </div>
+
+                <div class="summary-box">
+                    <b>Tips Paid Out</b>
+                    <span id="sumPaidOut">0.00</span>
+                </div>
+
+                <div class="summary-box">
+                    <b>Tip Share</b>
+                    <span id="sumShare">0.00</span>
+                </div>
+
+                <div class="summary-box">
+                    <b>Net Tips</b>
+                    <span id="sumNet">0.00</span>
+                </div>
+
+                <div class="summary-box">
+                    <b>Gratuity</b>
+                    <span id="sumGrat">0.00</span>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Job Name</th>
+                            <th>Shift Date</th>
+                            <th>Time On</th>
+                            <th>Time Out</th>
+                            <th>Cash Tips</th>
+                            <th>Non Cash Tips</th>
+                            <th>Tips Paid Out</th>
+                            <th>Tip Share</th>
+                            <th>Total Tips</th>
+                            <th>Gratuity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tipBody"></tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    let tipRows = [];
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadEmployees();
+    });
+
+    function n(v) {
+        return Number(v || 0);
+    }
+
+    function money(v) {
+        return n(v).toFixed(2);
+    }
+
+    function loadEmployees() {
+        fetch('/TipEditor/GetTipEmployees')
+            .then(r => r.json())
+            .then(result => {
+                if (!result.success) {
+                    alert(result.message);
+                    return;
+                }
+
+                const ddl = document.getElementById('employeeName');
+                ddl.innerHTML = '<option value="">Select Employee</option>';
+
+                result.data.forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = name;
+                    ddl.appendChild(opt);
+                });
+            });
+    }
+
+    function loadTips() {
+        const emp = document.getElementById('employeeName').value;
+
+        if (!emp) {
+            alert("Select an employee.");
+            return;
+        }
+
+        fetch('/TipEditor/GetTipEditRecords?employeeName=' + encodeURIComponent(emp))
+            .then(r => r.json())
+            .then(result => {
+                if (!result.success) {
+                    alert(result.message);
+                    return;
+                }
+
+                tipRows = result.data;
+                renderTips();
+            });
+    }
+
+    function renderTips() {
+        const body = document.getElementById('tipBody');
+        body.innerHTML = '';
+
+        tipRows.forEach((row, index) => {
+            const totalTips = n(row.cashTips) + n(row.creditCardTips) + n(row.tipShare);
+
+            const tr = document.createElement('tr');
+
+            tr.innerHTML = `
+                <td class="readonly-cell">${row.departmentName || ''}</td>
+                <td class="readonly-cell">${row.shiftDate || ''}</td>
+                <td class="readonly-cell">${row.timeIn || ''}</td>
+                <td class="readonly-cell">${row.timeOut || ''}</td>
+
+                <td><input class="form-control money-input" type="number" step="0.01" value="${money(row.cashTips)}" onchange="changeValue(${index}, 'cashTips', this.value)" /></td>
+
+                <td><input class="form-control money-input" type="number" step="0.01" value="${money(row.creditCardTips)}" onchange="changeValue(${index}, 'creditCardTips', this.value)" /></td>
+
+                <td><input class="form-control money-input" type="number" step="0.01" value="${money(row.tipsPaidOut)}" onchange="changeValue(${index}, 'tipsPaidOut', this.value)" /></td>
+
+                <td><input class="form-control money-input" type="number" step="0.01" value="${money(row.tipShare)}" onchange="changeValue(${index}, 'tipShare', this.value)" /></td>
+
+                <td class="readonly-cell" id="totalTips_${index}">${money(totalTips)}</td>
+
+                <td><input class="form-control money-input" type="number" step="0.01" value="${money(row.gratuity)}" onchange="changeValue(${index}, 'gratuity', this.value)" /></td>
+            `;
+
+            body.appendChild(tr);
+        });
+
+        updateTotals();
+    }
+
+    function changeValue(index, field, value) {
+        tipRows[index][field] = n(value);
+
+        const totalTips = n(tipRows[index].cashTips) +
+                          n(tipRows[index].creditCardTips) +
+                          n(tipRows[index].tipShare);
+
+        document.getElementById('totalTips_' + index).textContent = money(totalTips);
+
+        updateTotals();
+    }
+
+    function updateTotals() {
+        let cash = 0;
+        let cc = 0;
+        let paid = 0;
+        let share = 0;
+        let net = 0;
+        let grat = 0;
+
+        tipRows.forEach(row => {
+            cash += n(row.cashTips);
+            cc += n(row.creditCardTips);
+            paid += n(row.tipsPaidOut);
+            share += n(row.tipShare);
+            grat += n(row.gratuity);
+
+            net += (n(row.cashTips) + n(row.creditCardTips) + n(row.tipShare)) - n(row.tipsPaidOut);
+        });
+
+        document.getElementById('sumRecords').textContent = tipRows.length;
+        document.getElementById('sumCash').textContent = money(cash);
+        document.getElementById('sumCC').textContent = money(cc);
+        document.getElementById('sumPaidOut').textContent = money(paid);
+        document.getElementById('sumShare').textContent = money(share);
+        document.getElementById('sumNet').textContent = money(net);
+        document.getElementById('sumGrat').textContent = money(grat);
+    }
+
+    function saveTips() {
+        if (tipRows.length === 0) {
+            alert("No records to save.");
+            return;
+        }
+
+        if (!confirm("Save tip changes?"))
+            return;
+
+        fetch('/TipEditor/SaveTipEditRecords', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(tipRows)
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (!result.success) {
+                alert(result.message);
+                return;
+            }
+
+            alert(result.message || "Saved");
+            loadTips();
+        });
+    }
+</script>

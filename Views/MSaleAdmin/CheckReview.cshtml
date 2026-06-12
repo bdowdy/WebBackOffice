@@ -1,0 +1,374 @@
+﻿@{
+    ViewData["Title"] = "Check Review";
+}
+
+<style>
+    body {
+        background: #f4f6f9;
+    }
+
+    .review-page {
+        max-width: 1450px;
+        margin: 25px auto;
+        padding: 0 15px;
+    }
+
+    .review-card {
+        background: white;
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.12);
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+    }
+
+    .review-header {
+        background: linear-gradient(135deg,#12395c,#2563eb);
+        color: white;
+        padding: 24px 30px;
+    }
+
+        .review-header h2 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+    .review-content {
+        padding: 24px;
+    }
+
+    .filter-panel {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 20px;
+    }
+
+    .main-grid {
+        display: grid;
+        grid-template-columns: 430px 1fr;
+        gap: 20px;
+    }
+
+    .check-list {
+        max-height: 680px;
+        overflow: auto;
+        border: 1px solid #dbe3ef;
+        border-radius: 12px;
+        background: white;
+    }
+
+    .check-row {
+        padding: 12px 14px;
+        border-bottom: 1px solid #edf2f7;
+        cursor: pointer;
+    }
+
+        .check-row:hover {
+            background: #eef6ff;
+        }
+
+        .check-row.selected {
+            background: #dbeafe;
+            border-left: 5px solid #2563eb;
+            font-weight: 700;
+        }
+
+    .check-number {
+        font-size: 18px;
+        font-weight: 800;
+        color: #12395c;
+    }
+
+    .muted {
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .summary-box {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 12px;
+    }
+
+        .summary-box b {
+            display: block;
+            font-size: 13px;
+            color: #374151;
+        }
+
+        .summary-box span {
+            font-size: 20px;
+            font-weight: 800;
+            color: #12395c;
+        }
+
+    .panel {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 18px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    th {
+        background: #eaf1fb;
+        padding: 10px;
+        border-bottom: 1px solid #dbe3ef;
+        text-align: left;
+    }
+
+    td {
+        padding: 9px 10px;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+    .right {
+        text-align: right;
+    }
+
+    .voided {
+        color: #991b1b;
+        text-decoration: line-through;
+        background: #fff1f2;
+    }
+
+    .section-label {
+        font-weight: 800;
+        color: #12395c;
+        margin-bottom: 8px;
+        font-size: 18px;
+    }
+</style>
+
+<div class="review-page">
+    <div class="review-card">
+
+        <div class="review-header">
+            <h2>Check Review</h2>
+            <div>Review closed checks, menu items, voids, payments, tips, and totals.</div>
+        </div>
+
+        <div class="review-content">
+
+            <div class="filter-panel">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Business Date</label>
+                        <input id="businessDate" type="date" class="form-control" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Search Type</label>
+                        <select id="searchType" class="form-select">
+                            <option value="">All Checks</option>
+                            <option value="check">Check Number</option>
+                            <option value="server">Server Name</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Search Value</label>
+                        <input id="searchValue" class="form-control" placeholder="Optional" />
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-primary w-100" onclick="loadChecks()">Load</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-grid">
+
+                <div>
+                    <div class="section-label">Closed Checks</div>
+                    <div id="checkList" class="check-list"></div>
+                </div>
+
+                <div>
+                    <div id="reviewArea">
+                        <div class="panel">
+                            Select a check to review.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedCheckRow = null;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        businessDate.value = new Date().toISOString().substring(0, 10);
+        loadChecks();
+    });
+
+    function money(v) {
+        return Number(v || 0).toFixed(2);
+    }
+
+    function loadChecks() {
+        const date = businessDate.value;
+        const type = searchType.value;
+        const value = encodeURIComponent(searchValue.value || '');
+
+        fetch(`/CheckReview/GetClosedChecks?businessDate=${date}&searchType=${type}&searchValue=${value}`)
+            .then(r => r.json())
+            .then(result => {
+                if (!result.success) {
+                    alert(result.message);
+                    return;
+                }
+
+                renderCheckList(result.data);
+            });
+    }
+
+    function renderCheckList(data) {
+        checkList.innerHTML = '';
+
+        if (!data || data.length === 0) {
+            checkList.innerHTML = `<div class="check-row">No checks found.</div>`;
+            return;
+        }
+
+        data.forEach(row => {
+            const div = document.createElement('div');
+            div.className = 'check-row';
+
+            div.innerHTML = `
+                <div class="check-number">Check #${row.checkNumber}</div>
+                <div>${row.serverName || ''}</div>
+                <div class="muted">
+                    ${row.openTime || ''} - ${row.closeTime || ''}
+                    &nbsp; | &nbsp; Total: $${money(row.checkTotal)}
+                </div>
+            `;
+
+            div.onclick = function () {
+                if (selectedCheckRow)
+                    selectedCheckRow.classList.remove('selected');
+
+                selectedCheckRow = div;
+                div.classList.add('selected');
+
+                loadCheckReview(row.checkNumber, row.orderDate, row.closeOutDay);
+            };
+
+            checkList.appendChild(div);
+        });
+    }
+
+    function loadCheckReview(checkNumber, orderDate, closeOutDay) {
+        fetch(`/CheckReview/GetCheckReview?checkNumber=${checkNumber}&businessDate=${orderDate}&closeOutDay=${closeOutDay}`)
+            .then(r => r.json())
+            .then(result => {
+                if (!result.success) {
+                    alert(result.message);
+                    return;
+                }
+
+                renderReview(result.data);
+            });
+    }
+
+    function renderReview(data) {
+        const h = data.header;
+        const totals = data.totals;
+
+        let detailRows = '';
+        data.details.forEach(x => {
+            detailRows += `
+                <tr class="${x.voided ? 'voided' : ''}">
+                    <td>${x.seatNumber}</td>
+                    <td>${x.menuItem || ''}</td>
+                    <td class="right">${money(x.amount)}</td>
+                    <td>${x.voided ? 'VOID' : ''}</td>
+                    <td>${x.voidReason || ''}</td>
+                    <td>${x.voidedBy || ''}</td>
+                </tr>`;
+        });
+
+        let paymentRows = '';
+        data.payments.forEach(x => {
+            paymentRows += `
+                <tr>
+                    <td>${x.paymentType || ''}</td>
+                    <td class="right">${money(x.paymentAmount)}</td>
+                    <td class="right">${money(x.tipAmount)}</td>
+                </tr>`;
+        });
+
+        reviewArea.innerHTML = `
+            <div class="summary-grid">
+                <div class="summary-box"><b>Check</b><span>#${h.checkNumber}</span></div>
+                <div class="summary-box"><b>Total</b><span>$${money(h.checkTotal)}</span></div>
+                <div class="summary-box"><b>Items</b><span>$${money(totals.itemTotal)}</span></div>
+                <div class="summary-box"><b>Payments</b><span>$${money(totals.paymentTotal)}</span></div>
+                <div class="summary-box"><b>Tips</b><span>$${money(totals.tipTotal)}</span></div>
+            </div>
+
+            <div class="panel">
+                <div class="section-label">Check Header</div>
+                <div><b>Server:</b> ${h.serverName || ''}</div>
+                <div><b>Cashier:</b> ${h.cashierName || ''}</div>
+                <div><b>Table:</b> ${h.tableNumber || ''}</div>
+                <div><b>Order Type:</b> ${h.orderType || ''}</div>
+                <div><b>Opened:</b> ${h.orderDate || ''} ${h.openTime || ''}</div>
+                <div><b>Closed:</b> ${h.closeTime || ''}</div>
+                <div><b>Member:</b> ${h.memberName || ''}</div>
+            </div>
+
+            <div class="panel">
+                <div class="section-label">Check Detail</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Seat</th>
+                            <th>Menu Item</th>
+                            <th class="right">Amount</th>
+                            <th>Status</th>
+                            <th>Void Reason</th>
+                            <th>Voided By</th>
+                        </tr>
+                    </thead>
+                    <tbody>${detailRows}</tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                <div class="section-label">Payments</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Payment Type</th>
+                            <th class="right">Amount</th>
+                            <th class="right">Tip</th>
+                        </tr>
+                    </thead>
+                    <tbody>${paymentRows}</tbody>
+                </table>
+            </div>
+        `;
+    }
+</script>

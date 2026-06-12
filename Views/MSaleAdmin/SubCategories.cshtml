@@ -1,0 +1,271 @@
+﻿@{
+    ViewData["Title"] = "Subcategory Setup";
+}
+
+<style>
+    .sub-page {
+        width: 500px;
+        margin: 25px auto;
+        background: #404040;
+        padding: 18px;
+        font-family: Arial, sans-serif;
+        color: white;
+        border-radius: 6px;
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 20px;
+        margin-top: 0;
+    }
+
+    .box {
+        background: #e0e0e0;
+        color: black;
+        border: 1px solid black;
+        padding: 18px;
+        margin-bottom: 14px;
+    }
+
+    .row {
+        display: grid;
+        grid-template-columns: 170px 1fr;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    label {
+        text-align: right;
+        font-weight: bold;
+    }
+
+    select, input {
+        padding: 7px;
+        width: 100%;
+    }
+
+    .note {
+        text-align: center;
+        font-size: 12px;
+        margin-top: 8px;
+    }
+
+    .optional-title {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 4px;
+    }
+
+    .optional-note {
+        text-align: center;
+        font-size: 13px;
+        margin-bottom: 14px;
+    }
+
+    .buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    button {
+        flex: 1;
+        padding: 12px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+</style>
+
+<div class="sub-page">
+
+    <h2>Subcategory Setup</h2>
+
+    <div class="box">
+        <div class="row">
+            <label>Sub Category Name</label>
+            <select id="subName" onchange="loadSubCategory()">
+                <option value="">Select Subcategory</option>
+            </select>
+        </div>
+
+        <div class="row">
+            <label>Category Assigned</label>
+            <select id="categoryName">
+                <option value="">Select Category</option>
+            </select>
+        </div>
+
+        <div class="note">
+            Subcategory Name cannot be identical to a Menu Item Name
+        </div>
+
+        <div class="row" style="margin-top:14px;">
+            <label>New Subcategory</label>
+            <input id="newSubName" />
+        </div>
+
+        <button type="button" onclick="changeSubName()">Change Subcategory Name</button>
+    </div>
+
+    <div class="box">
+        <div class="optional-title">Optional Section</div>
+        <div class="optional-note">
+            Assign Subcategory to a Timed Event to restrict the use of the subcategory.
+        </div>
+
+        @for (int i = 1; i <= 5; i++)
+        {
+            <div class="row">
+                <label>Timed Event @i</label>
+                <select id="timedEvent@(i)">
+                    <option value="None">None</option>
+                </select>
+            </div>
+        }
+    </div>
+
+    <div class="buttons">
+        <button type="button" onclick="removeSubCategory()">Remove</button>
+        <button type="button" onclick="saveSubCategory()">Save</button>
+        <button type="button" onclick="location.href='/'">Exit</button>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        loadLists();
+    });
+
+    function loadLists() {
+        fetch('/MSaleAdmin/GetSubCategoryLists')
+            .then(r => r.json())
+            .then(data => {
+                let sub = document.getElementById("subName");
+                let cat = document.getElementById("categoryName");
+
+                sub.innerHTML = '<option value="">Select Subcategory</option>';
+                cat.innerHTML = '<option value="">Select Category</option>';
+
+                data.subCategories.forEach(x => {
+                    sub.add(new Option(x, x));
+                });
+
+                data.categories.forEach(x => {
+                    cat.add(new Option(x, x));
+                });
+
+                for (let i = 1; i <= 5; i++) {
+                    let ev = document.getElementById("timedEvent" + i);
+                    ev.innerHTML = '<option value="None">None</option>';
+
+                    data.timedEvents.forEach(x => {
+                        ev.add(new Option(x, x));
+                    });
+                }
+            })
+            .catch(err => alert("Could not load lists: " + err.message));
+    }
+
+    function loadSubCategory() {
+        let name = document.getElementById("subName").value;
+        if (!name) return;
+
+        fetch('/MSaleAdmin/GetSubCategory?subName=' + encodeURIComponent(name))
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById("categoryName").value = data.categoryName || "";
+                document.getElementById("timedEvent1").value = data.timedEvent1 || "None";
+                document.getElementById("timedEvent2").value = data.timedEvent2 || "None";
+                document.getElementById("timedEvent3").value = data.timedEvent3 || "None";
+                document.getElementById("timedEvent4").value = data.timedEvent4 || "None";
+                document.getElementById("timedEvent5").value = data.timedEvent5 || "None";
+            })
+            .catch(err => alert("Could not load subcategory: " + err.message));
+    }
+
+    function saveSubCategory() {
+        let subName = document.getElementById("subName").value;
+
+        if (!subName) {
+            subName = prompt("Enter new subcategory name");
+            if (!subName) return;
+        }
+
+        let data = {
+            subName: subName,
+            categoryName: document.getElementById("categoryName").value,
+            timedEvent1: document.getElementById("timedEvent1").value || "None",
+            timedEvent2: document.getElementById("timedEvent2").value || "None",
+            timedEvent3: document.getElementById("timedEvent3").value || "None",
+            timedEvent4: document.getElementById("timedEvent4").value || "None",
+            timedEvent5: document.getElementById("timedEvent5").value || "None"
+        };
+
+        if (!data.categoryName) {
+            alert("Please assign a category name.");
+            return;
+        }
+
+        fetch('/MSaleAdmin/SaveSubCategory', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert(x.message || "Saved");
+            loadLists();
+        })
+        .catch(err => alert("Save failed: " + err.message));
+    }
+
+    function removeSubCategory() {
+        let subName = document.getElementById("subName").value;
+        if (!subName) return;
+
+        if (!confirm("Remove " + subName + "?")) return;
+
+        fetch('/MSaleAdmin/DeleteSubCategory?subName=' + encodeURIComponent(subName), {
+            method: 'POST'
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert(x.message || "Removed");
+            clearFields();
+            loadLists();
+        })
+        .catch(err => alert("Remove failed: " + err.message));
+    }
+
+    function changeSubName() {
+        let oldName = document.getElementById("subName").value;
+        let newName = document.getElementById("newSubName").value;
+
+        if (!oldName || !newName) return;
+
+        fetch('/MSaleAdmin/RenameSubCategory', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ oldName: oldName, newName: newName })
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert(x.message || "Updated");
+            clearFields();
+            loadLists();
+        })
+        .catch(err => alert("Rename failed: " + err.message));
+    }
+
+    function clearFields() {
+        document.getElementById("subName").value = "";
+        document.getElementById("categoryName").value = "";
+        document.getElementById("newSubName").value = "";
+
+        for (let i = 1; i <= 5; i++) {
+            document.getElementById("timedEvent" + i).value = "None";
+        }
+    }
+</script>

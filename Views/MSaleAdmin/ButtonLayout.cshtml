@@ -1,0 +1,565 @@
+﻿@{
+    ViewData["Title"] = "Button Layout";
+}
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial;
+        background: #f3f0ea;
+        color: #222;
+    }
+
+    .page {
+        max-width: 2200px;
+        margin: 20px auto;
+        padding: 16px;
+    }
+
+    h2 {
+        text-align: center;
+        margin: 0 0 14px 0;
+    }
+
+    .toolbar {
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 12px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 14px;
+    }
+
+    button {
+        padding: 9px 14px;
+        font-weight: bold;
+        cursor: pointer;
+        border-radius: 6px;
+        border: 1px solid #999;
+        background: #f7f7f7;
+    }
+
+        button.primary {
+            background: #e07a3c;
+            color: white;
+            border-color: #e07a3c;
+        }
+
+    select, input {
+        padding: 8px;
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+    .main {
+        display: grid;
+        grid-template-columns: 260px minmax(1250px, 1fr) 280px;
+        gap: 14px;
+    }
+
+    .panel {
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 12px;
+        overflow: auto;
+    }
+
+        .panel h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+
+    #itemList {
+        width: 100%;
+        height: 800px;
+        font-size: 15px;
+    }
+
+    #canvas {
+        position: relative;
+        width: 1250px;
+        height: 820px;
+        background: #1b1b1b;
+        border: 2px solid #444;
+        border-radius: 8px;
+        overflow: hidden;
+        background-image: linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+
+    .menu-btn {
+        position: absolute;
+        min-width: 60px;
+        min-height: 35px;
+        border: 1px solid white;
+        border-radius: 6px;
+        cursor: move;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        overflow: hidden;
+        font-weight: bold;
+        padding: 4px;
+        user-select: none;
+    }
+
+        .menu-btn.selected {
+            outline: 3px solid yellow;
+        }
+
+    .resize {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 14px;
+        height: 14px;
+        background: yellow;
+        cursor: se-resize;
+    }
+
+    .editor label {
+        display: block;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    .editor input {
+        width: 100%;
+        margin-top: 4px;
+    }
+
+    .status {
+        margin-top: 8px;
+        font-size: 13px;
+        color: #666;
+        display: flex;
+        justify-content: space-between;
+    }
+</style>
+
+<div class="page">
+
+    <h2>Button Layout</h2>
+
+    <div class="toolbar">
+        <label><b>Category</b></label>
+        <select id="categorySelect" onchange="loadLayout()"></select>
+
+        <button type="button" onclick="loadLayout()">Reload</button>
+        <button type="button" onclick="addBlankButton()">Add Blank Button</button>
+        <button type="button" onclick="assignSelectedItem()">Put Menu Item On Button</button>
+        <button type="button" onclick="deleteSelectedButton()">Delete Selected</button>
+
+        <div style="flex:1"></div>
+
+        <button type="button" onclick="location.href='/'">Exit</button>
+        <button type="button" class="primary" onclick="saveLayout()">Save Layout</button>
+    </div>
+
+    <div class="main">
+
+        <div class="panel">
+            <h3>Menu Items</h3>
+            <select id="itemList" size="30"></select>
+        </div>
+
+        <div class="panel">
+            <h3>Button Layout Area</h3>
+            <div id="canvas"></div>
+            <div class="status">
+                <span id="statusButtons">0 buttons</span>
+                <span id="statusSelected">No button selected</span>
+            </div>
+        </div>
+
+        <div class="panel editor">
+            <h3>Selected Button</h3>
+
+            <label>Menu Item</label>
+            <input id="editMenuItem" onchange="applyEditor()" />
+
+            <label>Font Size</label>
+            <input id="editFontSize" type="number" value="12" onchange="applyEditor()" />
+
+            <label>Text Color</label>
+            <input id="editForeCol" type="color" value="#000000" onchange="applyEditor()" />
+
+            <label>Button Color</label>
+            <input id="editBackCol" type="color" value="#d9d9d9" onchange="applyEditor()" />
+
+            <label>Icon</label>
+            <input id="editIcon" onchange="applyEditor()" />
+
+            <br /><br />
+            <button type="button" class="primary" style="width:100%" onclick="applyEditor()">Apply Changes</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let buttons = [];
+    let selectedIndex = -1;
+
+    let dragging = null;
+    let resizing = null;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadCategories();
+        loadMenuItems();
+    });
+
+    function loadCategories() {
+        fetch('/MSaleAdmin/GetButtonLayoutCategories')
+            .then(r => r.json())
+            .then(data => {
+                const sel = document.getElementById("categorySelect");
+                sel.innerHTML = "";
+                sel.add(new Option("-- Select Category --", ""));
+
+                data.forEach(x => sel.add(new Option(x, x)));
+
+                if (data.length > 0) {
+                    sel.value = data[0];
+                    loadLayout();
+                }
+            })
+            .catch(err => alert("Could not load categories: " + err.message));
+    }
+
+    function loadMenuItems() {
+        fetch('/MSaleAdmin/GetButtonLayoutMenuItems')
+            .then(r => r.json())
+            .then(data => {
+                const list = document.getElementById("itemList");
+                list.innerHTML = "";
+
+                data.forEach(x => list.add(new Option(x, x)));
+            })
+            .catch(err => alert("Could not load menu items: " + err.message));
+    }
+
+    function loadLayout() {
+        const category = document.getElementById("categorySelect").value;
+        if (!category) return;
+
+        fetch('/MSaleAdmin/GetButtonLayout?category=' + encodeURIComponent(category))
+            .then(r => r.json())
+            .then(data => {
+                buttons = data.buttons || data || [];
+
+                selectedIndex = -1;
+                drawButtons();
+                clearEditor();
+                updateStatus();
+            })
+            .catch(err => alert("Could not load layout: " + err.message));
+    }
+
+    function drawButtons() {
+        const canvas = document.getElementById("canvas");
+        canvas.innerHTML = "";
+
+        buttons.forEach((b, index) => {
+            const btn = document.createElement("div");
+            btn.className = "menu-btn";
+            btn.dataset.index = index;
+
+            if (index === selectedIndex) {
+                btn.classList.add("selected");
+            }
+
+            btn.style.left = (b.left || 20) + "px";
+            btn.style.top = (b.top || 20) + "px";
+            btn.style.width = (b.width || 120) + "px";
+            btn.style.height = (b.height || 55) + "px";
+            btn.style.fontSize = (b.fontSize || 12) + "px";
+            btn.style.color = vbColorToHex(b.foreCol || 0);
+            btn.style.backgroundColor = vbColorToHex(b.backCol || 12632256);
+            btn.innerText = b.menuItem || "";
+
+            const resize = document.createElement("div");
+            resize.className = "resize";
+
+            resize.onmousedown = function (e) {
+                e.stopPropagation();
+
+                selectedIndex = index;
+                resizing = btn;
+
+                loadEditor();
+                markSelectedButton();
+
+                document.onmousemove = resizeMove;
+                document.onmouseup = stopMouse;
+            };
+
+            btn.appendChild(resize);
+
+            btn.onmousedown = function (e) {
+                if (e.target.className === "resize") return;
+
+                selectedIndex = index;
+                dragging = btn;
+
+                offsetX = e.clientX - btn.offsetLeft;
+                offsetY = e.clientY - btn.offsetTop;
+
+                loadEditor();
+                markSelectedButton();
+
+                document.onmousemove = dragMove;
+                document.onmouseup = stopMouse;
+
+                e.preventDefault();
+            };
+
+            canvas.appendChild(btn);
+        });
+
+        updateStatus();
+    }
+
+    function markSelectedButton() {
+        document.querySelectorAll(".menu-btn").forEach(x => {
+            x.classList.remove("selected");
+        });
+
+        if (selectedIndex >= 0) {
+            const btn = document.querySelector('.menu-btn[data-index="' + selectedIndex + '"]');
+            if (btn) btn.classList.add("selected");
+        }
+
+        updateStatus();
+    }
+
+    function dragMove(e) {
+        if (!dragging || selectedIndex < 0) return;
+
+        const canvas = document.getElementById("canvas");
+
+        let x = e.clientX - offsetX;
+        let y = e.clientY - offsetY;
+
+        x = Math.max(0, Math.min(x, canvas.offsetWidth - dragging.offsetWidth));
+        y = Math.max(0, Math.min(y, canvas.offsetHeight - dragging.offsetHeight));
+
+        dragging.style.left = x + "px";
+        dragging.style.top = y + "px";
+
+        buttons[selectedIndex].left = Math.round(x);
+        buttons[selectedIndex].top = Math.round(y);
+
+        updateStatus();
+    }
+
+    function resizeMove(e) {
+        if (!resizing || selectedIndex < 0) return;
+
+        const rect = resizing.getBoundingClientRect();
+
+        let w = e.clientX - rect.left;
+        let h = e.clientY - rect.top;
+
+        w = Math.max(60, w);
+        h = Math.max(35, h);
+
+        resizing.style.width = w + "px";
+        resizing.style.height = h + "px";
+
+        buttons[selectedIndex].width = Math.round(w);
+        buttons[selectedIndex].height = Math.round(h);
+
+        updateStatus();
+    }
+
+    function stopMouse() {
+        dragging = null;
+        resizing = null;
+        document.onmousemove = null;
+        document.onmouseup = null;
+    }
+
+    function addBlankButton() {
+        const category = document.getElementById("categorySelect").value;
+
+        if (!category) {
+            alert("Select a category first.");
+            return;
+        }
+
+        buttons.push({
+            menuItem: "",
+            category: category,
+            foreCol: 0,
+            backCol: 12632256,
+            icon: "",
+            width: 120,
+            height: 55,
+            fontSize: 12,
+            left: 20,
+            top: 20,
+            buttonAssigned: buttons.length
+        });
+
+        selectedIndex = buttons.length - 1;
+        drawButtons();
+        loadEditor();
+    }
+
+    function assignSelectedItem() {
+        const item = document.getElementById("itemList").value;
+
+        if (!item) {
+            alert("Select a menu item first.");
+            return;
+        }
+
+        if (selectedIndex < 0) {
+            addBlankButton();
+        }
+
+        if (selectedIndex < 0) return;
+
+        buttons[selectedIndex].menuItem = item;
+        document.getElementById("editMenuItem").value = item;
+
+        drawButtons();
+        updateStatus();
+    }
+
+    function deleteSelectedButton() {
+        if (selectedIndex < 0) {
+            alert("Select a button first.");
+            return;
+        }
+
+        buttons.splice(selectedIndex, 1);
+        selectedIndex = -1;
+
+        drawButtons();
+        clearEditor();
+        updateStatus();
+    }
+
+    function loadEditor() {
+        if (selectedIndex < 0) {
+            clearEditor();
+            return;
+        }
+
+        const b = buttons[selectedIndex];
+
+        document.getElementById("editMenuItem").value = b.menuItem || "";
+        document.getElementById("editFontSize").value = b.fontSize || 12;
+        document.getElementById("editForeCol").value = vbColorToHex(b.foreCol || 0);
+        document.getElementById("editBackCol").value = vbColorToHex(b.backCol || 12632256);
+        document.getElementById("editIcon").value = b.icon || "";
+    }
+
+    function applyEditor() {
+        if (selectedIndex < 0) return;
+
+        const b = buttons[selectedIndex];
+
+        b.menuItem = document.getElementById("editMenuItem").value;
+        b.fontSize = parseInt(document.getElementById("editFontSize").value || 12);
+        b.foreCol = hexToVbColor(document.getElementById("editForeCol").value).toString();
+        b.backCol = hexToVbColor(document.getElementById("editBackCol").value).toString();
+        b.icon = document.getElementById("editIcon").value;
+
+        drawButtons();
+    }
+
+    function clearEditor() {
+        document.getElementById("editMenuItem").value = "";
+        document.getElementById("editFontSize").value = "12";
+        document.getElementById("editForeCol").value = "#000000";
+        document.getElementById("editBackCol").value = "#d9d9d9";
+        document.getElementById("editIcon").value = "";
+    }
+
+    function saveLayout() {
+        if (selectedIndex >= 0) {
+            applyEditor();
+        }
+
+        const category = document.getElementById("categorySelect").value;
+
+        if (!category) {
+            alert("Select a category first.");
+            return;
+        }
+
+        const cleanButtons = buttons.map((b, i) => ({
+            menuItem: b.menuItem || "",
+            category: category,
+            foreCol: String(b.foreCol || "0"),
+            backCol: String(b.backCol || "12632256"),
+            icon: b.icon || "",
+            width: parseInt(b.width || 120),
+            height: parseInt(b.height || 55),
+            fontSize: parseInt(b.fontSize || 12),
+            left: parseInt(b.left || 20),
+            top: parseInt(b.top || 20),
+            buttonAssigned: i
+        }));
+
+        fetch('/MSaleAdmin/SaveButtonLayout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                category: category,
+                buttons: cleanButtons
+            })
+        })
+        .then(r => r.json())
+        .then(x => alert(x.message || "Saved"))
+        .catch(err => alert("Save failed: " + err.message));
+    }
+
+    function updateStatus() {
+        document.getElementById("statusButtons").innerText =
+            buttons.length + " buttons";
+
+        if (selectedIndex < 0) {
+            document.getElementById("statusSelected").innerText =
+                "No button selected";
+        } else {
+            const b = buttons[selectedIndex];
+            document.getElementById("statusSelected").innerText =
+                "Selected: " + (b.menuItem || "Blank Button");
+        }
+    }
+
+    function vbColorToHex(value) {
+        value = Number(value || 0);
+
+        let r = value & 255;
+        let g = (value >> 8) & 255;
+        let b = (value >> 16) & 255;
+
+        return "#" +
+            r.toString(16).padStart(2, "0") +
+            g.toString(16).padStart(2, "0") +
+            b.toString(16).padStart(2, "0");
+    }
+
+    function hexToVbColor(hex) {
+        hex = hex.replace("#", "");
+
+        let r = parseInt(hex.substring(0, 2), 16);
+        let g = parseInt(hex.substring(2, 4), 16);
+        let b = parseInt(hex.substring(4, 6), 16);
+
+        return r + (g * 256) + (b * 65536);
+    }
+</script>

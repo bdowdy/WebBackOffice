@@ -1,0 +1,167 @@
+﻿@{
+    ViewData["Title"] = "Discount / Coupon Reasons";
+}
+
+<style>
+    .reason-page {
+        max-width: 800px;
+        margin: 25px auto;
+    }
+
+    .reason-card {
+        border-radius: 14px;
+        box-shadow: 0 4px 18px rgba(0,0,0,.10);
+        border: 1px solid #ddd;
+        background: #fff;
+    }
+
+    .reason-header {
+        background: linear-gradient(90deg, #1f4e79, #2d75b6);
+        color: white;
+        padding: 18px 24px;
+        border-radius: 14px 14px 0 0;
+    }
+
+    .reason-list {
+        max-height: 350px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+    }
+
+    .reason-row {
+        padding: 10px 14px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+    }
+
+        .reason-row:hover {
+            background: #eef5ff;
+        }
+
+        .reason-row.selected {
+            background: #dbeafe;
+            font-weight: 600;
+        }
+</style>
+
+<div class="reason-page">
+    <div class="reason-card">
+
+        <div class="reason-header">
+            <h2 class="mb-0">Discount / Coupon Reasons</h2>
+            <div>Add, edit, or delete coupon and discount reasons.</div>
+        </div>
+
+        <div class="p-4">
+
+            <input type="hidden" id="originalName" />
+
+            <label class="form-label fw-bold">Reason Name</label>
+            <input id="reasonName" class="form-control mb-3" placeholder="Enter reason name" />
+
+            <div class="mb-3">
+                <button type="button" class="btn btn-primary px-4" onclick="saveReason()">Save</button>
+                <button type="button" class="btn btn-danger px-4" onclick="deleteReason()">Delete</button>
+                <button type="button" class="btn btn-secondary px-4" onclick="clearReason()">Clear</button>
+            </div>
+
+            <h5>Existing Reasons</h5>
+            <div id="reasonList" class="reason-list"></div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedRow = null;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadReasons();
+    });
+
+    function loadReasons() {
+        fetch('/MSaleAdmin/GetCouponReasons')
+            .then(r => r.json())
+            .then(data => {
+                let list = document.getElementById('reasonList');
+                list.innerHTML = '';
+
+                data.forEach(function (x) {
+                    let div = document.createElement('div');
+                    div.className = 'reason-row';
+                    div.textContent = x.name;
+
+                    div.onclick = function () {
+                        if (selectedRow) selectedRow.classList.remove('selected');
+                        selectedRow = div;
+                        selectedRow.classList.add('selected');
+
+                        document.getElementById('reasonName').value = x.name;
+                        document.getElementById('originalName').value = x.name;
+                    };
+
+                    list.appendChild(div);
+                });
+            });
+    }
+
+    function saveReason() {
+        let item = {
+            name: document.getElementById('reasonName').value,
+            originalName: document.getElementById('originalName').value
+        };
+
+        if (!item.name.trim()) {
+            alert("Enter a reason name.");
+            return;
+        }
+
+        fetch('/MSaleAdmin/SaveCouponReason', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(item)
+        })
+        .then(r => r.json())
+        .then(result => {
+            alert(result.message || "Saved");
+            loadReasons();
+            clearReason();
+        });
+    }
+
+    function deleteReason() {
+        let item = {
+            name: document.getElementById('originalName').value || document.getElementById('reasonName').value
+        };
+
+        if (!item.name.trim()) {
+            alert("Select a reason to delete.");
+            return;
+        }
+
+        if (!confirm("Delete reason " + item.name + "?")) return;
+
+        fetch('/MSaleAdmin/DeleteCouponReason', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(item)
+        })
+        .then(r => r.json())
+        .then(result => {
+            alert(result.message || "Deleted");
+            loadReasons();
+            clearReason();
+        });
+    }
+
+    function clearReason() {
+        document.getElementById('reasonName').value = '';
+        document.getElementById('originalName').value = '';
+
+        if (selectedRow) {
+            selectedRow.classList.remove('selected');
+            selectedRow = null;
+        }
+    }
+</script>

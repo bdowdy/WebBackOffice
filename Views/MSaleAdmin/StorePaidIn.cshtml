@@ -1,0 +1,364 @@
+﻿@{
+    ViewData["Title"] = "Store Paid In";
+}
+
+<style>
+
+    body {
+        background-color: #f4f6f9;
+    }
+
+    .page-container {
+        max-width: 950px;
+        margin: 40px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 14px;
+        box-shadow: 0 5px 16px rgba(0,0,0,0.12);
+    }
+
+    .page-title {
+        font-size: 34px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 25px;
+    }
+
+    .form-panel {
+        background: #fafafa;
+        border: 1px solid #e1e5ea;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        font-size: 15px;
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .textbox {
+        width: 100%;
+        max-width: 450px;
+        height: 44px;
+        border: 1px solid #cfd6dd;
+        border-radius: 8px;
+        padding: 0 14px;
+        font-size: 16px;
+        transition: all 0.2s;
+        margin-bottom: 18px;
+    }
+
+        .textbox:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52,152,219,0.4);
+        }
+
+    .button-bar {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-custom {
+        border: none;
+        border-radius: 8px;
+        padding: 11px 20px;
+        font-size: 15px;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-save {
+        background-color: #27ae60;
+    }
+
+        .btn-save:hover {
+            background-color: #1f8a4c;
+        }
+
+    .btn-clear {
+        background-color: #7f8c8d;
+    }
+
+        .btn-clear:hover {
+            background-color: #6c7778;
+        }
+
+    .btn-delete {
+        background-color: #e74c3c;
+    }
+
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+
+    .table-panel {
+        border: 1px solid #dce1e6;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .table-scroll {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background-color: #34495e;
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    th {
+        text-align: left;
+        padding: 15px;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    td {
+        padding: 14px 15px;
+        border-bottom: 1px solid #ececec;
+        font-size: 15px;
+        cursor: pointer;
+    }
+
+    tr:hover {
+        background-color: #eef6ff;
+    }
+
+    .empty-message {
+        text-align: center;
+        padding: 25px;
+        color: #999;
+        font-style: italic;
+    }
+
+</style>
+
+<div class="page-container">
+
+    <div class="page-title">
+        Store Paid In
+    </div>
+
+    <input type="hidden" id="paidInId" />
+
+    <div class="form-panel">
+
+        <label class="form-label">
+            Paid In Name
+        </label>
+
+        <input type="text"
+               id="paidInName"
+               class="textbox"
+               placeholder="Enter Paid In Name" />
+
+        <div class="button-bar">
+
+            <button class="btn-custom btn-save"
+                    onclick="savePaidIn()">
+                Save
+            </button>
+
+            <button class="btn-custom btn-clear"
+                    onclick="clearForm()">
+                Clear
+            </button>
+
+            <button class="btn-custom btn-delete"
+                    onclick="deletePaidIn()">
+                Delete
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="table-panel">
+
+        <div class="table-scroll">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Paid In Name</th>
+                    </tr>
+                </thead>
+
+                <tbody id="paidInList">
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadPaidIns();
+    });
+
+    function loadPaidIns() {
+
+        fetch('/MSaleAdmin/GetStorePaidIns')
+            .then(r => r.json())
+            .then(data => {
+
+                let tbody =
+                    document.getElementById("paidInList");
+
+                tbody.innerHTML = "";
+
+                if (data.length === 0) {
+
+                    tbody.innerHTML =
+                        `<tr>
+                            <td class="empty-message">
+                                No Store Paid In Records Found
+                            </td>
+                         </tr>`;
+
+                    return;
+                }
+
+                data.forEach(function(item) {
+
+                    let tr = document.createElement("tr");
+
+                    tr.innerHTML =
+                        `<td onclick="editPaidIn(${item.id},
+                            '${item.paidInName}')">
+
+                            ${item.paidInName}
+
+                         </td>`;
+
+                    tbody.appendChild(tr);
+
+                });
+
+            });
+
+    }
+
+    function editPaidIn(id, name) {
+
+        document.getElementById("paidInId").value = id;
+        document.getElementById("paidInName").value = name;
+
+    }
+
+    function clearForm() {
+
+        document.getElementById("paidInId").value = "";
+        document.getElementById("paidInName").value = "";
+
+        document.getElementById("paidInName").focus();
+
+    }
+
+    function savePaidIn() {
+
+        let id =
+            document.getElementById("paidInId").value;
+
+        let paidInName =
+            document.getElementById("paidInName").value;
+
+        if (paidInName.trim() === "") {
+
+            alert("Please enter a Paid In Name.");
+            return;
+
+        }
+
+        fetch('/MSaleAdmin/SaveStorePaidIn', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+
+                id: id || 0,
+                paidInName: paidInName
+
+            })
+
+        })
+        .then(r => r.text())
+        .then(msg => {
+
+            alert(msg);
+
+            clearForm();
+            loadPaidIns();
+
+        });
+
+    }
+
+    function deletePaidIn() {
+
+        let id =
+            document.getElementById("paidInId").value;
+
+        if (!id) {
+
+            alert("Select a Paid In record first.");
+            return;
+
+        }
+
+        if (!confirm("Delete this Paid In record?"))
+            return;
+
+        fetch('/MSaleAdmin/DeleteStorePaidIn', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+                id: id
+            })
+
+        })
+        .then(r => r.text())
+        .then(msg => {
+
+            alert(msg);
+
+            clearForm();
+            loadPaidIns();
+
+        });
+
+    }
+
+</script>

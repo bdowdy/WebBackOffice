@@ -1,0 +1,749 @@
+@{
+    ViewData["Title"] = "Discounts";
+}
+<div class="page">
+    <div class="header">
+        <div>
+            <h1>Discount Setup</h1>
+            <p>Add, edit, delete, assignments, active days, and combo matches.</p>
+        </div>
+        <div class="header-buttons">
+            <button class="btn light" type="button" onclick="clearForm()">Clear</button>
+            <button class="btn danger" type="button" onclick="deleteDiscount()">Delete</button>
+            <button class="btn save" type="button" onclick="saveDiscount()">Save</button>
+        </div>
+    </div>
+    <div id="msg" class="msg"></div>
+    <div class="layout">
+        <section class="card">
+            <h2>Discount</h2>
+            <label>Discount Name</label>
+            <select id="discountCombo" onchange="discountChanged()">
+                <option value="">-- Select Discount --</option>
+            </select>
+            <label>New / Edit Name</label>
+            <input id="discountName" maxlength="20" />
+            <label>Discount Type</label>
+            <select id="discountType" onchange="typeChanged()">
+                <option value=""></option>
+                <option>Amount</option>
+                <option>Percentage</option>
+                <option>Discount Amount</option>
+                <option>Discount Percentage</option>
+                <option>Open Amount</option>
+                <option>Open Percentage</option>
+                <option>Minimum Amount</option>
+                <option>Minimum Percentage</option>
+                <option>Combo Amount</option>
+                <option>Combo Percentage</option>
+                <option>Combo Set Amount</option>
+                <option>Set Price</option>
+                <option>Charge Amount</option>
+                <option>Charge Percentage</option>
+            </select>
+            <label>Amount</label>
+            <input id="discountAmount" type="number" step="0.01" value="0.00" />
+            <label>Access Level</label>
+            <select id="accessLevel"></select>
+            <label>Discount ID</label>
+            <input id="discountId" type="number" value="0" />
+            <label>Category</label>
+            <select id="discountClass" onchange="typeChanged()">
+                <option>Discount</option>
+                <option>Gratuity</option>
+                <option>Service Charge</option>
+                <option>Processing Fee</option>
+            </select>
+        </section>
+        <section class="card">
+            <h2>Rules</h2>
+            <label><input id="allowOnlyOne" type="checkbox" /> Allow only 1 discount per seat</label>
+            <label><input id="afterPrint" type="checkbox" /> Exclude modifier prices</label>
+            <label><input id="autoMatch" type="checkbox" onchange="typeChanged()" /> Auto match / auto deduct percentage</label>
+            <label><input id="autoDeduct" type="checkbox" /> Auto fire discount</label>
+            <label><input id="tracking" type="checkbox" /> Coupon number tracking</label>
+            <label><input id="eventOnly" type="checkbox" /> Event only</label>
+            <label id="maxLabel">Maximum Amount Allowed Per Transaction</label>
+            <input id="maxDiscountAmount" type="number" step="0.01" value="0.00" />
+            <label>Match With Number</label>
+            <input id="matchValue" type="number" step="0.01" value="0" />
+            <label>Discount Department</label>
+            <select id="discDepartment"></select>
+        </section>
+        <section class="card">
+            <h2>Tax / Time / Days</h2>
+            <label>Sales Tax</label>
+            <input id="tax1" type="number" value="1" />
+            <label>Special Tax</label>
+            <input id="tax2" type="number" value="0" />
+            <label>Tax 3</label>
+            <input id="taxable" type="number" value="0" />
+            <label>Start Time</label>
+            <input id="startTime" value="12:00 AM" />
+            <label>End Time</label>
+            <input id="endTime" value="12:00 AM" />
+            <label>Expires</label>
+            <input id="expires" type="date" />
+            <h3>Days Not Available</h3>
+            <div id="days" class="days"></div>
+        </section>
+    </div>
+    <div class="layout two">
+        <section class="card">
+            <h2>Assignments</h2>
+            <div class="toolbar">
+                <button type="button" onclick="loadAssign('menu')">Menu Items</button>
+                <button type="button" onclick="loadAssign('category')">Categories</button>
+                <button type="button" onclick="loadAssign('department')">Departments</button>
+                <button type="button" onclick="assignAll()">Assign All</button>
+                <button type="button" onclick="clearAssign()">Clear</button>
+            </div>
+            <div class="split">
+                <div>
+                    <h3>Available</h3>
+                    <input id="filterAvailable" placeholder="Search..." oninput="renderAvailable()" />
+                    <div id="availableList" class="list"></div>
+                </div>
+                <div>
+                    <h3>Assigned</h3>
+                    <div id="assignedList" class="list"></div>
+                </div>
+            </div>
+        </section>
+        <section class="card">
+            <h2>Combo Match</h2>
+            <div class="toolbar">
+                <button type="button" onclick="loadComboItems()">Load Combo Items</button>
+                <button type="button" onclick="clearCombos()">Clear Combos</button>
+            </div>
+            <input id="comboFilter" placeholder="Search combo items..." oninput="renderComboSource()" />
+            <div id="comboSource" class="list source"></div>
+            <div class="combo-grid">
+                @for (int i = 0; i <= 6; i++)
+                {
+                    var title = i == 0 ? "Combo Item" : $"Match #{i}";
+                    <div>
+                        <h3>@title</h3>
+                        <div id="combo@i" class="list combo" ondrop="dropCombo(event,@i)" ondragover="event.preventDefault()"></div>
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+</div>
+<style>
+    .page {
+        font-family: Arial, sans-serif;
+        background: #f6f1ed;
+        padding: 18px;
+        color: #2b2520;
+    }
+
+    .header {
+        background: #2b2520;
+        color: white;
+        border-radius: 18px;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        align-items: center;
+    }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .header p {
+            margin: 6px 0 0;
+            color: #e8ddd7;
+        }
+
+    .header-buttons, .toolbar {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .btn, button {
+        border: none;
+        border-radius: 10px;
+        padding: 9px 14px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .save {
+        background: #2f7847;
+        color: white;
+    }
+
+    .danger {
+        background: #a63737;
+        color: white;
+    }
+
+    .light {
+        background: #eadfd9;
+        color: #2b2520;
+    }
+
+    .msg {
+        display: none;
+        margin-top: 12px;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: bold;
+    }
+
+    .layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 14px;
+        margin-top: 14px;
+    }
+
+        .layout.two {
+            grid-template-columns: 1fr 1fr;
+        }
+
+    .card {
+        background: white;
+        border: 1px solid #cfc4bd;
+        border-radius: 18px;
+        padding: 16px;
+        box-shadow: 0 8px 20px #00000012;
+    }
+
+    label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+
+    input, select {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #bbb;
+        border-radius: 10px;
+        padding: 9px;
+        font-size: 15px;
+    }
+
+    label input[type="checkbox"] {
+        width: auto;
+        margin-right: 6px;
+    }
+
+    .days {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+
+    .split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .list {
+        border: 1px solid #cfc4bd;
+        border-radius: 12px;
+        background: white;
+        min-height: 240px;
+        max-height: 360px;
+        overflow: auto;
+        padding: 8px;
+    }
+
+    .item {
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+    }
+
+        .item:hover {
+            background: #f0e5df;
+        }
+
+    .source {
+        min-height: 140px;
+        margin-bottom: 12px;
+    }
+
+    .combo-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .combo {
+        min-height: 90px;
+        max-height: 150px;
+    }
+
+    @@media(max-width:1100px) {
+        .layout, .layout.two {
+            grid-template-columns: 1fr;
+        }
+
+        .header {
+            display: block;
+        }
+
+        .header-buttons {
+            margin-top: 12px;
+        }
+
+        .split {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+<script>
+    let availableItems = [];
+    let assignedItems  = [];
+    let comboItems     = [];
+    let comboLists     = [[], [], [], [], [], [], []];
+
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        buildDays();
+        await loadSetupLists();
+        clearForm(false);
+    });
+
+    // ── Utilities ─────────────────────────────────────────────────────────────
+
+    async function api(url, opt) {
+        const r    = await fetch(url, opt);
+        const text = await r.text();
+        if (!r.ok) throw new Error(text || r.statusText);
+        if (!text) return null;
+        try   { return JSON.parse(text); }
+        catch { return text; }
+    }
+
+    function showMsg(text, bad) {
+        const m = document.getElementById('msg');
+        m.textContent    = text;
+        m.style.display  = 'block';
+        m.style.background = bad ? '#ffe2e2' : '#e5f5e9';
+        m.style.color      = bad ? '#8b1d1d' : '#205c33';
+    }
+
+    function el(id)  { return document.getElementById(id); }
+    function val(id) { const x = el(id); return x ? (x.value || '') : ''; }
+
+    function num(id, fallback) {
+        const n = Number(val(id));
+        return Number.isFinite(n) ? n : fallback;
+    }
+
+    function checked(id) {
+        const x = el(id);
+        return x && x.checked ? 1 : 0;
+    }
+
+    function setVal(id, value, fallback = '') {
+        const x = el(id);
+        if (x) x.value = (value !== null && value !== undefined) ? value : fallback;
+    }
+
+    function setChecked(id, value) {
+        const x = el(id);
+        if (x) x.checked = Number(value || 0) !== 0;
+    }
+
+    function asArray(value) {
+        if (Array.isArray(value)) return value.filter(x => x !== null && x !== undefined && String(x).trim() !== '');
+        if (value === null || value === undefined || value === '') return [];
+        return [value];
+    }
+
+    function esc(s) {
+        return String(s ?? '')
+            .replaceAll('&', '&amp;').replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+    }
+
+    function escJs(s) {
+        return String(s ?? '').replaceAll('\\', '\\\\').replaceAll("'", "\\'");
+    }
+
+    // Case-insensitive property reader — handles PascalCase C# serialization
+    // and camelCase equally.  prop(obj, 'discountName') finds 'DiscountName' too.
+    function prop(obj, key) {
+        if (!obj || typeof obj !== 'object') return undefined;
+        if (key in obj) return obj[key];
+        const lower = key.toLowerCase();
+        const match = Object.keys(obj).find(k => k.toLowerCase() === lower);
+        return match ? obj[match] : undefined;
+    }
+
+    // Coerce an item that might be an object or a plain string into a display string.
+    // Tries the most common property names your API might use (case-insensitive).
+    function extractName(x) {
+        if (x === null || x === undefined) return '';
+        if (typeof x !== 'object') return String(x);
+        return prop(x, 'discountName')   ??
+               prop(x, 'accessName')     ??
+               prop(x, 'accessLevel')    ??
+               prop(x, 'departmentName') ??
+               prop(x, 'reportName')     ??
+               prop(x, 'name')           ??
+               prop(x, 'value')          ??
+               prop(x, 'text')           ??
+               String(x);
+    }
+
+    // ── Days ──────────────────────────────────────────────────────────────────
+
+    function buildDays() {
+        el('days').innerHTML = days.map((d, i) =>
+            `<label><input type="checkbox" id="day${i}" /> ${d}</label>`
+        ).join('');
+    }
+
+    // ── Setup lists (discounts, access levels, departments) ───────────────────
+
+    async function loadSetupLists() {
+        try {
+            const d = await api('/MSaleAdmin/GetDiscountSetupLists') || {};
+
+            // Normalise every array: items may be plain strings OR objects,
+            // and the envelope keys may be PascalCase or camelCase.
+            const discounts    = asArray(prop(d, 'discounts')   ).map(extractName).filter(Boolean);
+            const accessLevels = asArray(prop(d, 'accessLevels')).map(extractName).filter(Boolean);
+            const departments  = asArray(prop(d, 'departments') ).map(extractName).filter(Boolean);
+
+            fillSelect('discountCombo', discounts,               true,  '-- Select Discount --');
+            fillSelect('accessLevel',  accessLevels,             true,  '');
+            fillSelect('discDepartment', ['None', ...departments], false, '');
+        } catch (e) {
+            showMsg('Could not load setup lists: ' + e.message, true);
+        }
+    }
+
+    function fillSelect(id, arr, addBlank, blankText) {
+        const node = el(id);
+        if (!node) return;
+        let html = addBlank ? `<option value="">${esc(blankText || '')}</option>` : '';
+        html += asArray(arr).map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join('');
+        node.innerHTML = html;
+    }
+
+    // ── Load a specific discount ───────────────────────────────────────────────
+
+    async function discountChanged() {
+        const name = val('discountCombo');
+        setVal('discountName', name);
+        if (name) await loadDiscount(name);
+    }
+
+    async function loadDiscount(nameFromCombo) {
+        try {
+            const name = nameFromCombo || val('discountName') || val('discountCombo');
+            if (!name) { showMsg('Choose a discount first.', true); return; }
+
+            const raw = await api('/MSaleAdmin/GetDiscount?discountName=' + encodeURIComponent(name)) || {};
+
+            // Detect response shape — works regardless of PascalCase vs camelCase.
+            // Shape A: { discount: {...}, activeDays: [...], ... }
+            // Shape B: { discountName/DiscountName: "...", activeDays: [...], ... }
+            const discObj = prop(raw, 'discount');
+            const x = (discObj && typeof discObj === 'object')
+                        ? discObj   // Shape A — unwrap the nested discount
+                        : raw;      // Shape B — the root IS the discount
+
+            // Verify we actually have a discount (check for a name property, any casing)
+            const loadedName = prop(x, 'discountName');
+            if (!loadedName) {
+                showMsg('Discount not found. You can save it as new.', true);
+                return;
+            }
+
+            setVal('discountName',      loadedName,                            name);
+            setVal('discountCombo',     loadedName,                            name);
+            setVal('discountType',      prop(x, 'discountType'),               '');
+            setVal('discountAmount',    prop(x, 'discountAmount'),             0);
+            setVal('accessLevel',       prop(x, 'accessLevel'),                '');
+            setVal('discountId',        prop(x, 'discountId'),                 0);
+            setVal('discountClass',     prop(x, 'type'),                       'Discount');
+            setVal('maxDiscountAmount', prop(x, 'maxDiscountAmount'),          0);
+            setVal('matchValue',        prop(x, 'matchValue'),                 0);
+            setVal('discDepartment',    prop(x, 'discDepartment'),             'None');
+            setVal('tax1',              prop(x, 'tax1'),                       1);
+            setVal('tax2',              prop(x, 'tax2'),                       0);
+            setVal('taxable',           prop(x, 'taxable'),                    0);
+            setVal('startTime',         prop(x, 'startTime'),                  '12:00 AM');
+            setVal('endTime',           prop(x, 'endTime'),                    '12:00 AM');
+            setVal('expires',           String(prop(x, 'expires') || '').substring(0, 10));
+
+            setChecked('allowOnlyOne', prop(x, 'allowOnlyOne'));
+            setChecked('afterPrint',   prop(x, 'afterPrint'));
+            setChecked('autoMatch',    prop(x, 'autoMatch'));
+            setChecked('autoDeduct',   prop(x, 'autoDeduct'));
+            setChecked('tracking',     prop(x, 'tracking'));
+            setChecked('eventOnly',    String(prop(x, 'searchNumber') || '') === '1' ? 1 : 0);
+
+            // Active days — all field name variants handled via prop()
+            days.forEach((_, i) => setChecked('day' + i, 0));
+            asArray(prop(raw, 'activeDays')).forEach(a => {
+                if (!a) return;
+                const pos    = prop(a, 'pos') ?? prop(a, 'position');
+                const dayVal = prop(a, 'dayValue') ?? prop(a, 'day') ?? prop(a, 'value') ?? 0;
+                if (pos !== null && pos !== undefined) setChecked('day' + pos, dayVal);
+            });
+
+            assignedItems = asArray(prop(raw, 'assignments'));
+            renderAssigned();
+
+            comboLists = [[], [], [], [], [], [], []];
+            comboLists[0] = asArray(prop(raw, 'comboItem'));
+            asArray(prop(raw, 'comboMatches')).forEach(m => {
+                if (!m) return;
+                const no        = Number(prop(m, 'matchNo'));
+                const matchName = prop(m, 'matchName') || '';
+                if (no >= 1 && no <= 6 && matchName) comboLists[no].push(matchName);
+            });
+            renderCombos();
+
+            typeChanged();
+            showMsg('Discount loaded.', false);
+        } catch (e) {
+            showMsg('Error loading discount: ' + e.message, true);
+        }
+    }
+
+    // ── Type / category label ─────────────────────────────────────────────────
+
+    function typeChanged() {
+        const t = val('discountType');
+        const c = val('discountClass');
+        let label = 'Maximum Amount Allowed Per Transaction';
+        if (t === 'Minimum Amount' || t === 'Minimum Percentage') label = 'Minimum Check Amount for Discount';
+        if (c === 'Service Charge') label = 'Minimum Check Amount for Delivery';
+        const maxLabel = el('maxLabel');
+        if (maxLabel) maxLabel.textContent = label;
+
+        if (checked('autoMatch') && !['Discount Percentage', 'Open Percentage'].includes(t)) {
+            showMsg('Auto Match works with Discount Percentage or Open Percentage only.', true);
+            setChecked('autoMatch', 0);
+        }
+    }
+
+    // ── Assignments ───────────────────────────────────────────────────────────
+
+    async function loadAssign(mode) {
+        try {
+            availableItems = asArray(await api('/MSaleAdmin/GetDiscountAssignableItems?mode=' + encodeURIComponent(mode)));
+            renderAvailable();
+            renderAssigned();
+        } catch (e) {
+            showMsg(e.message, true);
+        }
+    }
+
+    function renderAvailable() {
+        const node = el('availableList');
+        if (!node) return;
+        const f = val('filterAvailable').toLowerCase();
+        node.innerHTML = availableItems
+            .filter(x => String(x).toLowerCase().includes(f))
+            .map(x => `<div class="item" onclick="addAssigned('${escJs(x)}')">${esc(x)}</div>`)
+            .join('');
+    }
+
+    function addAssigned(x) {
+        if (!assignedItems.includes(x)) { assignedItems.push(x); assignedItems.sort(); }
+        renderAssigned();
+    }
+
+    function renderAssigned() {
+        const node = el('assignedList');
+        if (!node) return;
+        node.innerHTML = assignedItems
+            .map(x => `<div class="item" onclick="removeAssigned('${escJs(x)}')">${esc(x)}</div>`)
+            .join('');
+    }
+
+    function removeAssigned(x) {
+        assignedItems = assignedItems.filter(a => a !== x);
+        renderAssigned();
+    }
+
+    function assignAll() {
+        availableItems.forEach(x => { if (!assignedItems.includes(x)) assignedItems.push(x); });
+        assignedItems.sort();
+        renderAssigned();
+    }
+
+    function clearAssign() {
+        availableItems = [];
+        assignedItems  = [];
+        renderAvailable();
+        renderAssigned();
+    }
+
+    // ── Combo match ───────────────────────────────────────────────────────────
+
+    async function loadComboItems() {
+        try {
+            comboItems = asArray(await api('/MSaleAdmin/GetDiscountAssignableItems?mode=combo'));
+            renderComboSource();
+        } catch (e) {
+            showMsg(e.message, true);
+        }
+    }
+
+    function renderComboSource() {
+        const node = el('comboSource');
+        if (!node) return;
+        const f = val('comboFilter').toLowerCase();
+        node.innerHTML = comboItems
+            .filter(x => String(x).toLowerCase().includes(f))
+            .map(x => `<div class="item" draggable="true" ondragstart="dragCombo(event,'${escJs(x)}')">${esc(x)}</div>`)
+            .join('');
+    }
+
+    function dragCombo(e, x)  { e.dataTransfer.setData('text/plain', x); }
+    function dropCombo(e, n)  { e.preventDefault(); addCombo(n, e.dataTransfer.getData('text/plain')); }
+
+    function addCombo(n, x) {
+        if (x && !comboLists[n].includes(x)) comboLists[n].push(x);
+        renderCombos();
+    }
+
+    function removeCombo(n, x) {
+        comboLists[n] = comboLists[n].filter(a => a !== x);
+        renderCombos();
+    }
+
+    function renderCombos() {
+        for (let i = 0; i < 7; i++) {
+            const node = el('combo' + i);
+            if (!node) continue;
+            node.innerHTML = comboLists[i]
+                .map(x => `<div class="item" onclick="removeCombo(${i},'${escJs(x)}')">${esc(x)}</div>`)
+                .join('');
+        }
+    }
+
+    function clearCombos() {
+        comboLists = [[], [], [], [], [], [], []];
+        renderCombos();
+    }
+
+    // ── Clear form ────────────────────────────────────────────────────────────
+
+    function clearForm(message = true) {
+        setVal('discountCombo', '');
+        setVal('discountName', '');
+        setVal('discountType', '');
+        setVal('discountAmount', '0.00');
+        setVal('accessLevel', '');
+        setVal('discountId', '0');
+        setVal('discountClass', 'Discount');
+        setVal('maxDiscountAmount', '0.00');
+        setVal('matchValue', '0');
+        setVal('discDepartment', 'None');
+        setVal('tax1', '1');
+        setVal('tax2', '0');
+        setVal('taxable', '0');
+        setVal('startTime', '12:00 AM');
+        setVal('endTime', '12:00 AM');
+        setVal('expires', '');
+        ['allowOnlyOne', 'afterPrint', 'autoMatch', 'autoDeduct', 'tracking', 'eventOnly']
+            .forEach(id => setChecked(id, 0));
+        days.forEach((_, i) => setChecked('day' + i, 0));
+        clearAssign();
+        clearCombos();
+        typeChanged();
+        if (message) showMsg('Ready for new discount.', false);
+    }
+
+    // ── Build save payload ────────────────────────────────────────────────────
+
+    function payload() {
+        const activeDays = [];
+        days.forEach((_, i) => { if (checked('day' + i)) activeDays.push(i); });
+
+        const comboMatches = [];
+        for (let i = 1; i <= 6; i++) {
+            comboLists[i].forEach(x => comboMatches.push({ matchNo: i, matchName: x }));
+        }
+
+        return {
+            discountName:      val('discountName'),
+            discountType:      val('discountType'),
+            discountAmount:    num('discountAmount', 0),
+            accessLevel:       val('accessLevel'),
+            menuItemLink:      0,
+            categoryLink:      0,
+            departmentLink:    0,
+            maxDiscountAmount: num('maxDiscountAmount', 0),
+            matchValue:        num('matchValue', 0),
+            taxable:           num('taxable', 0),
+            tax1:              num('tax1', 1),
+            tax2:              num('tax2', 0),
+            allowOnlyOne:      checked('allowOnlyOne'),
+            afterPrint:        checked('afterPrint'),
+            autoMatch:         checked('autoMatch'),
+            discDepartment:    val('discDepartment') || 'None',
+            type:              val('discountClass')  || 'Discount',
+            searchNumber:      checked('eventOnly') ? '1' : 'None',
+            startTime:         val('startTime') || '12:00 AM',
+            endTime:           val('endTime')   || '12:00 AM',
+            autoDeduct:        checked('autoDeduct'),
+            expires:           val('expires'),
+            discountId:        num('discountId', 0),
+            tracking:          checked('tracking'),
+            activeDays,
+            assignments:       assignedItems,
+            comboItem:         comboLists[0],
+            comboMatches
+        };
+    }
+
+    // ── Save ──────────────────────────────────────────────────────────────────
+
+    async function saveDiscount() {
+        try {
+            const p = payload();
+            if (!p.discountName) { showMsg('Discount name is required.', true); return; }
+            await api('/MSaleAdmin/SaveDiscount', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify(p)
+            });
+            await loadSetupLists();
+            setVal('discountCombo', p.discountName);
+            showMsg('Discount saved.', false);
+        } catch (e) {
+            showMsg(e.message, true);
+        }
+    }
+
+    // ── Delete ────────────────────────────────────────────────────────────────
+
+    async function deleteDiscount() {
+        try {
+            const discountName = val('discountName') || val('discountCombo');
+            if (!discountName) { showMsg('Choose a discount to delete.', true); return; }
+            if (!confirm('Delete ' + discountName + ' and all related discount rows?')) return;
+            await api('/MSaleAdmin/DeleteDiscount', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ discountName })
+            });
+            await loadSetupLists();
+            clearForm(false);
+            showMsg('Discount deleted.', false);
+        } catch (e) {
+            showMsg(e.message, true);
+        }
+    }
+</script>

@@ -1,0 +1,312 @@
+﻿@{
+    ViewData["Title"] = "Menu Access Setup";
+}
+
+<style>
+    .access-page {
+        max-width: 1060px;
+        margin: 20px auto;
+        padding: 22px;
+        background: #808080;
+        font-family: Arial, sans-serif;
+        color: white;
+    }
+
+    .header {
+        font-size: 34px;
+        margin-bottom: 18px;
+    }
+
+    .main-grid {
+        display: grid;
+        grid-template-columns: 430px 1fr;
+        gap: 25px;
+    }
+
+    .function-list,
+    .active-list {
+        width: 100%;
+        height: 580px;
+        font-size: 22px;
+        padding: 8px;
+    }
+
+    .active-list {
+        font-weight: bold;
+        background: #faf9f8;
+    }
+
+    .right-top {
+        display: grid;
+        grid-template-columns: 1fr 90px 120px;
+        gap: 10px;
+        align-items: end;
+        margin-bottom: 12px;
+    }
+
+    .selected-name {
+        font-size: 20px;
+        font-weight: bold;
+        min-height: 34px;
+    }
+
+    .note {
+        color: yellow;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    select, input {
+        padding: 7px;
+        font-size: 18px;
+    }
+
+    button {
+        padding: 8px 18px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+</style>
+
+<div class="access-page">
+
+    <div class="header">Access Levels (Permissions)</div>
+
+    <div class="main-grid">
+
+        <div>
+            <select id="buttonList" class="function-list" size="24" onclick="selectFunction()"></select>
+
+            <div class="label" style="text-align:center; margin-top:10px;">
+                Access Level Required
+            </div>
+        </div>
+
+        <div>
+            <div class="note">Select access - 10 locks button</div>
+
+            <div class="right-top">
+                <div>
+                    <div class="label">Selected Item</div>
+                    <div id="selectedName" class="selected-name">Select Item</div>
+                </div>
+
+                <div>
+                    <div class="label">Level</div>
+                    <select id="accessLevel">
+                        @for (int i = 0; i <= 10; i++)
+                        {
+                            <option value="@i">@i</option>
+                        }
+                    </select>
+                </div>
+
+                <button type="button" onclick="saveAccess()">Save</button>
+            </div>
+
+            <div class="label" style="font-size:22px;">Active Access Levels</div>
+            <select id="displayAccess" class="active-list" size="20" onclick="selectActiveAccess()"></select>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    const menuItems = [
+        "Restrict Tenders",
+        "Manager Access",
+        "Minimum Access",
+        "Discount After Check Is Printed",
+        "View All Checks",
+        "Set Access",
+        "Access Phone Order",
+        "Phone Order",
+        "Message To Manager",
+        "Item Refund",
+        "Refund",
+        "Member Reward",
+        "Check Id",
+        "New Phone Order",
+        "Open Drinks",
+        "Attach Coupon",
+        "Review Order",
+        "Attach Credit Card",
+        "Guest Services",
+        "Frequent Diner",
+        "Show Recipe",
+        "Catering Proposal",
+        "Server Drinks",
+        "Release Holds",
+        "Keyboard",
+        "Customer Name",
+        "Attach Discount",
+        "Table Tent",
+        "Change Destination",
+        "Tray Review",
+        "Time Clock",
+        "Paid Outs",
+        "Fire Order",
+        "Gift Card Balance",
+        "Resend to Kitchen",
+        "Item To Go",
+        "Discount Card",
+        "Show Menu List",
+        "Hide Sent Items",
+        "Show Sent Items",
+        "PLU Look Up",
+        "Verify Account",
+        "Edit Account No",
+        "Meal Periods",
+        "Print By Seat",
+        "Open Drawer",
+        "Intercard",
+        "Reprint Receipt",
+        "Hold Item",
+        "Hold Check",
+        "Managers Menu",
+        "Apply Tip",
+        "Blind Audit",
+        "Gratuity",
+        "Waste",
+        "Redeem Loyalty",
+        "Loyalty Status",
+        "EBT Total",
+        "Verify Balance",
+        "Reprint Last Receipt",
+        "Taxable",
+        "Start Tab",
+        "Tip Edit",
+        "Scan Check",
+        "Price Adjust",
+        "Alternate Remote",
+        "Select Receipt",
+        "Item Transfer",
+        "Delete Item",
+        "Print/Start Tab",
+        "Service Charge",
+        "Send/Stay",
+        "Skim Drawer",
+        "Tip List",
+        "Print CC Slip",
+        "Pay Up Front",
+        "Recall Suspended",
+        "Text Order Ready",
+        "Stop PhoneOrder Message",
+        "EBT Sale",
+        "Qty Available",
+        "Change Menu",
+        "Single Labels",
+        "Multi Labels",
+        "Grab N Go",
+        "Table View",
+        "Kiosk Is On",
+        "Edit Seats"
+    ];
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadButtonList();
+        loadAccessLevels();
+    });
+
+    function loadButtonList() {
+        let list = document.getElementById("buttonList");
+        list.innerHTML = "";
+
+        menuItems.forEach(x => {
+            let opt = document.createElement("option");
+            opt.value = x;
+            opt.text = x;
+            list.appendChild(opt);
+        });
+    }
+
+    function mapMenuName(name) {
+        if (name === "Restrict Tenders") return "Amount Tended";
+        if (name === "Manager Access") return "Managers Menu";
+        if (name === "Discount After Check Is Printed") return "Allow Discount";
+        return name;
+    }
+
+    function selectFunction() {
+        let list = document.getElementById("buttonList");
+        let name = list.value;
+
+        if (name === "Set Access") {
+            let custom = prompt("Enter Button Name");
+            if (!custom) return;
+            name = custom;
+        }
+
+        setAccess(mapMenuName(name));
+    }
+
+    function selectActiveAccess() {
+        let list = document.getElementById("displayAccess");
+        if (!list.value) return;
+
+        let parts = list.value.split("--");
+        let name = parts[0].trim();
+
+        setAccess(name);
+    }
+
+    function setAccess(menuName) {
+        fetch('/MSaleAdmin/GetMenuAccessItem?menuName=' + encodeURIComponent(menuName))
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById("selectedName").innerText = data.menuName || menuName;
+                document.getElementById("accessLevel").value = data.accessRequired ?? 0;
+            })
+            .catch(err => alert("Could not load item: " + err.message));
+    }
+
+    function loadAccessLevels() {
+        fetch('/MSaleAdmin/GetMenuAccess')
+            .then(r => r.json())
+            .then(data => {
+                let list = document.getElementById("displayAccess");
+                list.innerHTML = "";
+
+                data.forEach(x => {
+                    let opt = document.createElement("option");
+                    opt.value = x.menuName + " -- " + x.accessRequired;
+                    opt.text = x.menuName + " -- " + x.accessRequired;
+                    list.appendChild(opt);
+                });
+            })
+            .catch(err => alert("Could not load access levels: " + err.message));
+    }
+
+    function saveAccess() {
+        let menuName = document.getElementById("selectedName").innerText;
+
+        if (!menuName || menuName === "Select Item") return;
+
+        let data = {
+            menuName: menuName,
+            accessRequired: parseInt(document.getElementById("accessLevel").value || 0)
+        };
+
+        fetch('/MSaleAdmin/SaveMenuAccess', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert(x.message || "Updated");
+            document.getElementById("selectedName").innerText = "Select Item";
+            document.getElementById("accessLevel").value = 0;
+            loadAccessLevels();
+        })
+        .catch(err => alert("Save failed: " + err.message));
+    }
+</script>

@@ -1,0 +1,548 @@
+﻿@{
+    ViewData["Title"] = "Order Buttons";
+}
+
+<style>
+    body {
+        background: #3f3f3f;
+        font-family: Arial, sans-serif;
+    }
+
+    .page {
+        max-width: 1250px;
+        margin: 25px auto;
+        padding: 24px;
+        background: #d9d9d9;
+        border-radius: 14px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.25);
+    }
+
+    .header {
+        background: #2c3e50;
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 18px;
+    }
+
+        .header h2 {
+            margin: 0;
+        }
+
+    .top-bar {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+    }
+
+    .layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 20px;
+    }
+
+    .panel {
+        background: white;
+        border: 1px solid #888;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 3px 10px rgba(0,0,0,.15);
+    }
+
+    .panel-title {
+        font-size: 20px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .hint {
+        font-size: 13px;
+        color: #555;
+        margin-bottom: 12px;
+    }
+
+    select {
+        width: 100%;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid #aaa;
+        margin-bottom: 12px;
+    }
+
+    #functionList {
+        height: 460px;
+    }
+
+    button {
+        border: none;
+        border-radius: 8px;
+        padding: 10px 18px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .btn-save {
+        background: #27ae60;
+    }
+
+    .btn-reload {
+        background: #3498db;
+    }
+
+    .btn-clear {
+        background: #7f8c8d;
+    }
+
+    .btn-exit {
+        background: #e74c3c;
+    }
+
+    #buttonCanvas {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        background: #202020;
+        padding: 18px;
+        border: 3px solid #777;
+        border-radius: 12px;
+        min-height: 560px;
+    }
+
+    .button-wrap {
+        text-align: center;
+    }
+
+    .pos-label {
+        color: #eee;
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .order-btn {
+        width: 100%;
+        height: 72px;
+        background: #c0c0c0;
+        color: #000;
+        border: 2px solid #aaa;
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: center;
+        padding: 6px;
+        font-size: 13px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+        white-space: normal;
+    }
+
+        .order-btn:hover {
+            border-color: #00ccff;
+        }
+
+    .selected-btn {
+        outline: 4px solid yellow;
+    }
+
+    .color-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+</style>
+
+<div class="page">
+
+    <div class="header">
+        <h2>Order Buttons Setup</h2>
+        <div>Assign POS functions first. Add colors later if needed.</div>
+    </div>
+
+    <div class="top-bar">
+        <button class="btn-reload" type="button" onclick="loadButtons()">Reload</button>
+        <button class="btn-save" type="button" onclick="saveButtons()">Save</button>
+        <button class="btn-clear" type="button" onclick="clearSelectedButton()">Clear Selected</button>
+        <button class="btn-exit" type="button" onclick="location.href='/MSaleAdmin/Dashboard'">Exit</button>
+    </div>
+
+    <div class="layout">
+
+        <div class="panel">
+
+            <div class="panel-title">POS Functions</div>
+
+            <div class="hint">
+                Select a function, then click a button position.
+            </div>
+
+            <select id="functionList" size="25"></select>
+
+            <div class="panel-title">Button Colors</div>
+
+            <div class="hint">
+                Select a button first, then change colors if needed.
+            </div>
+
+            <div class="color-grid">
+                <div>
+                    <label>Background</label>
+                    <select id="backColorSelect" onchange="applySelectedColors()"></select>
+                </div>
+
+                <div>
+                    <label>Text</label>
+                    <select id="foreColorSelect" onchange="applySelectedColors()"></select>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="panel">
+
+            <div class="panel-title">Button Positions</div>
+
+            <div class="hint">
+                Click a button to assign the selected function. Double-click to clear.
+            </div>
+
+            <div id="buttonCanvas"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    let buttons = [];
+    let selectedButtonElement = null;
+
+    const DEFAULT_BACK_COLOR = 12632256; // Light Gray
+    const DEFAULT_FORE_COLOR = 0;        // Black
+
+    const functionList = [
+        "Access Phone Order",
+        "Phone Order",
+        "Message To Manager",
+        "Item Refund",
+        "Refund",
+        "Member Reward",
+        "Check Id",
+        "New Phone Order",
+        "Open Drinks",
+        "Attach Coupon",
+        "Review Order",
+        "Attach Credit Card",
+        "Guest Services",
+        "Frequent Diner",
+        "Show Recipe",
+        "Catering Proposal",
+        "Server Drinks",
+        "Release Holds",
+        "Keyboard",
+        "Customer Name",
+        "Attach Discount",
+        "Table Tent",
+        "Change Destination",
+        "Tray Review",
+        "Time Clock",
+        "Paid Outs",
+        "Fire Order",
+        "Gift Card Balance",
+        "Resend to Kitchen",
+        "Item To Go",
+        "Discount Card",
+        "Show Menu List",
+        "Hide Sent Items",
+        "Show Sent Items",
+        "PLU Look Up",
+        "Verify Account",
+        "Edit Account No",
+        "Meal Periods",
+        "Print By Seat",
+        "Open Drawer",
+        "Intercard",
+        "Reprint Receipt",
+        "Hold Item",
+        "Hold Check",
+        "Managers Menu",
+        "Apply Tip",
+        "Blind Audit",
+        "Gratuity",
+        "Waste",
+        "Redeem Loyalty",
+        "Loyalty Status",
+        "EBT Total",
+        "Verify Balance",
+        "Reprint Last Receipt",
+        "Taxable",
+        "Start Tab",
+        "Tip Edit",
+        "Scan Check",
+        "Price Adjust",
+        "Alternate Remote",
+        "Select Receipt",
+        "Item Transfer",
+        "Delete Item",
+        "Print/Start Tab",
+        "Service Charge",
+        "Send/Stay",
+        "Skim Drawer",
+        "Tip List",
+        "Print CC Slip",
+        "Pay Up Front",
+        "Recall Suspended",
+        "Text Order Ready",
+        "Stop PhoneOrder Message",
+        "EBT Sale",
+        "Qty Available",
+        "Change Menu",
+        "Single Labels",
+        "Multi Labels",
+        "Grab N Go",
+        "Table View",
+        "Kiosk Is On",
+        "Edit Seats"
+    ];
+
+    const colorList = [
+        { name: "Light Gray", value: 12632256 },
+        { name: "Black", value: 0 },
+        { name: "White", value: 16777215 },
+        { name: "Red", value: 255 },
+        { name: "Green", value: 65280 },
+        { name: "Blue", value: 16711680 },
+        { name: "Yellow", value: 65535 },
+        { name: "Cyan", value: 16776960 },
+        { name: "Magenta", value: 16711935 },
+        { name: "Gray", value: 8421504 },
+        { name: "Dark Gray", value: 4210752 },
+        { name: "Orange", value: 33023 },
+        { name: "Brown", value: 128 },
+        { name: "Dark Green", value: 32768 },
+        { name: "Navy", value: 8388608 }
+    ];
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadFunctionList();
+        loadColorLists();
+        loadButtons();
+    });
+
+    function loadFunctionList() {
+        let list = document.getElementById("functionList");
+        list.innerHTML = "";
+
+        functionList.forEach(name => {
+            let opt = document.createElement("option");
+            opt.value = name;
+            opt.text = name;
+            list.appendChild(opt);
+        });
+    }
+
+    function loadColorLists() {
+        let back = document.getElementById("backColorSelect");
+        let fore = document.getElementById("foreColorSelect");
+
+        back.innerHTML = "";
+        fore.innerHTML = "";
+
+        colorList.forEach(c => {
+            back.add(new Option(c.name, c.value));
+            fore.add(new Option(c.name, c.value));
+        });
+
+        back.value = DEFAULT_BACK_COLOR;
+        fore.value = DEFAULT_FORE_COLOR;
+    }
+
+    function loadButtons() {
+        fetch('/MSaleAdmin/GetOrderButtons')
+            .then(r => r.json())
+            .then(data => {
+                buttons = data || [];
+
+                if (buttons.length === 0) {
+                    for (let i = 1; i <= 20; i++) {
+                        buttons.push({
+                            idxNo: i,
+                            captionName: "",
+                            spareLeft: DEFAULT_BACK_COLOR,
+                            spareTop: DEFAULT_FORE_COLOR
+                        });
+                    }
+                }
+
+                buttons.forEach(b => {
+                    if (!b.spareLeft || Number(b.spareLeft) === 0) {
+                        b.spareLeft = DEFAULT_BACK_COLOR;
+                    }
+
+                    if (b.spareTop === null || b.spareTop === undefined || b.spareTop === "") {
+                        b.spareTop = DEFAULT_FORE_COLOR;
+                    }
+                });
+
+                drawButtons();
+            })
+            .catch(err => alert("Could not load buttons: " + err.message));
+    }
+
+    function drawButtons() {
+        let canvas = document.getElementById("buttonCanvas");
+        canvas.innerHTML = "";
+
+        buttons
+            .sort((a, b) => Number(a.idxNo || 0) - Number(b.idxNo || 0))
+            .forEach(row => {
+
+                let wrap = document.createElement("div");
+                wrap.className = "button-wrap";
+
+                let label = document.createElement("div");
+                label.className = "pos-label";
+                label.innerText = "Position " + row.idxNo;
+
+                let btn = document.createElement("div");
+                btn.className = "order-btn";
+                btn.dataset.idx = row.idxNo;
+
+                btn.innerText = row.captionName || "";
+
+                btn.style.backgroundColor =
+                    vbColorToHex(row.spareLeft || DEFAULT_BACK_COLOR);
+
+                btn.style.color =
+                    vbColorToHex(row.spareTop ?? DEFAULT_FORE_COLOR);
+
+                btn.onclick = function () {
+                    selectButton(btn);
+                    assignSelectedFunction(btn);
+                };
+
+                btn.ondblclick = function () {
+                    selectButton(btn);
+                    clearSelectedButton();
+                };
+
+                wrap.appendChild(label);
+                wrap.appendChild(btn);
+                canvas.appendChild(wrap);
+            });
+    }
+
+    function selectButton(btn) {
+        document.querySelectorAll(".order-btn")
+            .forEach(b => b.classList.remove("selected-btn"));
+
+        selectedButtonElement = btn;
+        btn.classList.add("selected-btn");
+
+        let row = getButtonRow(btn);
+
+        if (row) {
+            document.getElementById("backColorSelect").value =
+                row.spareLeft || DEFAULT_BACK_COLOR;
+
+            document.getElementById("foreColorSelect").value =
+                row.spareTop ?? DEFAULT_FORE_COLOR;
+        }
+    }
+
+    function assignSelectedFunction(btn) {
+        let selectedFunction =
+            document.getElementById("functionList").value;
+
+        if (!selectedFunction) return;
+
+        let row = getButtonRow(btn);
+        if (!row) return;
+
+        row.captionName = selectedFunction;
+
+        if (!row.spareLeft || Number(row.spareLeft) === 0) {
+            row.spareLeft = DEFAULT_BACK_COLOR;
+        }
+
+        if (row.spareTop === null || row.spareTop === undefined || row.spareTop === "") {
+            row.spareTop = DEFAULT_FORE_COLOR;
+        }
+
+        btn.innerText = selectedFunction;
+        btn.style.backgroundColor = vbColorToHex(row.spareLeft);
+        btn.style.color = vbColorToHex(row.spareTop);
+    }
+
+    function clearSelectedButton() {
+        if (!selectedButtonElement) return;
+
+        let row = getButtonRow(selectedButtonElement);
+        if (!row) return;
+
+        row.captionName = "";
+        row.spareLeft = DEFAULT_BACK_COLOR;
+        row.spareTop = DEFAULT_FORE_COLOR;
+
+        selectedButtonElement.innerText = "";
+        selectedButtonElement.style.backgroundColor = vbColorToHex(DEFAULT_BACK_COLOR);
+        selectedButtonElement.style.color = vbColorToHex(DEFAULT_FORE_COLOR);
+
+        document.getElementById("backColorSelect").value = DEFAULT_BACK_COLOR;
+        document.getElementById("foreColorSelect").value = DEFAULT_FORE_COLOR;
+    }
+
+    function applySelectedColors() {
+        if (!selectedButtonElement) return;
+
+        let row = getButtonRow(selectedButtonElement);
+        if (!row) return;
+
+        row.spareLeft =
+            parseInt(document.getElementById("backColorSelect").value || DEFAULT_BACK_COLOR);
+
+        row.spareTop =
+            parseInt(document.getElementById("foreColorSelect").value ?? DEFAULT_FORE_COLOR);
+
+        selectedButtonElement.style.backgroundColor =
+            vbColorToHex(row.spareLeft);
+
+        selectedButtonElement.style.color =
+            vbColorToHex(row.spareTop);
+    }
+
+    function getButtonRow(btn) {
+        let idx = parseInt(btn.dataset.idx);
+        return buttons.find(x => Number(x.idxNo) === idx);
+    }
+
+    function saveButtons() {
+        fetch('/MSaleAdmin/SaveOrderButtons', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(buttons)
+        })
+        .then(r => r.json())
+        .then(x => alert(x.message || "Saved"))
+        .catch(err => alert("Save failed: " + err.message));
+    }
+
+    function vbColorToHex(value) {
+        value = Number(value || 0);
+
+        let r = value & 255;
+        let g = (value >> 8) & 255;
+        let b = (value >> 16) & 255;
+
+        return "#" +
+            r.toString(16).padStart(2, "0") +
+            g.toString(16).padStart(2, "0") +
+            b.toString(16).padStart(2, "0");
+    }
+</script>

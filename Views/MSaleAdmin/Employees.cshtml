@@ -1,0 +1,495 @@
+﻿@{
+    ViewData["Title"] = "Employee Setup";
+}
+
+<style>
+    body {
+        background: #f4f6f9;
+    }
+
+    .page {
+        max-width: 1250px;
+        margin: 30px auto;
+        background: white;
+        padding: 28px;
+        border-radius: 16px;
+        box-shadow: 0 5px 18px rgba(0,0,0,.12);
+    }
+
+    .header {
+        background: #2c3e50;
+        color: white;
+        padding: 24px;
+        border-radius: 14px;
+        margin-bottom: 24px;
+    }
+
+        .header h2 {
+            margin: 0;
+        }
+
+    .section {
+        border: 1px solid #e1e5ea;
+        background: #fafafa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 22px;
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 16px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(230px,1fr));
+        gap: 16px;
+    }
+
+    label {
+        font-weight: 700;
+        color: #34495e;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    input, select {
+        width: 100%;
+        height: 42px;
+        border: 1px solid #cfd6dd;
+        border-radius: 8px;
+        padding: 0 12px;
+        box-sizing: border-box;
+    }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52,152,219,.35);
+        }
+
+    .required {
+        background: #fff8cc;
+    }
+
+    .check-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 28px;
+        font-weight: 700;
+    }
+
+        .check-row input {
+            width: auto;
+            height: auto;
+        }
+
+    .buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+
+    button {
+        border: none;
+        border-radius: 8px;
+        padding: 11px 22px;
+        font-weight: 700;
+        color: white;
+        cursor: pointer;
+    }
+
+    .save {
+        background: #27ae60;
+    }
+
+    .clear {
+        background: #7f8c8d;
+    }
+
+    .delete {
+        background: #e74c3c;
+    }
+
+    .filter-bar {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+        .filter-bar button {
+            background: #34495e;
+        }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th {
+        background: #34495e;
+        color: white;
+        padding: 13px;
+        text-align: left;
+        position: sticky;
+        top: 0;
+    }
+
+    td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+    }
+
+    tr:hover {
+        background: #eef6ff;
+    }
+
+    .table-wrap {
+        max-height: 430px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+    }
+</style>
+
+<div class="page">
+
+    <div class="header">
+        <h2>Employee Setup</h2>
+        <div>Yellow fields are required.</div>
+    </div>
+
+    <input type="hidden" id="originalFirstName" />
+    <input type="hidden" id="originalLastName" />
+
+    <div class="section">
+        <div class="section-title">General Data</div>
+
+        <div class="grid">
+
+            <div>
+                <label>First Name</label>
+                <input id="firstName" class="required" />
+            </div>
+
+            <div>
+                <label>Middle Name</label>
+                <input id="middleName" />
+            </div>
+
+            <div>
+                <label>Last Name</label>
+                <input id="lastName" class="required" />
+            </div>
+
+            <div>
+                <label>Nick Name</label>
+                <input id="nickName" />
+            </div>
+
+            <div>
+                <label>Employee ID</label>
+                <input id="employeeId" />
+            </div>
+
+            <div>
+                <label>Company ID</label>
+                <input id="companyId" />
+            </div>
+
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Contact Information</div>
+
+        <div class="grid">
+
+            <div>
+                <label>Address</label>
+                <input id="address" />
+            </div>
+
+            <div>
+                <label>City</label>
+                <input id="city" />
+            </div>
+
+            <div>
+                <label>State</label>
+                <input id="state" />
+            </div>
+
+            <div>
+                <label>Zip</label>
+                <input id="zip" />
+            </div>
+
+            <div>
+                <label>Cell Phone</label>
+                <input id="homePhone" />
+            </div>
+
+            <div>
+                <label>Email</label>
+                <input id="phone2" />
+            </div>
+
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Security / Access</div>
+
+        <div class="grid">
+
+            <div>
+                <label>Base Access Level</label>
+                <input id="accessLevel" class="required" />
+            </div>
+
+            <div>
+                <label>Primary Access Number</label>
+                <input id="accessNumber" class="required" />
+            </div>
+
+            <div>
+                <label>Secondary Access Number</label>
+                <input id="secondaryAccess" />
+            </div>
+
+            <div>
+                <label>Language Preference</label>
+                <input id="language" />
+            </div>
+
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Dates / Status</div>
+
+        <div class="grid">
+
+            <div>
+                <label>Hire Date</label>
+                <input id="hireDate" type="date" />
+            </div>
+
+            <div>
+                <label>Date of Birth</label>
+                <input id="dob" type="date" />
+            </div>
+
+            <div class="check-row">
+                <input id="terminated" type="checkbox" />
+                <span>Terminated</span>
+            </div>
+
+        </div>
+
+        <div class="buttons">
+            <button class="save" onclick="saveEmployee()">Save</button>
+            <button class="clear" onclick="clearForm()">Clear</button>
+            <button class="delete" onclick="deleteEmployee()">Remove</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Current Employees</div>
+
+        <div class="filter-bar">
+            <button onclick="loadEmployees(0)">Filter Active Employees</button>
+            <button onclick="loadEmployees(1)">Filter Terminated Employees</button>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Last Name</th>
+                        <th>First Name</th>
+                        <th>Nick Name</th>
+                        <th>Access Level</th>
+                        <th>Primary Access</th>
+                        <th>Employee ID</th>
+                    </tr>
+                </thead>
+                <tbody id="employeeList"></tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        loadEmployees(0);
+    });
+
+    function loadEmployees(status) {
+        fetch('/MSaleAdmin/GetEmployees?terminated=' + status)
+            .then(r => r.json())
+            .then(data => {
+                let tbody = document.getElementById("employeeList");
+                tbody.innerHTML = "";
+
+                data.forEach(e => {
+                    let tr = document.createElement("tr");
+
+                    tr.onclick = function () {
+                        editEmployee(e);
+                    };
+
+                    tr.innerHTML = `
+                        <td>${safe(e.lastName)}</td>
+                        <td>${safe(e.firstName)}</td>
+                        <td>${safe(e.nickName)}</td>
+                        <td>${safe(e.accessLevel)}</td>
+                        <td>${safe(e.accessNumber)}</td>
+                        <td>${safe(e.employeeId)}</td>
+                    `;
+
+                    tbody.appendChild(tr);
+                });
+            });
+    }
+
+    function safe(v) {
+        return v ?? "";
+    }
+
+    function editEmployee(e) {
+        document.getElementById("originalFirstName").value = e.firstName ?? "";
+        document.getElementById("originalLastName").value = e.lastName ?? "";
+
+        document.getElementById("firstName").value = e.firstName ?? "";
+        document.getElementById("middleName").value = e.middleName ?? "";
+        document.getElementById("lastName").value = e.lastName ?? "";
+        document.getElementById("nickName").value = e.nickName ?? "";
+
+        document.getElementById("employeeId").value = e.employeeId ?? "";
+        document.getElementById("companyId").value = e.companyId ?? "";
+
+        document.getElementById("address").value = e.address ?? "";
+        document.getElementById("city").value = e.city ?? "";
+        document.getElementById("state").value = e.state ?? "";
+        document.getElementById("zip").value = e.zip ?? "";
+
+        document.getElementById("homePhone").value = e.homePhone ?? "";
+        document.getElementById("phone2").value = e.phone2 ?? "";
+
+        document.getElementById("accessLevel").value = e.accessLevel ?? "";
+        document.getElementById("accessNumber").value = e.accessNumber ?? "";
+        document.getElementById("secondaryAccess").value = e.employeeId ?? "";
+        document.getElementById("language").value = e.language ?? "";
+
+        document.getElementById("hireDate").value = e.hireDate ?? "";
+        document.getElementById("dob").value = e.dob ?? "";
+
+        document.getElementById("terminated").checked = e.terminated === true;
+    }
+
+    function clearForm() {
+        document.querySelectorAll("input").forEach(x => {
+            if (x.type === "checkbox") {
+                x.checked = false;
+            } else {
+                x.value = "";
+            }
+        });
+
+        document.getElementById("firstName").focus();
+    }
+
+    function saveEmployee() {
+        let firstName = document.getElementById("firstName").value.trim();
+        let lastName = document.getElementById("lastName").value.trim();
+        let accessLevel = document.getElementById("accessLevel").value.trim();
+        let accessNumber = document.getElementById("accessNumber").value.trim();
+
+        if (firstName === "" || lastName === "") {
+            alert("First Name and Last Name are required.");
+            return;
+        }
+
+        if (accessLevel === "" || accessNumber === "") {
+            alert("Access Level and Primary Access Number are required.");
+            return;
+        }
+
+        fetch('/MSaleAdmin/SaveEmployee', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                originalFirstName: document.getElementById("originalFirstName").value,
+                originalLastName: document.getElementById("originalLastName").value,
+
+                firstName: firstName,
+                middleName: document.getElementById("middleName").value,
+                lastName: lastName,
+                nickName: document.getElementById("nickName").value,
+
+                address: document.getElementById("address").value,
+                city: document.getElementById("city").value,
+                state: document.getElementById("state").value,
+                zip: document.getElementById("zip").value,
+
+                accessLevel: accessLevel,
+                accessNumber: accessNumber,
+
+                homePhone: document.getElementById("homePhone").value,
+                phone2: document.getElementById("phone2").value,
+
+                language: document.getElementById("language").value,
+                employeeId: document.getElementById("employeeId").value,
+                companyId: document.getElementById("companyId").value,
+
+                hireDate: document.getElementById("hireDate").value,
+                dob: document.getElementById("dob").value,
+
+                terminated: document.getElementById("terminated").checked
+            })
+        })
+        .then(r => r.text())
+        .then(msg => {
+            alert(msg);
+            clearForm();
+            loadEmployees(0);
+        });
+    }
+
+    function deleteEmployee() {
+        let firstName = document.getElementById("originalFirstName").value;
+        let lastName = document.getElementById("originalLastName").value;
+
+        if (!firstName || !lastName) {
+            alert("Select an employee first.");
+            return;
+        }
+
+        if (!confirm("Remove this employee?")) return;
+
+        fetch('/MSaleAdmin/DeleteEmployee', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                originalFirstName: firstName,
+                originalLastName: lastName
+            })
+        })
+        .then(r => r.text())
+        .then(msg => {
+            alert(msg);
+            clearForm();
+            loadEmployees(0);
+        });
+    }
+</script>

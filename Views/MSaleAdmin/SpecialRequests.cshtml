@@ -1,0 +1,284 @@
+﻿@{
+    ViewData["Title"] = "Special Requests";
+}
+
+<style>
+    .request-page {
+        max-width: 850px;
+        margin: 25px auto;
+    }
+
+    .request-card {
+        border-radius: 14px;
+        box-shadow: 0 4px 18px rgba(0,0,0,.10);
+        border: 1px solid #ddd;
+        background: #fff;
+    }
+
+    .request-header {
+        background: linear-gradient(90deg, #1f4e79, #2d75b6);
+        color: white;
+        padding: 18px 24px;
+        border-radius: 14px 14px 0 0;
+    }
+
+    .request-list {
+        max-height: 350px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+    }
+
+    .request-row {
+        display: grid;
+        grid-template-columns: 1fr 120px;
+        gap: 12px;
+        padding: 10px 14px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+    }
+
+        .request-row:hover {
+            background: #eef5ff;
+        }
+
+        .request-row.selected {
+            background: #dbeafe;
+            font-weight: 600;
+        }
+
+    .amount-value {
+        text-align: right;
+    }
+</style>
+
+<div class="request-page">
+    <div class="request-card">
+
+        <div class="request-header">
+            <h2 class="mb-0">Special Requests</h2>
+            <div>Add, edit, delete, and set amounts for special requests.</div>
+        </div>
+
+        <div class="p-4">
+
+            <input type="hidden" id="originalName" />
+
+            <div class="row mb-3">
+
+                <div class="col-md-8">
+                    <label class="form-label fw-bold">Request Name</label>
+                    <input id="requestName"
+                           class="form-control"
+                           placeholder="Example: Extra Sauce, Birthday Plate" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Amount</label>
+                    <input id="requestAmount"
+                           type="number"
+                           step="0.01"
+                           class="form-control"
+                           value="0.00" />
+                </div>
+
+            </div>
+
+            <div class="mb-3">
+                <button type="button"
+                        class="btn btn-primary px-4"
+                        onclick="saveRequest()">
+                    Save
+                </button>
+
+                <button type="button"
+                        class="btn btn-danger px-4"
+                        onclick="deleteRequest()">
+                    Delete
+                </button>
+
+                <button type="button"
+                        class="btn btn-secondary px-4"
+                        onclick="clearRequest()">
+                    Clear
+                </button>
+            </div>
+
+            <h5>Existing Special Requests</h5>
+
+            <div class="request-row fw-bold bg-light">
+                <div>Request Name</div>
+                <div class="amount-value">Amount</div>
+            </div>
+
+            <div id="requestList" class="request-list"></div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    let selectedRequestRow = null;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadRequests();
+    });
+
+    function loadRequests() {
+
+        fetch('/MSaleAdmin/GetSpecialRequests')
+            .then(r => r.json())
+            .then(data => {
+
+                let list =
+                    document.getElementById('requestList');
+
+                list.innerHTML = '';
+
+                data.forEach(function (x) {
+
+                    let div = document.createElement('div');
+                    div.className = 'request-row';
+
+                    let nameDiv =
+                        document.createElement('div');
+
+                    nameDiv.textContent = x.name;
+
+                    let amountDiv =
+                        document.createElement('div');
+
+                    amountDiv.className = 'amount-value';
+
+                    amountDiv.textContent =
+                        Number(x.amount || 0).toFixed(2);
+
+                    div.appendChild(nameDiv);
+                    div.appendChild(amountDiv);
+
+                    div.onclick = function () {
+
+                        if (selectedRequestRow)
+                            selectedRequestRow.classList.remove('selected');
+
+                        selectedRequestRow = div;
+
+                        selectedRequestRow.classList.add('selected');
+
+                        document.getElementById('requestName').value =
+                            x.name;
+
+                        document.getElementById('originalName').value =
+                            x.name;
+
+                        document.getElementById('requestAmount').value =
+                            Number(x.amount || 0).toFixed(2);
+                    };
+
+                    list.appendChild(div);
+                });
+            });
+    }
+
+    function saveRequest() {
+
+        let item = {
+
+            name:
+                document.getElementById('requestName').value,
+
+            originalName:
+                document.getElementById('originalName').value,
+
+            amount:
+                parseFloat(
+                    document.getElementById('requestAmount').value || 0
+                )
+        };
+
+        if (!item.name.trim()) {
+
+            alert("Enter a request name.");
+            return;
+        }
+
+        fetch('/MSaleAdmin/SaveSpecialRequest', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify(item)
+
+        })
+        .then(r => r.json())
+        .then(result => {
+
+            alert(result.message || "Saved");
+
+            loadRequests();
+
+            clearRequest();
+        });
+    }
+
+    function deleteRequest() {
+
+        let item = {
+
+            name:
+                document.getElementById('originalName').value ||
+                document.getElementById('requestName').value
+        };
+
+        if (!item.name.trim()) {
+
+            alert("Select a request to delete.");
+            return;
+        }
+
+        if (!confirm("Delete request " + item.name + "?"))
+            return;
+
+        fetch('/MSaleAdmin/DeleteSpecialRequest', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify(item)
+
+        })
+        .then(r => r.json())
+        .then(result => {
+
+            alert(result.message || "Deleted");
+
+            loadRequests();
+
+            clearRequest();
+        });
+    }
+
+    function clearRequest() {
+
+        document.getElementById('requestName').value = '';
+
+        document.getElementById('originalName').value = '';
+
+        document.getElementById('requestAmount').value = '0.00';
+
+        if (selectedRequestRow) {
+
+            selectedRequestRow.classList.remove('selected');
+
+            selectedRequestRow = null;
+        }
+    }
+
+</script>

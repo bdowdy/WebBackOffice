@@ -1,0 +1,377 @@
+﻿@{
+    ViewData["Title"] = "Report Categories";
+}
+
+<h2>Report Categories / Departments</h2>
+<style>
+    body {
+        background: #505050;
+        font-family: Arial, sans-serif;
+    }
+
+    .page {
+        max-width: 1200px;
+        margin: 20px auto;
+        background: #d9d9d9;
+        border: 2px solid #777;
+        padding: 18px;
+        border-radius: 6px;
+    }
+
+    .title {
+        text-align: center;
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 18px;
+        color: #222;
+    }
+
+    .layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 18px;
+    }
+
+    .panel {
+        background: white;
+        border: 1px solid #999;
+        border-radius: 6px;
+        padding: 14px;
+        box-shadow: 0 2px 4px rgba(0,0,0,.15);
+    }
+
+        .panel h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: #333;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 6px;
+        }
+
+    #departmentList {
+        width: 100%;
+        height: 620px;
+        font-size: 15px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 170px 1fr;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+        .form-grid label {
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+        }
+
+    input, select {
+        padding: 7px;
+        border: 1px solid #999;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .section {
+        margin-top: 18px;
+        padding-top: 10px;
+        border-top: 1px solid #ccc;
+    }
+
+    .section-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #444;
+        font-size: 17px;
+    }
+
+    .remote-grid,
+    .timed-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .button-bar {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+        .button-bar button {
+            padding: 10px 18px;
+            margin: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 1px solid #666;
+            border-radius: 5px;
+            background: #efefef;
+        }
+
+            .button-bar button:hover {
+                background: #dcdcdc;
+            }
+
+    .checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+</style>
+
+<div class="page">
+
+    <div class="title">
+        Report Categories / Departments
+    </div>
+
+    <div class="layout">
+
+        <div class="panel">
+
+            <h3>Departments</h3>
+
+            <select id="departmentList"
+                    size="25"
+                    onchange="loadDepartment()">
+            </select>
+
+            <div class="button-bar">
+                <button type="button"
+                        onclick="newDepartment()">
+                    New Department
+                </button>
+            </div>
+
+        </div>
+
+        <div class="panel">
+
+            <h3>Department Setup</h3>
+
+            <div class="form-grid">
+                <label>Report Name</label>
+                <input id="reportName" />
+            </div>
+
+            <div class="form-grid">
+                <label>Department No</label>
+                <input id="departmentNo" type="number" />
+            </div>
+
+            <div class="form-grid">
+                <label>Record Number</label>
+                <input id="recordNumber" type="number" />
+            </div>
+
+            <div class="checkbox-row">
+                <input id="ebtEligible" type="checkbox" />
+                <label for="ebtEligible">EBT Eligible</label>
+            </div>
+
+            <div class="form-grid">
+                <label>Master Department</label>
+                <select id="masterName"></select>
+            </div>
+
+            <div class="section">
+
+                <div class="section-title">
+                    Remote Printers
+                </div>
+
+                <div class="remote-grid">
+
+                    <select id="remote1"></select>
+                    <select id="remote2"></select>
+                    <select id="remote3"></select>
+                    <select id="remote4"></select>
+                    <select id="remote5"></select>
+                    <select id="remote6"></select>
+
+                </div>
+
+            </div>
+
+            <div class="section">
+
+                <div class="section-title">
+                    Timed Events
+                </div>
+
+                <div class="timed-grid">
+
+                    <select id="timedEvent1"></select>
+                    <select id="timedEvent2"></select>
+                    <select id="timedEvent3"></select>
+                    <select id="timedEvent4"></select>
+                    <select id="timedEvent5"></select>
+
+                </div>
+
+            </div>
+
+            <div class="button-bar">
+
+                <button type="button"
+                        onclick="saveDepartment()">
+                    Save
+                </button>
+
+                <button type="button"
+                        onclick="location.href='/'">
+                    Exit
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        loadSetupLists();
+    });
+
+    function loadSetupLists() {
+        fetch('/MSaleAdmin/GetReportCategoryLists')
+            .then(r => r.json())
+            .then(data => {
+                console.log(data);
+
+                if (!data.ok) {
+                    alert(data.error || "Could not load lists.");
+                    return;
+                }
+
+                fillList("departmentList", data.departments || [], false);
+                fillList("masterName", data.masterDepartments || [], true);
+
+                for (let i = 1; i <= 5; i++) {
+                    fillList("timedEvent" + i, data.timedEvents || [], true);
+                }
+
+                for (let i = 1; i <= 6; i++) {
+                    fillList("remote" + i, data.printers || [], true);
+                }
+            })
+            .catch(err => alert("Load error: " + err.message));
+    }
+
+    function fillList(id, items, includeNone) {
+        let el = document.getElementById(id);
+        el.innerHTML = "";
+
+        if (includeNone) {
+            el.add(new Option("None", "None"));
+        }
+
+        items.forEach(x => {
+            el.add(new Option(x, x));
+        });
+    }
+
+    function loadDepartment() {
+        let name = document.getElementById("departmentList").value;
+        if (!name) return;
+
+        fetch('/MSaleAdmin/GetReportCategory?reportName=' + encodeURIComponent(name))
+            .then(r => r.json())
+            .then(d => {
+                if (d.error) {
+                    alert(d.error);
+                    return;
+                }
+
+                document.getElementById("reportName").value = d.reportName || "";
+                document.getElementById("departmentNo").value = d.departmentNo || 0;
+                document.getElementById("recordNumber").value = d.recordNumber || 0;
+                document.getElementById("ebtEligible").checked = Number(d.flag || 0) === 1;
+
+                setSelect("masterName", d.masterName || "None");
+
+                setSelect("remote1", d.remote1 || "None");
+                setSelect("remote2", d.remote2 || "None");
+                setSelect("remote3", d.remote3 || "None");
+                setSelect("remote4", d.remote4 || "None");
+                setSelect("remote5", d.remote5 || "None");
+                setSelect("remote6", d.remote6 || "None");
+
+                setSelect("timedEvent1", d.timedEvent1 || "None");
+                setSelect("timedEvent2", d.timedEvent2 || "None");
+                setSelect("timedEvent3", d.timedEvent3 || "None");
+                setSelect("timedEvent4", d.timedEvent4 || "None");
+                setSelect("timedEvent5", d.timedEvent5 || "None");
+            });
+    }
+
+    function setSelect(id, value) {
+        let el = document.getElementById(id);
+
+        if (![...el.options].some(o => o.value === value)) {
+            el.add(new Option(value, value));
+        }
+
+        el.value = value;
+    }
+
+    function newDepartment() {
+        document.getElementById("reportName").value = "";
+        document.getElementById("departmentNo").value = "0";
+        document.getElementById("recordNumber").value = "0";
+        document.getElementById("ebtEligible").checked = false;
+
+        setSelect("masterName", "None");
+
+        for (let i = 1; i <= 6; i++) {
+            setSelect("remote" + i, "None");
+        }
+
+        for (let i = 1; i <= 5; i++) {
+            setSelect("timedEvent" + i, "None");
+        }
+    }
+
+    function saveDepartment() {
+        let data = {
+            reportName: document.getElementById("reportName").value,
+            departmentNo: parseInt(document.getElementById("departmentNo").value || 0),
+            recordNumber: parseInt(document.getElementById("recordNumber").value || 0),
+            flag: document.getElementById("ebtEligible").checked ? 1 : 0,
+
+            remote1: document.getElementById("remote1").value,
+            remote2: document.getElementById("remote2").value,
+            remote3: document.getElementById("remote3").value,
+            remote4: document.getElementById("remote4").value,
+            remote5: document.getElementById("remote5").value,
+            remote6: document.getElementById("remote6").value,
+
+            masterName: document.getElementById("masterName").value,
+
+            timedEvent1: document.getElementById("timedEvent1").value,
+            timedEvent2: document.getElementById("timedEvent2").value,
+            timedEvent3: document.getElementById("timedEvent3").value,
+            timedEvent4: document.getElementById("timedEvent4").value,
+            timedEvent5: document.getElementById("timedEvent5").value
+        };
+
+        fetch('/MSaleAdmin/SaveReportCategory', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert(x.message || "Saved");
+            loadSetupLists();
+        });
+    }
+</script>

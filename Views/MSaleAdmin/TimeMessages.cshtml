@@ -1,0 +1,332 @@
+﻿@{
+    ViewData["Title"] = "Time Clock Messages";
+}
+
+<style>
+    body {
+        background: #f4f6f9;
+    }
+
+    .msg-page {
+        max-width: 1200px;
+        margin: 25px auto;
+        padding: 0 15px;
+    }
+
+    .msg-card {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.12);
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+    }
+
+    .msg-header {
+        background: linear-gradient(135deg,#12395c,#2563eb);
+        color: white;
+        padding: 24px 30px;
+    }
+
+        .msg-header h2 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+    .msg-content {
+        padding: 24px;
+    }
+
+    .top-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.15fr;
+        gap: 22px;
+    }
+
+    .panel {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 18px;
+    }
+
+    textarea {
+        min-height: 340px;
+        resize: vertical;
+        font-size: 16px;
+    }
+
+    .name-list {
+        background: white;
+        border: 1px solid #dbe3ef;
+        border-radius: 12px;
+        max-height: 420px;
+        overflow-y: auto;
+        padding: 8px;
+    }
+
+    .name-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 9px 10px;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+        .name-row:hover {
+            background: #eef6ff;
+        }
+
+    .action-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+    }
+
+    .message-preview {
+        white-space: pre-wrap;
+        background: white;
+        border: 1px solid #dbe3ef;
+        border-radius: 12px;
+        padding: 14px;
+        min-height: 120px;
+        margin-top: 12px;
+    }
+</style>
+
+<div class="msg-page">
+    <div class="msg-card">
+
+        <div class="msg-header">
+            <h2>Time Clock Messages</h2>
+            <div>Send employee messages for time clock display.</div>
+        </div>
+
+        <div class="msg-content">
+
+            <div class="top-buttons">
+                <button class="btn btn-primary" onclick="loadEmployees()">Individual Message</button>
+                <button class="btn btn-secondary" onclick="loadDepartments()">Department Message</button>
+                <button class="btn btn-info text-white" onclick="selectAllEmployees()">Select All Employees</button>
+                <button class="btn btn-warning" onclick="loadUndelivered()">Undelivered Messages</button>
+            </div>
+
+            <div class="main-grid">
+
+                <div class="panel">
+                    <label class="form-label fw-bold">Delivery Date</label>
+                    <input id="deliveryDate" type="date" class="form-control mb-3" />
+
+                    <label class="form-label fw-bold">Message</label>
+                    <textarea id="messageText" maxlength="255" class="form-control">None</textarea>
+
+                    <div class="action-row">
+                        <button class="btn btn-success px-4" onclick="saveMessages()">Save Message</button>
+                        <button class="btn btn-outline-danger px-4" onclick="deleteMessages()">Delete Selected</button>
+                        <button class="btn btn-outline-secondary px-4" onclick="clearMessage()">Clear</button>
+                    </div>
+
+                    <div id="messagePreview" class="message-preview"></div>
+                </div>
+
+                <div class="panel">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 id="listTitle" class="mb-0">Employees</h5>
+                        <span id="recordCount" class="text-muted"></span>
+                    </div>
+
+                    <div id="nameList" class="name-list"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentMode = "employee";
+
+    document.addEventListener("DOMContentLoaded", function () {
+        deliveryDate.value = new Date().toISOString().substring(0, 10);
+        loadEmployees();
+    });
+
+    function checkedNames() {
+        return [...document.querySelectorAll('.name-check:checked')].map(x => x.value);
+    }
+
+    function renderNames(names, title) {
+        listTitle.textContent = title;
+        recordCount.textContent = `${names.length} record${names.length === 1 ? '' : 's'}`;
+        nameList.innerHTML = '';
+
+        names.forEach(name => {
+            const div = document.createElement('div');
+            div.className = 'name-row';
+
+            div.innerHTML = `
+                <input type="checkbox" class="form-check-input name-check" value="${name}">
+                <span>${name}</span>
+            `;
+
+            div.ondblclick = function () {
+                const cb = div.querySelector('input');
+                cb.checked = true;
+
+                if (currentMode === "undelivered") {
+                    loadEmployeeMessages(name);
+                }
+            };
+
+            nameList.appendChild(div);
+        });
+    }
+
+    function loadEmployees() {
+        currentMode = "employee";
+
+        fetch('/TimeMessages/GetTimeMessageEmployees')
+            .then(r => r.json())
+            .then(result => {
+                if (!result.success) {
+                    alert(result.message);
+                    return;
+                }
+
+                renderNames(result.data, "Employees");
+            });
+    }
+
+    function loadDepartments() {
+        currentMode = "department";
+
+        fetch('/TimeMessages/GetTimeMessageDepartments')
+            .then(r => r.json())
+            .then(result => {
+                if (!result.success) {
+                    alert(result.message);
+                    return;
+                }
+
+                renderNames(result.data, "Departments");
+            });
+    }
+
+    function selectAllEmployees() {
+        currentMode = "employee";
+
+        fetch('/TimeMessages/GetTimeMessageEmployees')
+            .then(r => r.json())
+            .then(result => {
+                if (!result.success) {
+                    alert(result.message);
+                    return;
+                }
+
+                renderNames(result.data, "All Employees");
+
+                document.querySelectorAll('.name-check').forEach(x => x.checked = true);
+            });
+    }
+
+    function loadUndelivered() {
+        currentMode = "undelivered";
+
+        fetch('/TimeMessages/GetUndeliveredMessageNames')
+            .then(r => r.json())
+            .then(result => {
+                if (!result.success) {
+                    alert(result.message);
+                    return;
+                }
+
+                renderNames(result.data, "Undelivered Messages");
+            });
+    }
+
+    function loadEmployeeMessages(name) {
+        fetch('/TimeMessages/GetMessagesForEmployee?name=' + encodeURIComponent(name))
+            .then(r => r.json())
+            .then(result => {
+                if (!result.success) {
+                    alert(result.message);
+                    return;
+                }
+
+                let text = '';
+
+                result.data.forEach(x => {
+                    text += `${x.date}\n${x.message}\nFrom ${x.messageFrom}\n\n`;
+                });
+
+                messagePreview.textContent = text || 'No messages found.';
+            });
+    }
+
+    function saveMessages() {
+        const names = checkedNames();
+
+        if (names.length === 0) {
+            alert("Select at least one name.");
+            return;
+        }
+
+        const item = {
+            deliveryDate: deliveryDate.value,
+            message: messageText.value,
+            messageFrom: "MSaleWebServer",
+            names: names
+        };
+
+        fetch('/TimeMessages/SaveTimeMessages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(item)
+        })
+        .then(r => r.json())
+        .then(result => {
+            alert(result.message || "Saved");
+
+            if (result.success) {
+                messageText.value = "None";
+            }
+        });
+    }
+
+    function deleteMessages() {
+        const names = checkedNames();
+
+        if (names.length === 0) {
+            alert("Select a name to delete.");
+            return;
+        }
+
+        if (!confirm("Delete messages for selected name(s)?"))
+            return;
+
+        fetch('/TimeMessages/DeleteTimeMessages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ names: names })
+        })
+        .then(r => r.json())
+        .then(result => {
+            alert(result.message || "Deleted");
+            loadUndelivered();
+            messagePreview.textContent = "";
+        });
+    }
+
+    function clearMessage() {
+        if (confirm("Clear message box?")) {
+            messageText.value = "None";
+        }
+    }
+</script>

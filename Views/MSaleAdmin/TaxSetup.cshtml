@@ -1,0 +1,695 @@
+﻿@{
+    ViewData["Title"] = "Tax Setup";
+}
+
+<style>
+    :root {
+        --bg-page: #f7f4f0;
+        --card-bg: #ffffff;
+        --card-border: #ece6de;
+        --text-primary: #2a201a;
+        --text-secondary: #6b5d52;
+        --text-muted: #9c8d80;
+        --accent: #e07a3c;
+        --accent-hover: #f08a4c;
+        --accent-soft: rgba(224, 122, 60, 0.12);
+        --danger: #c0392b;
+        --danger-hover: #d44a3a;
+        --input-border: #d9d0c4;
+        --input-focus-border: #e07a3c;
+        --row-alt: #faf7f3;
+        --row-hover: #fbf3eb;
+        --shadow-sm: 0 1px 3px rgba(40, 20, 10, 0.06);
+        --shadow-md: 0 4px 14px rgba(40, 20, 10, 0.08);
+    }
+
+    body {
+        background: var(--bg-page);
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: var(--text-primary);
+    }
+
+    .tax-page {
+        max-width: 1180px;
+        margin: 32px auto;
+        padding: 0 20px 48px 20px;
+    }
+
+    .page-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+
+    h2 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+    }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 22px;
+            background: var(--accent);
+            border-radius: 2px;
+            margin-right: 12px;
+            vertical-align: -3px;
+        }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 14px;
+    }
+
+    .card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--card-border);
+    }
+
+    h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .card-hint {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    /* ---------- Button system ---------- */
+    .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .btn-group-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        margin-right: 4px;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 36px;
+        padding: 0 14px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: inherit;
+        border-radius: 7px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        background: white;
+        color: var(--text-primary);
+    }
+
+    .btn-secondary {
+        background: white;
+        border-color: var(--input-border);
+        color: var(--text-primary);
+    }
+
+        .btn-secondary:hover {
+            background: #fbf6f0;
+            border-color: #c9b8a8;
+        }
+
+    .btn-primary {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+        box-shadow: 0 2px 8px rgba(224, 122, 60, 0.3);
+    }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(224, 122, 60, 0.4);
+        }
+
+    .btn-danger {
+        background: white;
+        color: var(--danger);
+        border-color: #e8c7c2;
+    }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+    .btn-lg {
+        height: 42px;
+        padding: 0 22px;
+        font-size: 14px;
+    }
+
+    /* ---------- Tax break table ---------- */
+    .table-row-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 16px;
+        padding: 12px 14px;
+        background: var(--row-alt);
+        border-radius: 8px;
+    }
+
+    .table-wrap {
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        font-size: 14px;
+    }
+
+    thead {
+        background: #f4ede4;
+    }
+
+    th {
+        padding: 10px 12px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--card-border);
+    }
+
+        th:first-child {
+            text-align: center;
+            width: 70px;
+        }
+
+    td {
+        padding: 4px 8px;
+        border-bottom: 1px solid #f0ebe3;
+    }
+
+        td:first-child {
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--row-alt);
+        }
+
+    tbody tr:hover td:not(:first-child) {
+        background: var(--row-hover);
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* ---------- Inputs ---------- */
+    input[type="text"],
+    input[type="number"],
+    select,
+    td input {
+        font-family: inherit;
+        font-size: 14px;
+        color: var(--text-primary);
+        background: white;
+        border: 1px solid var(--input-border);
+        border-radius: 6px;
+        padding: 8px 10px;
+        width: 100%;
+        box-sizing: border-box;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    td input {
+        border-color: transparent;
+        background: transparent;
+        padding: 6px 8px;
+        text-align: right;
+    }
+
+        td input:hover {
+            border-color: var(--input-border);
+            background: white;
+        }
+
+        input:focus,
+        select:focus,
+        td input:focus {
+            outline: none;
+            border-color: var(--input-focus-border);
+            background: white;
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+    select {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b5d52' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 32px;
+    }
+
+    /* ---------- Grids ---------- */
+    .setup-grid {
+        display: grid;
+        gap: 10px 14px;
+        align-items: center;
+    }
+
+    .sales-tax-grid {
+        grid-template-columns: 170px 1fr 180px;
+    }
+
+    .special-tax-grid {
+        grid-template-columns: 1fr 140px 140px 140px 1fr;
+    }
+
+    .grid-header {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-secondary);
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--card-border);
+    }
+
+    .row-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+
+    .number {
+        text-align: right;
+    }
+
+    /* ---------- Footer ---------- */
+    .footer-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid var(--card-border);
+    }
+
+    /* ---------- Toast ---------- */
+    .toast-stack {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 9999;
+        pointer-events: none;
+    }
+
+    .toast {
+        background: white;
+        color: var(--text-primary);
+        padding: 12px 18px;
+        border-radius: 8px;
+        box-shadow: var(--shadow-md);
+        border-left: 4px solid var(--accent);
+        font-size: 14px;
+        min-width: 240px;
+        animation: slideIn 0.2s ease;
+        pointer-events: auto;
+    }
+
+        .toast.success {
+            border-left-color: #2e9a5e;
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @@media (max-width: 900px) {
+        .special-tax-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .sales-tax-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+</style>
+
+<div class="tax-page">
+
+    <div class="page-header">
+        <h2>Sales Tax Setup</h2>
+        <span class="page-subtitle">Configure sales tax, special tax, and tax break tables</span>
+    </div>
+
+    <!-- TAX BREAK TABLE -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Tax Break Table</h3>
+            <span class="card-hint">Manage up to 5 tax break tables, 20 rows each</span>
+        </div>
+
+        <div class="table-row-toolbar">
+            <div class="btn-group">
+                <span class="btn-group-label">Load</span>
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <button type="button" class="btn btn-secondary" onclick="loadTaxBreaks(@i)">Table @i</button>
+                }
+            </div>
+
+            <div class="btn-group">
+                <span class="btn-group-label">Save</span>
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <button type="button" class="btn btn-secondary" onclick="saveTaxBreaks(@i)">Table @i</button>
+                }
+            </div>
+
+            <div class="btn-group" style="margin-left:auto;">
+                <button type="button" class="btn btn-danger" onclick="deleteTaxBreakTable()">Delete Table</button>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table id="taxBreakTable">
+                <thead>
+                    <tr>
+                        <th>Row</th>
+                        <th>From Amount</th>
+                        <th>To Amount</th>
+                        <th>Tax Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 1; i <= 20; i++)
+                    {
+                        <tr>
+                            <td>@i</td>
+                            <td><input type="number" step="0.01" class="break-start" placeholder="0.00" /></td>
+                            <td><input type="number" step="0.01" class="break-end" placeholder="0.00" /></td>
+                            <td><input type="number" step="0.01" class="break-tax" placeholder="0.00" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SALES TAX SETUP -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Sales Tax Setup</h3>
+            <span class="card-hint">Five configurable sales tax tables</span>
+        </div>
+
+        <div class="setup-grid sales-tax-grid">
+            <div class="grid-header">Tax Table</div>
+            <div class="grid-header">Tax Name</div>
+            <div class="grid-header">Sales Tax %</div>
+
+            @for (int i = 1; i <= 5; i++)
+            {
+                <div class="row-label">Sales Tax Table @i</div>
+                <input id="taxName@(i)" value="Sales Tax @i" />
+                <input id="salesTax@(i)" class="number" type="number" step="0.001" value="0.000" />
+            }
+        </div>
+    </div>
+
+    <!-- SPECIAL TAX SETUP -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Special Tax Setup</h3>
+            <span class="card-hint">Special rates, caps, and category exceptions</span>
+        </div>
+
+        <div class="setup-grid special-tax-grid">
+            <div class="grid-header">Special Tax Table</div>
+            <div class="grid-header">% Amount</div>
+            <div class="grid-header">Min Tax $</div>
+            <div class="grid-header">Max Tax $</div>
+            <div class="grid-header">Tax Exceptions</div>
+
+            @for (int i = 1; i <= 5; i++)
+            {
+                <input id="specialTaxName@(i)" value="Special Tax Table @i" />
+                <input id="specialTax@(i)" class="number" type="number" step="0.001" value="0.000" />
+                <input id="minTax@(i)" class="number" type="number" step="0.01" value="0.00" />
+                <input id="maxTax@(i)" class="number" type="number" step="0.01" value="0.00" />
+                <select id="exception@(i)">
+                    <option value="None">None</option>
+                    <option value="Food">Food</option>
+                    <option value="Liquor">Liquor</option>
+                    <option value="Beer">Beer</option>
+                    <option value="Wine">Wine</option>
+                    <option value="Other">Other</option>
+                </select>
+            }
+        </div>
+
+        <div class="footer-actions">
+            <button type="button" class="btn btn-secondary btn-lg" onclick="location.href='/'">Exit</button>
+            <button type="button" class="btn btn-primary btn-lg" onclick="saveTaxSetup()">Save Tax Setup</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        loadTaxSetup();
+    });
+
+    /* ---------- Helpers ---------- */
+    function getValue(id) {
+        return document.getElementById(id).value;
+    }
+
+    function setValue(id, value) {
+        let el = document.getElementById(id);
+        if (el) el.value = value ?? "";
+    }
+
+    function money(value) {
+        return Number(value || 0).toFixed(2);
+    }
+
+    function percent(value) {
+        return Number(value || 0).toFixed(3);
+    }
+
+    function toast(message, type) {
+        let stack = document.getElementById("toastStack");
+        let el = document.createElement("div");
+        el.className = "toast " + (type || "");
+        el.textContent = message;
+        stack.appendChild(el);
+        setTimeout(() => {
+            el.style.transition = "opacity 0.25s ease, transform 0.25s ease";
+            el.style.opacity = "0";
+            el.style.transform = "translateX(20px)";
+            setTimeout(() => el.remove(), 250);
+        }, 2400);
+    }
+
+    /* ---------- Load main tax setup ---------- */
+    function loadTaxSetup() {
+        fetch('/MSaleAdmin/GetTaxSetup')
+            .then(r => r.json())
+            .then(data => {
+                if (data.salesTaxes) {
+                    data.salesTaxes.forEach(t => {
+                        let n = t.taxTable;
+                        setValue('taxName' + n, t.taxName);
+                        setValue('salesTax' + n, percent(t.taxAmount));
+                    });
+                }
+                if (data.specialTaxes) {
+                    data.specialTaxes.forEach(t => {
+                        let n = t.taxTable;
+                        setValue('specialTaxName' + n, t.taxName);
+                        setValue('specialTax' + n, percent(t.specialTax));
+                        setValue('minTax' + n, money(t.minTax));
+                        setValue('maxTax' + n, money(t.maxTax));
+                        setValue('exception' + n, t.exception || 'None');
+                    });
+                }
+            })
+            .catch(err => {
+                toast('Could not load tax setup.', 'error');
+                console.log(err);
+            });
+    }
+
+    /* ---------- Save sales tax + special tax ---------- */
+    function saveTaxSetup() {
+        let salesTaxes = [];
+        let specialTaxes = [];
+
+        for (let i = 1; i <= 5; i++) {
+            salesTaxes.push({
+                taxTable: i,
+                taxName: getValue('taxName' + i),
+                taxAmount: Number(getValue('salesTax' + i) || 0)
+            });
+            specialTaxes.push({
+                taxTable: i,
+                taxName: getValue('specialTaxName' + i),
+                specialTax: Number(getValue('specialTax' + i) || 0),
+                minTax: Number(getValue('minTax' + i) || 0),
+                maxTax: Number(getValue('maxTax' + i) || 0),
+                exception: getValue('exception' + i)
+            });
+        }
+
+        fetch('/MSaleAdmin/SaveTaxSetup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ salesTaxes: salesTaxes, specialTaxes: specialTaxes })
+        })
+        .then(r => r.json())
+        .then(x => {
+            toast(x.message || 'Tax setup saved.', 'success');
+        })
+        .catch(err => {
+            toast('Could not save tax setup.', 'error');
+            console.log(err);
+        });
+    }
+
+    /* ---------- Tax break table ---------- */
+    function loadTaxBreaks(taxTable) {
+        fetch('/MSaleAdmin/GetTaxBreaks?taxTable=' + taxTable)
+            .then(r => r.json())
+            .then(data => {
+                clearTaxBreakRows();
+                data.forEach((row, index) => {
+                    let tr = document.querySelectorAll('#taxBreakTable tbody tr')[index];
+                    if (!tr) return;
+                    tr.querySelector('.break-start').value = money(row.startAmount);
+                    tr.querySelector('.break-end').value = money(row.endAmount);
+                    tr.querySelector('.break-tax').value = money(row.taxAmount);
+                });
+                toast('Loaded Tax Table ' + taxTable, 'success');
+            })
+            .catch(err => {
+                toast('Could not load tax break table.', 'error');
+                console.log(err);
+            });
+    }
+
+    function saveTaxBreaks(taxTable) {
+        let rows = [];
+        document.querySelectorAll('#taxBreakTable tbody tr').forEach((tr, index) => {
+            let startAmount = tr.querySelector('.break-start').value;
+            let endAmount = tr.querySelector('.break-end').value;
+            let taxAmount = tr.querySelector('.break-tax').value;
+
+            if (startAmount !== "" || endAmount !== "" || taxAmount !== "") {
+                rows.push({
+                    taxTable: taxTable,
+                    rowNumber: index + 1,
+                    startAmount: Number(startAmount || 0),
+                    endAmount: Number(endAmount || 0),
+                    taxAmount: Number(taxAmount || 0)
+                });
+            }
+        });
+
+        fetch('/MSaleAdmin/SaveTaxBreaks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ taxTable: taxTable, rows: rows })
+        })
+        .then(r => r.json())
+        .then(x => {
+            toast(x.message || 'Tax break table saved.', 'success');
+        })
+        .catch(err => {
+            toast('Could not save tax break table.', 'error');
+            console.log(err);
+        });
+    }
+
+    function deleteTaxBreakTable() {
+        let taxTable = prompt('Enter tax table number to delete: 1 - 5');
+        if (!taxTable) return;
+        taxTable = Number(taxTable);
+        if (taxTable < 1 || taxTable > 5) {
+            toast('Invalid tax table number.', 'error');
+            return;
+        }
+        if (!confirm('Delete Tax Break Table ' + taxTable + '?')) return;
+
+        fetch('/MSaleAdmin/DeleteTaxBreaks?taxTable=' + taxTable, {
+            method: 'POST'
+        })
+        .then(r => r.json())
+        .then(x => {
+            clearTaxBreakRows();
+            toast(x.message || 'Tax break table deleted.', 'success');
+        })
+        .catch(err => {
+            toast('Could not delete tax break table.', 'error');
+            console.log(err);
+        });
+    }
+
+    function clearTaxBreakRows() {
+        document.querySelectorAll('#taxBreakTable tbody input').forEach(i => i.value = "");
+    }
+</script>

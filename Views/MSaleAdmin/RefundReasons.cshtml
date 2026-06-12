@@ -1,0 +1,323 @@
+﻿@{
+    ViewData["Title"] = "Refund Reasons";
+}
+
+<style>
+
+    body {
+        background-color: #f4f6f9;
+    }
+
+    .page-container {
+        max-width: 900px;
+        margin: 40px auto;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
+    .page-title {
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 25px;
+        color: #2c3e50;
+    }
+
+    .form-section {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 25px;
+    }
+
+    .textbox {
+        width: 350px;
+        height: 42px;
+        border: 1px solid #cfd6dd;
+        border-radius: 8px;
+        padding: 0 12px;
+        font-size: 16px;
+        transition: 0.2s;
+    }
+
+        .textbox:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52,152,219,0.4);
+        }
+
+    .btn-custom {
+        border: none;
+        border-radius: 8px;
+        padding: 10px 18px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        color: white;
+    }
+
+    .btn-save {
+        background-color: #27ae60;
+    }
+
+        .btn-save:hover {
+            background-color: #219150;
+        }
+
+    .btn-clear {
+        background-color: #7f8c8d;
+    }
+
+        .btn-clear:hover {
+            background-color: #707b7c;
+        }
+
+    .btn-delete {
+        background-color: #e74c3c;
+    }
+
+        .btn-delete:hover {
+            background-color: #cb4335;
+        }
+
+    .table-container {
+        overflow-y: auto;
+        max-height: 500px;
+        border-radius: 10px;
+        border: 1px solid #dcdfe3;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background-color: #34495e;
+        color: white;
+        position: sticky;
+        top: 0;
+    }
+
+    th {
+        padding: 14px;
+        text-align: left;
+        font-size: 16px;
+    }
+
+    td {
+        padding: 14px;
+        border-bottom: 1px solid #ececec;
+        cursor: pointer;
+        font-size: 15px;
+    }
+
+    tr:hover {
+        background-color: #f0f7ff;
+    }
+
+    .empty-message {
+        text-align: center;
+        padding: 20px;
+        color: #999;
+    }
+
+</style>
+
+<div class="page-container">
+
+    <div class="page-title">
+        Refund Reasons
+    </div>
+
+    <input type="hidden" id="refundId" />
+
+    <div class="form-section">
+
+        <input type="text"
+               id="refundName"
+               class="textbox"
+               placeholder="Enter Refund Reason" />
+
+        <button class="btn-custom btn-save"
+                onclick="saveRefundReason()">
+            Save
+        </button>
+
+        <button class="btn-custom btn-clear"
+                onclick="clearForm()">
+            Clear
+        </button>
+
+        <button class="btn-custom btn-delete"
+                onclick="deleteRefundReason()">
+            Delete
+        </button>
+
+    </div>
+
+    <div class="table-container">
+
+        <table id="refundTable">
+
+            <thead>
+                <tr>
+                    <th>Refund Name</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadRefundReasons();
+    });
+
+    function loadRefundReasons() {
+
+        fetch('/MSaleAdmin/GetRefundReasons')
+            .then(r => r.json())
+            .then(data => {
+
+                let tbody = document.querySelector("#refundTable tbody");
+
+                tbody.innerHTML = "";
+
+                if (data.length === 0) {
+
+                    tbody.innerHTML =
+                        `<tr>
+                            <td class="empty-message">
+                                No Refund Reasons Found
+                            </td>
+                         </tr>`;
+
+                    return;
+                }
+
+                data.forEach(function (item) {
+
+                    let tr = document.createElement("tr");
+
+                    tr.innerHTML =
+                        `<td onclick="editRefundReason('${item.refundName}')">
+                            ${item.refundName}
+                         </td>`;
+
+                    tbody.appendChild(tr);
+
+                });
+
+            });
+
+    }
+
+    function editRefundReason(name) {
+
+        document.getElementById("refundId").value = name;
+        document.getElementById("refundName").value = name;
+
+    }
+
+    function clearForm() {
+
+        document.getElementById("refundId").value = "";
+        document.getElementById("refundName").value = "";
+
+        document.getElementById("refundName").focus();
+
+    }
+
+    function saveRefundReason() {
+
+        let oldName =
+            document.getElementById("refundId").value;
+
+        let refundName =
+            document.getElementById("refundName").value;
+
+        if (refundName.trim() === "") {
+
+            alert("Please enter a Refund Name.");
+            return;
+
+        }
+
+        fetch('/MSaleAdmin/SaveRefundReason', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+                oldName: oldName,
+                refundName: refundName
+            })
+
+        })
+        .then(r => r.text())
+        .then(msg => {
+
+            alert(msg);
+
+            clearForm();
+            loadRefundReasons();
+
+        });
+
+    }
+
+    function deleteRefundReason() {
+
+        let refundName =
+            document.getElementById("refundId").value;
+
+        if (!refundName) {
+
+            alert("Select a Refund Reason first.");
+            return;
+
+        }
+
+        if (!confirm("Delete this Refund Reason?"))
+            return;
+
+        fetch('/MSaleAdmin/DeleteRefundReason', {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+                refundName: refundName
+            })
+
+        })
+        .then(r => r.text())
+        .then(msg => {
+
+            alert(msg);
+
+            clearForm();
+            loadRefundReasons();
+
+        });
+
+    }
+
+</script>

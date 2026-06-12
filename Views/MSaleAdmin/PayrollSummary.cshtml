@@ -1,0 +1,103 @@
+﻿@{
+    ViewData["Title"] = "Payroll Summary";
+}
+
+<h2>Payroll Summary</h2>
+
+<div class="card">
+    <label>Begin Date</label>
+    <input type="date" id="beginDate" />
+
+    <label>End Date</label>
+    <input type="date" id="endDate" />
+
+    <button onclick="loadPayroll()">Load Payroll</button>
+</div>
+
+<br />
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Department</th>
+            <th>Reg Hrs</th>
+            <th>OT Hrs</th>
+            <th>Total Hrs</th>
+            <th>Wages</th>
+            <th>Declared</th>
+            <th>CC Tips</th>
+            <th>Tips Paid</th>
+            <th>Sales</th>
+        </tr>
+    </thead>
+    <tbody id="payrollBody"></tbody>
+    <tfoot id="payrollFoot"></tfoot>
+</table>
+
+<script>
+    function money(v) {
+        return Number(v || 0).toFixed(2);
+    }
+
+    function loadPayroll() {
+        const beginDate = document.getElementById("beginDate").value;
+        const endDate = document.getElementById("endDate").value;
+
+        if (!beginDate || !endDate) {
+            alert("Please select begin and end dates.");
+            return;
+        }
+
+        fetch(`/PayRollSummary/GetPayrollSummary?beginDate=${beginDate}&endDate=${endDate}`)
+            .then(r => r.json())
+            .then(data => {
+                const body = document.getElementById("payrollBody");
+                const foot = document.getElementById("payrollFoot");
+
+                body.innerHTML = "";
+                foot.innerHTML = "";
+
+                let reg = 0, ot = 0, total = 0, wages = 0;
+                let declared = 0, ccTips = 0, tipsPaid = 0, sales = 0;
+
+                data.forEach(row => {
+                    reg += Number(row.regHours);
+                    ot += Number(row.otHours);
+                    total += Number(row.totalHours);
+                    wages += Number(row.wages);
+                    declared += Number(row.declaredTips);
+                    ccTips += Number(row.creditCardTips);
+                    tipsPaid += Number(row.tipsPaidOut);
+                    sales += Number(row.sales);
+
+                    body.innerHTML += `
+                        <tr>
+                            <td>${row.employeeName}</td>
+                            <td>${row.departmentName}</td>
+                            <td>${money(row.regHours)}</td>
+                            <td>${money(row.otHours)}</td>
+                            <td>${money(row.totalHours)}</td>
+                            <td>${money(row.wages)}</td>
+                            <td>${money(row.declaredTips)}</td>
+                            <td>${money(row.creditCardTips)}</td>
+                            <td>${money(row.tipsPaidOut)}</td>
+                            <td>${money(row.sales)}</td>
+                        </tr>`;
+                });
+
+                foot.innerHTML = `
+                    <tr style="font-weight:bold;background:#eee;">
+                        <td colspan="2">Grand Total</td>
+                        <td>${money(reg)}</td>
+                        <td>${money(ot)}</td>
+                        <td>${money(total)}</td>
+                        <td>${money(wages)}</td>
+                        <td>${money(declared)}</td>
+                        <td>${money(ccTips)}</td>
+                        <td>${money(tipsPaid)}</td>
+                        <td>${money(sales)}</td>
+                    </tr>`;
+            });
+    }
+</script>
