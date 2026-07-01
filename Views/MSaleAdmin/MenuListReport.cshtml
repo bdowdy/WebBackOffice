@@ -1,0 +1,105 @@
+@{
+    ViewData["Title"] = "Menu List";
+    ViewData["Subtitle"] = "All menu items by report category — PLU, price, tax, modifiers, and remote routing.";
+}
+
+<div class="space-y-6">
+
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div class="flex flex-wrap items-end gap-3">
+            <div class="flex-1 min-w-[220px]">
+                <label class="block text-sm font-medium text-slate-700">Filter by item name</label>
+                <input id="filter" oninput="applyFilter()" placeholder="Type to filter…" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
+            <button onclick="loadMenu()" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500">Refresh</button>
+            <button onclick="window.print()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Print</button>
+            <span id="countLabel" class="ml-auto self-center text-sm text-slate-500"></span>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+        <table class="min-w-full divide-y divide-slate-200 text-sm text-slate-700">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Item Name</th>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">PLU</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Price</th>
+                    <th class="px-3 py-2.5 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">Tax</th>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Mod 1</th>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Mod 2</th>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Mod 3</th>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Mod 4</th>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Mod 5</th>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Mod 6</th>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Rmt 1</th>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Rmt 2</th>
+                </tr>
+            </thead>
+            <tbody id="menuBody" class="divide-y divide-slate-100">
+                <tr><td colspan="12" class="px-3 py-4 text-sm text-slate-500">Loading…</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    let allRows = [];
+
+    function money(v) { return Number(v || 0).toFixed(2); }
+
+    document.addEventListener("DOMContentLoaded", loadMenu);
+
+    function loadMenu() {
+        fetch('/MenuListReport/GetMenuList')
+            .then(r => r.json())
+            .then(result => {
+                if (!result.success) { alert(result.message); return; }
+                allRows = result.data || [];
+                render(allRows);
+            })
+            .catch(err => alert("Load failed: " + err.message));
+    }
+
+    function applyFilter() {
+        const q = document.getElementById('filter').value.trim().toLowerCase();
+        render(q ? allRows.filter(r => (r.itemName || '').toLowerCase().includes(q)) : allRows);
+    }
+
+    function render(rows) {
+        const body = document.getElementById('menuBody');
+        document.getElementById('countLabel').innerText =
+            rows.length + (rows.length === 1 ? ' item' : ' items');
+
+        if (rows.length === 0) {
+            body.innerHTML = `<tr><td colspan="12" class="px-3 py-4 text-sm text-slate-500">No menu items found.</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        let lastCat = null;
+        rows.forEach(r => {
+            const cat = r.category || '(Uncategorized)';
+            if (cat !== lastCat) {
+                html += `<tr class="bg-slate-100"><td colspan="12" class="px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-slate-600">${cat}</td></tr>`;
+                lastCat = cat;
+            }
+            html += `
+                <tr class="hover:bg-slate-50">
+                    <td class="px-3 py-2 font-medium text-slate-900">${r.itemName || ''}</td>
+                    <td class="px-3 py-2">${r.plu || ''}</td>
+                    <td class="px-3 py-2 text-right">${money(r.price)}</td>
+                    <td class="px-3 py-2 text-center">${r.taxable ? 'Y' : 'N'}</td>
+                    <td class="px-3 py-2">${r.mod1 || ''}</td>
+                    <td class="px-3 py-2">${r.mod2 || ''}</td>
+                    <td class="px-3 py-2">${r.mod3 || ''}</td>
+                    <td class="px-3 py-2">${r.mod4 || ''}</td>
+                    <td class="px-3 py-2">${r.mod5 || ''}</td>
+                    <td class="px-3 py-2">${r.mod6 || ''}</td>
+                    <td class="px-3 py-2">${r.rmt1 || ''}</td>
+                    <td class="px-3 py-2">${r.rmt2 || ''}</td>
+                </tr>`;
+        });
+        body.innerHTML = html;
+    }
+</script>

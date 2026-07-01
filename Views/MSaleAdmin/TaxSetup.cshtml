@@ -175,8 +175,8 @@
                         let n = t.taxTable;
                         setValue('specialTaxName' + n, t.taxName);
                         setValue('specialTax' + n, percent(t.specialTax));
-                        setValue('minTax' + n, money(t.minTax));
-                        setValue('maxTax' + n, money(t.maxTax));
+                        setValue('minTax' + n, money(t.minAmount));
+                        setValue('maxTax' + n, money(t.maxAmount));
                         setValue('exception' + n, t.exception || 'None');
                     });
                 }

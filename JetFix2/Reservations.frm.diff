@@ -1,0 +1,126 @@
+--- Reservations.frm
++++ Reservations.frm (fixed)
+@@ -1705,7 +1705,7 @@
+ If ConnectADODB(SvrPath.TerminalPath & TableLayoutDb, Db) = False Then Exit Sub
+  Sql = "Select * from [Reservations] Where [Name] = '" & Data(2).Text & "'"
+  Sql = Sql & " and [Phone] = '" & Data(6).Text & "'"
+- Sql = Sql & " and Cast([Date] as datetime) = '" & CDate(Data(0).Text) & "'"
++ Sql = Sql & " and TRY_CAST([Date] AS datetime) = '" & CDate(Data(0).Text) & "'"
+ If ConnectADORS(Sql, Db, RS) = False Then Exit Sub
+    If RS.EOF Then RS.AddNew
+    RS![Date] = Format(Data(0).Text, "M/D/YYYY")
+@@ -1845,15 +1845,15 @@
+         If ConnectADODB(SvrPath.TerminalPath & TableLayoutDb, Db) = False Then Exit Sub
+         Sql = "Delete from [Reservations] Where [Name] = '" & Data(2).Text & "'"
+         Sql = Sql & " and [Phone] = '" & Data(6).Text & "'"
+-        Sql = Sql & " and Cast([Date] as datetime) = '" & CDate(Data(0).Text) & "'"
+-        Sql = Sql & " and cast([Time] as datetime) = '" & Data(1).Text & "'"
++        Sql = Sql & " and TRY_CAST([Date] AS datetime) = '" & CDate(Data(0).Text) & "'"
++        Sql = Sql & " and TRY_CAST([Time] AS datetime) = '" & Data(1).Text & "'"
+         Db.Execute Sql
+         See_Msg "Cannot Save Reservation", 5, ""
+     End If
+   End If
+ End If
+ 
+-Sql = "Select * from [Reservations] Where Cast([date] as datetime) = '" & CDate(Data(0).Text) & "'"
++Sql = "Select * from [Reservations] Where TRY_CAST([date] AS datetime) = '" & CDate(Data(0).Text) & "'"
+ Sql = Sql & " Order by [Time],[Name] asc"
+ LoadGrid Sql, False
+ Exit Sub
+@@ -1884,11 +1884,11 @@
+ HoldSection = False
+ Sql = "Delete from [Reservations] Where [Name] = '" & Data(2).Text & "'"
+ Sql = Sql & " and [Phone] = '" & Data(6).Text & "'"
+-Sql = Sql & " and Cast([Date] as datetime) = '" & CDate(Data(0).Text) & "'"
++Sql = Sql & " and TRY_CAST([Date] AS datetime) = '" & CDate(Data(0).Text) & "'"
+ Sql = Sql & " and [Time] = '" & Data(1).Text & "'"
+ If ConnectADODB(SvrPath.TerminalPath & TableLayoutDb, Db) = False Then Exit Sub
+ Db.Execute Sql
+-  Sql = "Select * from [Reservations] Where Cast([date] as datetime) = '" & CDate(Data(0).Text) & "'"
++  Sql = "Select * from [Reservations] Where TRY_CAST([date] AS datetime) = '" & CDate(Data(0).Text) & "'"
+   Sql = Sql & " Order by [Time],[Name] asc"
+ Data(0).Text = ""
+ Data(1).Text = ""
+@@ -1908,7 +1908,7 @@
+ Sql = "Select * from [Reservations] "
+ Sql = Sql & " Where [Name] Like '" & SearchStr & "%'"
+ Sql = Sql & " Or [Phone] like '" & SearchStr & "%'"
+-Sql = Sql & " Order by cast([DAte] as datetime), cast([Time] as datetime),[Name] asc"
++Sql = Sql & " Order by TRY_CAST([DAte] AS datetime), TRY_CAST([Time] AS datetime),[Name] asc"
+ LoadGrid Sql, True
+ End Sub
+ 
+@@ -1935,8 +1935,8 @@
+ If ConnectADODB(SvrPath.TerminalPath & TableLayoutDb, Db) = False Then Exit Sub
+     Sql = "Select * from [Reservations] Where [Name] = '" & Data(2).Text & "'"
+     Sql = Sql & " and [Phone] = '" & Data(6).Text & "'"
+-    Sql = Sql & " and Cast([Date] as datetime) = '" & CDate(Data(0).Text) & "'"
+-    Sql = Sql & " and cast([Time] as datetime) = '" & Data(1).Text & "'"
++    Sql = Sql & " and TRY_CAST([Date] AS datetime) = '" & CDate(Data(0).Text) & "'"
++    Sql = Sql & " and TRY_CAST([Time] AS datetime) = '" & Data(1).Text & "'"
+ If ConnectADORS(Sql, Db, RS) = False Then Exit Sub
+  If RS.EOF Then RS.AddNew
+    RS![Date] = Format(Data(0).Text, "M/D/YYYY")
+@@ -1948,7 +1948,7 @@
+    RS![Phone] = Data(6).Text & ""
+  RS.Update
+ DbClose Db, RS
+-Sql = "Select * from [Reservations] Where Cast([date] as datetime) = '" & CDate(Data(0).Text) & "'"
++Sql = "Select * from [Reservations] Where TRY_CAST([date] AS datetime) = '" & CDate(Data(0).Text) & "'"
+ Sql = Sql & " Order by [Time],[Name] asc"
+ LoadGrid Sql, False
+ BtnEnh1.Visible = True
+@@ -2007,7 +2007,7 @@
+  Sql = "Select * from [Reservations] Where [Name] = '" & Data(2).Text & "'"
+  Sql = Sql & " and [Phone] = '" & Data(6).Text & "'"
+  Sql = Sql & " and [Seating] = '" & Ts.fields("Table Name").Value & "" & "'"
+- Sql = Sql & " and Cast([Date] as datetime) = '" & CDate(Data(0).Text) & "'"
++ Sql = Sql & " and TRY_CAST([Date] AS datetime) = '" & CDate(Data(0).Text) & "'"
+     If ConnectADORS(Sql, Db, RS) = False Then Exit Sub
+        If RS.EOF Then RS.AddNew
+        RS![Date] = Format(Data(0).Text, "M/D/YYYY")
+@@ -2204,9 +2204,9 @@
+ ConnectADODB SvrPath.TerminalPath & CallInOrderDb, Db
+    Sql = "Select * from [Open Checks] Where [Customer Phone] = '" & PHONENO & "'"
+    If CallInOrderDb = "Call In Orders.mdb" Then
+-     Sql = Sql & " and cdate([Pick Up time]) = #" & PickUpTime & "# and cdate([Pick Up Date]) = #" & PickUpDate & "#"
++     Sql = Sql & " and TRY_CAST([Pick Up time] AS datetime) = '" & Format(CDate(PickUpTime), "yyyy-mm-dd hh:nn:ss") & "' and TRY_CAST([Pick Up Date] AS datetime) = '" & Format(CDate(PickUpDate), "yyyy-mm-dd hh:nn:ss") & "'"
+    Else
+-     Sql = Sql & " and cast([Pick Up time] as datetime) = '" & PickUpTime & "' and cast([Pick Up Date] as date) = '" & PickUpDate & "'"
++     Sql = Sql & " and TRY_CAST([Pick Up time] AS datetime) = '" & PickUpTime & "' and TRY_CAST([Pick Up Date] AS date) = '" & PickUpDate & "'"
+    End If
+    Sql = Sql & " and [Order Destination] = 'Reservation'"
+ ConnectADORS Sql, Db, Tb
+@@ -2236,9 +2236,9 @@
+    Sql = "Select * from [Open Checks] Where [Customer Phone] = '" & RPhone & "'"
+    Sql = Sql & " and [Customer Name] = '" & RName & "'"
+    If CallInOrderDb = "Call In Orders.mdb" Then
+-     Sql = Sql & " and cdate([Pick Up time]) = #" & rTime & "# and cdate([Pick Up Date]) = #" & Rdate & "#"
++     Sql = Sql & " and TRY_CAST([Pick Up time] AS datetime) = '" & Format(CDate(rTime), "yyyy-mm-dd hh:nn:ss") & "' and TRY_CAST([Pick Up Date] AS datetime) = '" & Format(CDate(Rdate), "yyyy-mm-dd hh:nn:ss") & "'"
+    Else
+-     Sql = Sql & " and cast([Pick Up time] as datetime) = '" & rTime & "' and cast([Pick Up Date] as date) = '" & Rdate & "'"
++     Sql = Sql & " and TRY_CAST([Pick Up time] AS datetime) = '" & rTime & "' and TRY_CAST([Pick Up Date] AS date) = '" & Rdate & "'"
+    End If
+    Sql = Sql & " and [Order Destination] = 'Reservation'"
+ ConnectADORS Sql, Db, Tb
+@@ -2451,7 +2451,7 @@
+    .TextMatrix(0, 6) = "Phone"
+    .TextMatrix(0, 7) = ""
+ End With
+-    Sql = "Select * from [Reservations] Where Cast([date] as datetime) = '" & CDate(Date) & "'"
++    Sql = "Select * from [Reservations] Where TRY_CAST([date] AS datetime) = '" & CDate(Date) & "'"
+     Sql = Sql & " Order by [Time],[Name] asc"
+ If CPath.TerminalFailed Then
+   See_Msg "Common Terminal Not Present", 5, "Cannot Connect"
+@@ -2587,8 +2587,8 @@
+ Private Sub Rdate_DateClick(ByVal DateClicked As Date)
+ Data(0).Text = Format(DateClicked, "MM/DD/YYYY")
+ LDate.Caption = "Reservations For " & Format(DateClicked, "MM/DD/YYYY")
+-Sql = "Select * from [Reservations] Where Cast([date] as datetime) = '" & CDate(Data(0).Text) & "'"
+-Sql = Sql & " Order by  cast([Time] as datetime),[Name] asc"
++Sql = "Select * from [Reservations] Where TRY_CAST([date] AS datetime) = '" & CDate(Data(0).Text) & "'"
++Sql = Sql & " Order by  TRY_CAST([Time] AS datetime),[Name] asc"
+ LoadGrid Sql, False
+ End Sub
+ Private Sub Reserve_Click()

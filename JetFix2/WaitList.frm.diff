@@ -1,0 +1,111 @@
+--- WaitList.frm
++++ WaitList.frm (fixed)
+@@ -2164,21 +2164,21 @@
+ End Sub
+ Private Sub BtnEnh1_Click()
+ SaveList
+-Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by Cast([date] as datetime),Cast([Time In] as datetime),[Number In Party]"
++Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by TRY_CAST([date] AS datetime),TRY_CAST([Time In] AS datetime),[Number In Party]"
+ LoadList True, Sql
+ 
+ End Sub
+ 
+ Private Sub BtnEnh2_Click()
+ SaveList
+-  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by Cast([date] as datetime),Cast([Time In] as datetime)"
++  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by TRY_CAST([date] AS datetime),TRY_CAST([Time In] AS datetime)"
+ LoadList True, Sql
+ 
+ End Sub
+ 
+ Private Sub BtnEnh3_Click()
+ SaveList
+-  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by Cast([date] as datetime),Cast([Time In] as datetime),[Preference]"
++  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by TRY_CAST([date] AS datetime),TRY_CAST([Time In] AS datetime),[Preference]"
+ LoadList True, Sql
+ End Sub
+ 
+@@ -2361,19 +2361,19 @@
+ LoadAllToList
+ End Sub
+ Private Sub LoadAllToList()
+-  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by Cast([date] as datetime),Cast([Time In] as datetime)"
++  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by TRY_CAST([date] AS datetime),TRY_CAST([Time In] AS datetime)"
+ LoadList True, Sql
+ 
+ End Sub
+ 
+ Private Sub SSCommand1_Click()
+ SaveList
+- Sql = "Select * from [Wait List] Where [Group] = '" & MyGroup & "' and [Day] = 0 order by cast([date] as datetime),cast([Time In] as datetime)"
++ Sql = "Select * from [Wait List] Where [Group] = '" & MyGroup & "' and [Day] = 0 order by TRY_CAST([date] AS datetime),TRY_CAST([Time In] AS datetime)"
+ LoadList False, Sql
+ End Sub
+ Private Sub SSCommand2_Click()
+ SaveList
+-  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by cast([date] as datetime),cast([Time In] as datetime)"
++  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by TRY_CAST([date] AS datetime),TRY_CAST([Time In] AS datetime)"
+ LoadList True, Sql
+ End Sub
+ Private Sub SSCommand3_Click()
+@@ -2408,7 +2408,7 @@
+       End If
+ End With
+ SaveList
+-  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by Cast([date] as datetime),Cast([Time In] as datetime)"
++  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by TRY_CAST([date] AS datetime),TRY_CAST([Time In] AS datetime)"
+ LoadList True, Sql
+ Timer1.Enabled = True
+ Exit Sub
+@@ -2429,8 +2429,8 @@
+ Dim MinsOut As Integer
+ MinsOut = Val(GetConfigInfo("Reservations", "Transfer To Wait List Minutes", 60, "FUNCTIONS.INI"))
+ If ConnectADODB(SvrPath.TerminalPath & "MSaleData", Db) = False Then Exit Sub
+- Sql = "Select * from [Reservations] Where Cast([Date] as datetime) = '" & InDate & "'"
+- Sql = Sql & " and cast([Time] as datetime) < '" & DateAdd("n", MinsOut, Time) & "'"
++ Sql = "Select * from [Reservations] Where TRY_CAST([Date] AS datetime) = '" & InDate & "'"
++ Sql = Sql & " and TRY_CAST([Time] AS datetime) < '" & DateAdd("n", MinsOut, Time) & "'"
+ If ConnectADORS(Sql, Db, RS) = False Then Exit Sub
+   Do While Not RS.EOF
+    Sql = "Select * from [Wait List] Where [Day] = 0 and [Name] = '" & RS![Name] & "" & "'"
+@@ -2548,7 +2548,7 @@
+ Dim dw As Integer
+ Dim WaitTime As Long
+ 
+-  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexChecked & " order by cast([date] as datetime),Cast([Time In] as datetime)"
++  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexChecked & " order by TRY_CAST([date] AS datetime),TRY_CAST([Time In] AS datetime)"
+ If ConnectADODB(SvrPath.TerminalPath & "MSaleData", Db) = False Then Exit Function
+ If ConnectADORS(Sql, Db, RS) = False Then Exit Function
+  dw = 0: WaitTime = 0
+@@ -2621,12 +2621,12 @@
+      FindNames = ShowKeyBoard("Enter Customer Name") 'Enter_Name(False) '
+      If FindNames = "" Then Exit Sub
+      SaveList
+-       Sql = "Select * from [Wait List] Where [Name] like '" & FindNames & "%' and [Day] = 0 order by Cast([date] as datetime),cast([Time In] as datetime)"
++       Sql = "Select * from [Wait List] Where [Name] like '" & FindNames & "%' and [Day] = 0 order by TRY_CAST([date] AS datetime),TRY_CAST([Time In] AS datetime)"
+      LoadList False, Sql
+ End Sub
+ Private Sub SSCommand6_Click()
+ SaveList
+- Sql = "Select * from [Wait List] Where [Day] = 0 and [Seated] = " & flexUnchecked & " order by Cast([date] as datetime),Cast([Time In] as datetime)"
++ Sql = "Select * from [Wait List] Where [Day] = 0 and [Seated] = " & flexUnchecked & " order by TRY_CAST([date] AS datetime),TRY_CAST([Time In] AS datetime)"
+ LoadList True, Sql
+ End Sub
+ Private Sub SSCommand7_Click()
+@@ -2659,14 +2659,14 @@
+      SetNothing Db
+      See_Msg "Update Complete", 5, ""
+ End If
+-  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by cast([date] as datetime),cast([Time In] as datetime)"
++  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by TRY_CAST([date] AS datetime),TRY_CAST([Time In] AS datetime)"
+ LoadList True, Sql
+ End Sub
+ Private Sub Timer1_Timer()
+ Dim DA As Integer
+ Dim Gw As Integer
+ Gw = 0
+-  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by Cast([date] as datetime),Cast([Time In] as datetime)"
++  Sql = "Select * from [Wait List] Where [Day] = 0 and [Group] = '" & MyGroup & "' and [Seated] = " & flexUnchecked & " order by TRY_CAST([date] AS datetime),TRY_CAST([Time In] AS datetime)"
+ LoadList True, Sql
+ 
+ With CList

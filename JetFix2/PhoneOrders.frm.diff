@@ -1,0 +1,157 @@
+--- PhoneOrders.frm
++++ PhoneOrders.frm (fixed)
+@@ -9394,12 +9394,12 @@
+   Else
+     Exit Sub
+     ' Sql = "Select * from [Open Checks] "
+-    '   Sql = Sql & " where cast([Pick Up Date] as date) = '" & Date & "'"
++    '   Sql = Sql & " where TRY_CAST([Pick Up Date] AS date) = '" & Date & "'"
+   End If
+ Else
+   If See_Msg("Print Delivery Check ?", 4, "") = 6 Then
+     Sql = "Select * from [Open Checks] where [Driver Assigned] = '" & DriverName & "'"
+-     Sql = Sql & " and cast([Pick Up Date] as date) = '" & Date & "'"
++     Sql = Sql & " and TRY_CAST([Pick Up Date] AS date) = '" & Date & "'"
+   Else
+     Exit Sub
+   End If
+@@ -9524,7 +9524,7 @@
+ Dim Tb As ADODB.Recordset
+ Dim GRS As GeneralLib.Utilities
+ Set GRS = New GeneralLib.Utilities
+-     Sql = "Select * from [Open Checks] where [Presented] = 1 and [Check Number] = " & PhoneOrderNo & " or cast([pick up date] as date) = '" & CDate(Date) & "' and [Check Number] = " & PhoneOrderNo
++     Sql = "Select * from [Open Checks] where [Presented] = 1 and [Check Number] = " & PhoneOrderNo & " or TRY_CAST([pick up date] AS date) = '" & CDate(Date) & "' and [Check Number] = " & PhoneOrderNo
+     Set Tb = GRS.ReturnRecordset(Sql, ReturnAdoConnection(SvrPath.TerminalPath & CallInOrderDb), "Open Checks")
+      If Not Tb Is Nothing Then
+         If Not Tb.BOF Then Tb.MoveFirst
+@@ -9900,9 +9900,9 @@
+ Private Sub FilterBy_Click()
+ 
+ If LoggedOnAs(0).EmpAccessLevel < Access_Required("Access Phone Orders") Then
+-  Sql = "Select * from [Open Checks] Where [Server Name] = '" & LoggedOnAs(0).EMPName & "' order by [Order Destination], cast([Order Date] as datetime), cast([check Opened] as datetime) desc"
++  Sql = "Select * from [Open Checks] Where [Server Name] = '" & LoggedOnAs(0).EMPName & "' order by [Order Destination], TRY_CAST([Order Date] AS datetime), TRY_CAST([check Opened] AS datetime) desc"
+ Else
+-  Sql = "Select * from [Open Checks] order by [Order Destination] , cast([Order Date] as datetime), cast([check Opened] as datetime) desc"
++  Sql = "Select * from [Open Checks] order by [Order Destination] , TRY_CAST([Order Date] AS datetime), TRY_CAST([check Opened] AS datetime) desc"
+ End If
+ Load_CallINs Sql, ""
+ TScroll = 1
+@@ -10093,7 +10093,7 @@
+ Sql = Sql & " and [Customer Phone] = '" & AllPhoneOrders.Item(PHCheckNo).CallerPhone & "'"
+ Sql = Sql & " and [Check Number] = " & PHCheckNo
+ If IsDate(OriginalDate) Then
+-  Sql = Sql & " and cast([Pick Up Date] as date) = '" & Format(OriginalDate, "MM/DD/YYYY") & "'"
++  Sql = Sql & " and TRY_CAST([Pick Up Date] AS date) = '" & Format(OriginalDate, "MM/DD/YYYY") & "'"
+ End If
+ ConnectADORS Sql, Db, Tb
+ If Not Tb.EOF Then
+@@ -10147,7 +10147,7 @@
+ Select Case ButtonFunction
+      Case Is = BTNFNCT.LoadCallIn
+        If LoggedOnAs(0).EmpAccessLevel < Access_Required("Access Phone Orders") Then
+-         Sql = "Select * from [Open Checks] Where [presented] = 1 and [Server Name] = '" & LoggedOnAs(0).EMPName & "' order by cast([Order Date] as datetime), Cast([check Opened] as datetime) desc"
++         Sql = "Select * from [Open Checks] Where [presented] = 1 and [Server Name] = '" & LoggedOnAs(0).EMPName & "' order by TRY_CAST([Order Date] AS datetime), TRY_CAST([check Opened] AS datetime) desc"
+          Load_CallINs Sql, ""
+          CurrentPhoneOrders.Caption = "Order for " & LoggedOnAs(0).EMPName & " Only" & " Open Orders ( " & AllPhoneOrders.count & " )"
+        Else
+@@ -10269,9 +10269,9 @@
+ 
+ 'CurrentPhoneOrders.Caption = "Phone Orders Pending" & " Open Orders ( " & AllPhoneOrders.count & " )"
+ If Printall = False Then
+- Sql = "Select * from [Open Checks] where [presented] = 0 and cast([Pick Up date] as date) = '" & Date & "'"
++ Sql = "Select * from [Open Checks] where [presented] = 0 and TRY_CAST([Pick Up date] AS date) = '" & Date & "'"
+ Else
+- Sql = "Select * from [Open Checks] where [presented] = 0 " 'and cast([Pick Up date] as date) = '" & Date & "'"
++ Sql = "Select * from [Open Checks] where [presented] = 0 " 'and TRY_CAST([Pick Up date] AS date) = '" & Date & "'"
+ End If
+ 'Sql = Sql & " Order by cast(([Pick Up date] + [Pick Up Time]) as datetime) asc"
+ Set Tb = GRS.ReturnRecordset(Sql, ReturnAdoConnection(SvrPath.TerminalPath & CallInOrderDb), "Open Checks")
+@@ -10372,7 +10372,7 @@
+  DSql = "Delete from [Open Checks] Where [Pick Up date] is null"
+ Call GRS.ExecuteSql(DSql, ReturnAdoConnection(SvrPath.TerminalPath & CallInOrderDb))
+ If UseSql = "" Then
+-    Sql = "Select * from [Open Checks] where [Presented] = 1 or cast([Pick Up Date] as date) = '" & Date & "'"
++    Sql = "Select * from [Open Checks] where [Presented] = 1 or TRY_CAST([Pick Up Date] AS date) = '" & Date & "'"
+     If LoggedOnAs(0).PhoneAccess Then
+       Sql = Sql & " and [Order Destination] = 'Delivery'"
+       Sql = Sql & " and [Driver Assigned] = ''"
+@@ -11071,7 +11071,7 @@
+             Sql = "Select * from [Open Checks] Where [Server Name] ='" & searchby & "'"
+           End If
+           
+-           Sql = Sql & " Order by cast([Pick Up Date] as date), cast([Pick Up Time] as datetime) asc"
++           Sql = Sql & " Order by TRY_CAST([Pick Up Date] AS date), TRY_CAST([Pick Up Time] AS datetime) asc"
+           
+           SearchHow(3).Caption = "Driver Name"
+         End If
+@@ -11082,9 +11082,9 @@
+      Else
+         Sql = "Select * from [Open Checks]"
+      End If
+-     Sql = Sql & " Order by cast([Pick Up Date] as date), cast([Pick Up Time] as datetime) asc"
++     Sql = Sql & " Order by TRY_CAST([Pick Up Date] AS date), TRY_CAST([Pick Up Time] AS datetime) asc"
+   Case Is = 5
+-     Sql = "Select * from [Open Checks] Where cast([Pick Up date] as date) <= '" & Date & "' and [Presented] = 1 and [Order Destination] = 'Delivery' and [Time Assigned] is null or cast([Pick Up date] as date) <= '" & Date & "' and [Order Destination] = 'Delivery' and [Time Assigned] = '' order by [Check Number] asc"
++     Sql = "Select * from [Open Checks] Where TRY_CAST([Pick Up date] AS date) <= '" & Date & "' and [Presented] = 1 and [Order Destination] = 'Delivery' and [Time Assigned] is null or TRY_CAST([Pick Up date] AS date) <= '" & Date & "' and [Order Destination] = 'Delivery' and [Time Assigned] = '' order by [Check Number] asc"
+      
+    Case Is = 6
+        Load_Pending False, False
+@@ -11097,8 +11097,8 @@
+          Exit Sub
+         End If
+          Sql = "Select * from [Open Checks]"
+-         Sql = Sql & " Where [presented] = 0 and cast([Pick Up Date] as date) Between '" & SearchDates.Item(1).StartDate & "' And '" & SearchDates.Item(1).EndDate & "'"
+-         Sql = Sql & " order by cast([Pick Up Date] as date), cast([Pick Up time] as datetime) asc"
++         Sql = Sql & " Where [presented] = 0 and TRY_CAST([Pick Up Date] AS date) Between '" & SearchDates.Item(1).StartDate & "' And '" & SearchDates.Item(1).EndDate & "'"
++         Sql = Sql & " order by TRY_CAST([Pick Up Date] AS date), TRY_CAST([Pick Up time] AS datetime) asc"
+ End Select
+ If Sql > "" Then
+   Load_CallINs Sql, ""
+@@ -11375,9 +11375,9 @@
+ 
+ Private Sub SSCommand1_Click()
+ If LoggedOnAs(0).EmpAccessLevel < Access_Required("Access Phone Orders") Then
+-  Sql = "Select * from [Open Checks] Where [presented] = 1 and [Order Destination] = 'Pick Up' and [Server Name] = '" & LoggedOnAs(0).EMPName & "' order by [check number] asc'    'cast([Pick Up Date] as date), Cast([Pick Up Time] as datetime) asc"
++  Sql = "Select * from [Open Checks] Where [presented] = 1 and [Order Destination] = 'Pick Up' and [Server Name] = '" & LoggedOnAs(0).EMPName & "' order by [check number] asc'    'TRY_CAST([Pick Up Date] AS date), TRY_CAST([Pick Up Time] AS datetime) asc"
+ Else
+-  Sql = "Select * from [Open Checks] Where [presented] = 1 and [Order Destination] = 'Pick Up' order by [check number] asc "   'Cast([Pick Up Time] as datetime) asc"
++  Sql = "Select * from [Open Checks] Where [presented] = 1 and [Order Destination] = 'Pick Up' order by [check number] asc "   'TRY_CAST([Pick Up Time] AS datetime) asc"
+ End If
+ Load_CallINs Sql, "Pick Up Orders Only"
+ CurrentPhoneOrders.Caption = "Pick Up Orders Only" & " Open Orders ( " & AllPhoneOrders.count & " )"
+@@ -11415,9 +11415,9 @@
+ Private Sub SSCommand15_Click()
+ 
+ If LoggedOnAs(0).EmpAccessLevel < Access_Required("Access Phone Orders") Then
+-  Sql = "Select * from [Open Checks] Where [Server Name] = '" & LoggedOnAs(0).EMPName & "' order by  cast([Pick Up Date] as date),cast([Pick Up Time] as datetime)  asc"
++  Sql = "Select * from [Open Checks] Where [Server Name] = '" & LoggedOnAs(0).EMPName & "' order by  TRY_CAST([Pick Up Date] AS date),TRY_CAST([Pick Up Time] AS datetime)  asc"
+ Else
+-  Sql = "Select * from [Open Checks] order by [Check Number] asc " ' cast([Pick Up Date] as date),cast([Pick Up Time] as datetime) asc"
++  Sql = "Select * from [Open Checks] order by [Check Number] asc " ' TRY_CAST([Pick Up Date] AS date),TRY_CAST([Pick Up Time] AS datetime) asc"
+ End If
+ Load_CallINs Sql, ""
+ TScroll = 1
+@@ -11427,9 +11427,9 @@
+ Private Sub SSCommand2_Click()
+ 
+ If LoggedOnAs(0).EmpAccessLevel < Access_Required("Access Phone Orders") Then
+-  Sql = "Select * from [Open Checks] Where [presented] = 1 and [Order Destination] = 'Delivery' and [Server Name] = '" & LoggedOnAs(0).EMPName & "'  order by [check number] asc " ' cast([Pick Up Date] as date), cast([Pick Up Time] as datetime) asc"
++  Sql = "Select * from [Open Checks] Where [presented] = 1 and [Order Destination] = 'Delivery' and [Server Name] = '" & LoggedOnAs(0).EMPName & "'  order by [check number] asc " ' TRY_CAST([Pick Up Date] AS date), TRY_CAST([Pick Up Time] AS datetime) asc"
+ Else
+-  Sql = "Select * from [Open Checks] Where [presented] = 1 and [Order Destination] = 'Delivery' order by [check number] asc" ' cast([Pick Up Date] as date), cast([Pick Up Time] as datetime) asc"
++  Sql = "Select * from [Open Checks] Where [presented] = 1 and [Order Destination] = 'Delivery' order by [check number] asc" ' TRY_CAST([Pick Up Date] AS date), TRY_CAST([Pick Up Time] AS datetime) asc"
+ End If
+ Load_CallINs Sql, "Delivery Orders Only"
+ CurrentPhoneOrders.Caption = "Delivery Orders Only" & " Open Orders ( " & AllPhoneOrders.count & " )"
+@@ -11444,9 +11444,9 @@
+ Private Sub SSCommand3_Click()
+ 
+ If LoggedOnAs(0).EmpAccessLevel < Access_Required("Access Phone Orders") Then
+-   Sql = "Select * from [Open Checks] Where [Presented] = 1 and [Order Destination] = 'Pick Up' and [Server Name] = '" & LoggedOnAs(0).EMPName & "' order by cast([Pick Up Date] as date), cast([Pick Up Time] as datetime) asc"
++   Sql = "Select * from [Open Checks] Where [Presented] = 1 and [Order Destination] = 'Pick Up' and [Server Name] = '" & LoggedOnAs(0).EMPName & "' order by TRY_CAST([Pick Up Date] AS date), TRY_CAST([Pick Up Time] AS datetime) asc"
+ Else
+-   Sql = "Select * from [Open Checks] Where [Presented] = 1 and [Order Destination] = 'Pick Up' order by cast([Pick Up Date] as date), cast([Pick Up Time] as datetime) asc"
++   Sql = "Select * from [Open Checks] Where [Presented] = 1 and [Order Destination] = 'Pick Up' order by TRY_CAST([Pick Up Date] AS date), TRY_CAST([Pick Up Time] AS datetime) asc"
+ End If
+ Load_CallINs Sql, ""
+ TScroll = 1

@@ -1,0 +1,333 @@
+@{
+    ViewData["Title"] = "Shift Level Setup";
+}
+
+<div class="space-y-4">
+
+    <!-- Toolbar -->
+    <div class="flex flex-wrap items-center gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+        <h2 class="text-base font-semibold text-slate-900">Shift Level Setup</h2>
+        <div class="flex-1"></div>
+        <button onclick="newKey()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">New</button>
+        <button onclick="saveKey()" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500">Save</button>
+        <button onclick="deleteKey()" class="inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500">Delete</button>
+        <button onclick="location.href='/MSaleAdmin'" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">Dashboard</button>
+        <button onclick="location.href='/'" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">Exit</button>
+    </div>
+
+    <div class="flex gap-6">
+
+        <!-- Left: searchable list -->
+        <div class="w-72 flex-shrink-0 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+            <input id="listSearch" type="search" placeholder="Search…"
+                   oninput="filterList()"
+                   class="mb-3 block w-full rounded-lg border-0 bg-slate-50 px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            <ul id="shiftKeyList" class="max-h-[70vh] divide-y divide-slate-100 overflow-y-auto text-sm"></ul>
+        </div>
+
+        <!-- Right: form -->
+        <div class="flex-1 rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <div class="grid gap-6 lg:grid-cols-2">
+
+                <!-- Prefix Name -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Prefix Name</label>
+                    <p class="mt-0.5 text-xs text-slate-500">Keep short — placed in front of (or after) the menu item when ordered. e.g. SM, MD, GLS, PTR</p>
+                    <input id="keyName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+
+                    <!-- Shift type buttons -->
+                    <div class="mt-2 flex gap-2">
+                        <button type="button" onclick="setShiftType('prefix')" id="btnPrefix"
+                                class="flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold ring-1 ring-inset transition-colors">
+                            Prefix Shift
+                        </button>
+                        <button type="button" onclick="setShiftType('drop')" id="btnDrop"
+                                class="flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold ring-1 ring-inset transition-colors">
+                            Drop Shift
+                        </button>
+                        <button type="button" onclick="setShiftType('suffix')" id="btnSuffix"
+                                class="flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold ring-1 ring-inset transition-colors">
+                            Suffix Shift
+                        </button>
+                    </div>
+                    <p id="shiftTypeHint" class="mt-1 text-xs text-slate-400"></p>
+                </div>
+
+                <!-- Description / Name on Button -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Name on Button</label>
+                    <p class="mt-0.5 text-xs text-slate-500">Display name used on POS button. Leave blank to auto-derive from Prefix Name.</p>
+                    <input id="description" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                </div>
+
+                <!-- Category Assigned -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Category Assigned</label>
+                    <select id="categoryName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+
+                <!-- Price Level -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Price Level</label>
+                    <select id="shiftLevel" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="-1">-1</option>
+                        <option value="-2">-2</option>
+                    </select>
+                </div>
+
+                <!-- PLU Transformer Code -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">PLU Transformer Code</label>
+                    <p class="mt-0.5 text-xs text-slate-500">Added to item PLU for this variant. Max 32767.</p>
+                    <input id="pluPrefix" type="number" step="1" min="0" max="32767"
+                           class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                </div>
+
+            </div>
+
+            <!-- Timed Events -->
+            <div class="mt-6">
+                <h4 class="text-sm font-semibold text-slate-700">Timed Event Overrides</h4>
+                <div class="mt-3 grid grid-cols-5 gap-3">
+                    <div><label class="block text-xs font-medium text-slate-500">Timed Event 1</label><select id="event1" class="mt-1 block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                    <div><label class="block text-xs font-medium text-slate-500">Timed Event 2</label><select id="event2" class="mt-1 block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                    <div><label class="block text-xs font-medium text-slate-500">Timed Event 3</label><select id="event3" class="mt-1 block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                    <div><label class="block text-xs font-medium text-slate-500">Timed Event 4</label><select id="event4" class="mt-1 block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                    <div><label class="block text-xs font-medium text-slate-500">Timed Event 5</label><select id="event5" class="mt-1 block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                </div>
+            </div>
+
+            <div id="statusMsg" class="mt-4 text-sm font-medium text-slate-500"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isNewKey = true;
+    let originalKeyName = "";
+    let originalCategoryName = "";
+    let allKeys = [];
+
+    document.addEventListener("DOMContentLoaded", startup);
+
+    async function startup() {
+        await Promise.all([loadCategories(), loadTimedEvents()]);
+        await loadAll();
+        newKey();
+    }
+
+    function loadCategories() {
+        return fetch('/ShiftLevel/GetCategories')
+            .then(r => r.json())
+            .then(data => {
+                const ddl = document.getElementById("categoryName");
+                ddl.innerHTML = "";
+                ddl.add(new Option("-- Select Category --", ""));
+                data.forEach(x => ddl.add(new Option(x, x)));
+            });
+    }
+
+    function loadTimedEvents() {
+        return fetch('/ShiftLevel/GetTimedEvents')
+            .then(r => r.json())
+            .then(data => {
+                for (let i = 1; i <= 5; i++) {
+                    const ddl = document.getElementById("event" + i);
+                    ddl.innerHTML = "";
+                    ddl.add(new Option("None", ""));
+                    data.forEach(x => ddl.add(new Option(x, x)));
+                }
+            });
+    }
+
+    function loadAll() {
+        return fetch('/ShiftLevel/GetAll')
+            .then(r => r.json())
+            .then(data => {
+                allKeys = data;
+                renderList(data);
+            });
+    }
+
+    function renderList(data) {
+        const ul = document.getElementById("shiftKeyList");
+        ul.innerHTML = "";
+        data.forEach(item => {
+            const li = document.createElement("li");
+            li.className = "flex cursor-pointer flex-col px-2 py-2.5 hover:bg-slate-50 rounded-lg";
+            li.innerHTML = `
+                <span class="font-semibold text-slate-800">${esc(item.keyName)}</span>
+                <span class="text-xs text-slate-400">${esc(item.categoryName)}</span>`;
+            li.onclick = () => loadKey(item.keyName, item.categoryName);
+            ul.appendChild(li);
+        });
+        if (data.length === 0) {
+            ul.innerHTML = '<li class="px-2 py-3 text-sm text-slate-400 italic">No shift keys yet</li>';
+        }
+    }
+
+    function filterList() {
+        const q = document.getElementById("listSearch").value.toLowerCase();
+        const filtered = allKeys.filter(x =>
+            x.keyName.toLowerCase().includes(q) ||
+            x.categoryName.toLowerCase().includes(q));
+        renderList(filtered);
+    }
+
+    function loadKey(keyName, categoryName) {
+        fetch(`/ShiftLevel/Get?keyName=${encodeURIComponent(keyName)}&categoryName=${encodeURIComponent(categoryName)}`)
+            .then(r => r.json())
+            .then(res => {
+                if (!res.success) { alert(res.message); return; }
+                const x = res.data;
+                isNewKey = false;
+                originalKeyName = x.keyName;
+                originalCategoryName = x.categoryName;
+
+                document.getElementById("keyName").value = x.keyName;
+                document.getElementById("description").value = x.description;
+                document.getElementById("shiftLevel").value = x.shiftLevel;
+                setSelectValue("categoryName", x.categoryName);
+                document.getElementById("pluPrefix").value = x.pluPrefix;
+
+                for (let i = 1; i <= 5; i++)
+                    setSelectValue("event" + i, x["event" + i]);
+
+                detectShiftType(x.keyName);
+                document.getElementById("statusMsg").textContent = "Editing: " + x.keyName;
+            });
+    }
+
+    function newKey() {
+        isNewKey = true;
+        originalKeyName = "";
+        originalCategoryName = "";
+
+        document.getElementById("keyName").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("shiftLevel").value = "1";
+        document.getElementById("categoryName").value = "";
+        document.getElementById("pluPrefix").value = "0";
+        for (let i = 1; i <= 5; i++) document.getElementById("event" + i).value = "";
+
+        setShiftTypeButtons("prefix");
+        document.getElementById("statusMsg").textContent = "Adding new shift key";
+    }
+
+    function saveKey() {
+        const keyName = document.getElementById("keyName").value.trim();
+        if (!keyName) { alert("Prefix Name is required."); return; }
+        const plu = parseInt(document.getElementById("pluPrefix").value || 0);
+        if (plu > 32767) { alert("PLU Prefix must be 32767 or less."); return; }
+
+        const model = {
+            isNew: isNewKey,
+            keyName,
+            originalKeyName,
+            originalCategoryName,
+            shiftLevel: parseInt(document.getElementById("shiftLevel").value),
+            categoryName: document.getElementById("categoryName").value,
+            event1: document.getElementById("event1").value,
+            event2: document.getElementById("event2").value,
+            event3: document.getElementById("event3").value,
+            event4: document.getElementById("event4").value,
+            event5: document.getElementById("event5").value,
+            description: document.getElementById("description").value.trim(),
+            pluPrefix: plu
+        };
+
+        fetch('/ShiftLevel/Save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(model)
+        })
+        .then(r => r.json())
+        .then(res => {
+            alert(res.message);
+            if (res.success) {
+                isNewKey = false;
+                originalKeyName = model.keyName;
+                originalCategoryName = model.categoryName;
+                document.getElementById("statusMsg").textContent = "Saved.";
+                loadAll();
+            }
+        })
+        .catch(err => alert("Save failed: " + err.message));
+    }
+
+    function deleteKey() {
+        if (isNewKey) { alert("Nothing selected to delete."); return; }
+        if (!confirm("Delete shift key '" + originalKeyName + "'?")) return;
+
+        fetch('/ShiftLevel/Delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ keyName: originalKeyName, categoryName: originalCategoryName })
+        })
+        .then(r => r.json())
+        .then(res => {
+            alert(res.message);
+            if (res.success) { loadAll(); newKey(); }
+        })
+        .catch(err => alert("Delete failed: " + err.message));
+    }
+
+    // Shift type helpers
+    function detectShiftType(keyName) {
+        if (keyName.endsWith("!")) setShiftTypeButtons("suffix");
+        else if (keyName.endsWith("~")) setShiftTypeButtons("drop");
+        else setShiftTypeButtons("prefix");
+    }
+
+    function setShiftType(type) {
+        let kn = document.getElementById("keyName").value;
+        // strip existing marker
+        if (kn.endsWith("~") || kn.endsWith("!")) kn = kn.slice(0, -1);
+
+        if (type === "drop") {
+            if (!document.getElementById("description").value.trim())
+                document.getElementById("description").value = kn;
+            kn += "~";
+        } else if (type === "suffix") {
+            if (!document.getElementById("description").value.trim())
+                document.getElementById("description").value = kn;
+            kn += "!";
+        }
+        document.getElementById("keyName").value = kn;
+        setShiftTypeButtons(type);
+    }
+
+    function setShiftTypeButtons(active) {
+        const map = {
+            prefix: { id: "btnPrefix", hint: "Name is prepended to the menu item." },
+            drop:   { id: "btnDrop",   hint: "Name is dropped — Description shown on button instead." },
+            suffix: { id: "btnSuffix", hint: "Name is appended after the menu item." }
+        };
+        Object.entries(map).forEach(([k, v]) => {
+            const btn = document.getElementById(v.id);
+            if (k === active) {
+                btn.className = "flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold ring-1 ring-inset bg-emerald-600 text-white ring-emerald-600";
+            } else {
+                btn.className = "flex-1 rounded-lg px-2 py-1.5 text-xs font-semibold ring-1 ring-inset bg-white text-slate-600 ring-slate-300 hover:bg-slate-50";
+            }
+        });
+        document.getElementById("shiftTypeHint").textContent = map[active]?.hint ?? "";
+    }
+
+    function setSelectValue(id, value) {
+        const ddl = document.getElementById(id);
+        const v = value || "";
+        if (v && !Array.from(ddl.options).some(o => o.value === v))
+            ddl.add(new Option(v, v));
+        ddl.value = v;
+    }
+
+    function esc(s) {
+        return (s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+</script>

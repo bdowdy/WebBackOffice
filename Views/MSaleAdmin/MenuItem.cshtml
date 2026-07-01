@@ -8,184 +8,482 @@
         <label for="menuItemSelect" class="text-sm font-medium text-slate-700">Existing Menu Item</label>
         <select id="menuItemSelect" onchange="loadMenuItem()" class="block w-full max-w-md rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
 
-        <button type="button" onclick="newItem()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">New</button>
-        <button type="button" onclick="saveItem()" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500">Save</button>
-        <button type="button" onclick="loadMenuItems()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Reload</button>
+        <button type="button" onclick="newItem()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">New</button>
+        <button type="button" onclick="saveItem()" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500">Save</button>
+        <button type="button" onclick="loadMenuItems()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">Reload</button>
 
         <div class="flex-1"></div>
 
-        <button type="button" onclick="location.href='/MSaleAdmin'" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Dashboard</button>
-        <button type="button" onclick="location.href='/'" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Exit</button>
+        <button type="button" onclick="location.href='/MSaleAdmin'" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">Dashboard</button>
+        <button type="button" onclick="location.href='/'" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">Exit</button>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-2">
+
         <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
             <h3 class="text-base font-semibold text-slate-900">Item Information</h3>
 
             <input type="hidden" id="originalMenuItemName" />
 
-            <label for="menuItemName" class="mt-4 block text-sm font-medium text-slate-700">Menu Item Name</label>
-            <input id="menuItemName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            <label class="mt-4 block text-sm font-medium text-slate-700">Menu Item Name</label>
+            <input id="menuItemName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
 
-            <label for="departmentName" class="mt-4 block text-sm font-medium text-slate-700">Department</label>
+            <label class="mt-4 block text-sm font-medium text-slate-700">Department</label>
             <select id="departmentName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
 
-            <label for="reportCategory" class="mt-4 block text-sm font-medium text-slate-700">Report Category</label>
+            <label class="mt-4 block text-sm font-medium text-slate-700">Report Category</label>
             <select id="reportCategory" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
 
             <div class="mt-4 grid grid-cols-2 gap-4">
                 <div>
-                    <label for="regularPrice" class="block text-sm font-medium text-slate-700">Regular Price</label>
-                    <input id="regularPrice" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    <label class="block text-sm font-medium text-slate-700">Regular Price</label>
+                    <input id="regularPrice" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
                 <div>
-                    <label for="inventoryAmount" class="block text-sm font-medium text-slate-700">Inventory Amount</label>
-                    <input id="inventoryAmount" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    <label class="block text-sm font-medium text-slate-700">Inventory Amount</label>
+                    <input id="inventoryAmount" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
                 <div>
-                    <label for="productCost" class="block text-sm font-medium text-slate-700">Product Cost</label>
-                    <input id="productCost" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    <label class="block text-sm font-medium text-slate-700">Product Cost</label>
+                    <input id="productCost" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
                 <div>
-                    <label for="upCharge" class="block text-sm font-medium text-slate-700">Up Charge</label>
-                    <input id="upCharge" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    <label class="block text-sm font-medium text-slate-700">Up Charge</label>
+                    <input id="upCharge" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
             </div>
 
-            <label for="itemInfo" class="mt-4 block text-sm font-medium text-slate-700">Item Information</label>
-            <textarea id="itemInfo" class="mt-1 block min-h-[150px] w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></textarea>
+            <label class="mt-4 block text-sm font-medium text-slate-700">Item Information</label>
+            <textarea id="itemInfo" class="mt-1 block min-h-[150px] w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></textarea>
         </div>
 
         <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
             <h3 class="text-base font-semibold text-slate-900">Item Codes / Options</h3>
 
-            <label for="barCode" class="mt-4 block text-sm font-medium text-slate-700">Barcode</label>
-            <input id="barCode" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            <label class="mt-4 block text-sm font-medium text-slate-700">Barcode</label>
+            <input id="barCode" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
 
             <div class="mt-4 grid grid-cols-3 gap-4">
                 <div>
-                    <label for="salesTaxTable" class="block text-sm font-medium text-slate-700">Sales Tax Table</label>
+                    <label class="block text-sm font-medium text-slate-700">Sales Tax</label>
                     <select id="salesTaxTable" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
                 </div>
                 <div>
-                    <label for="specialTaxTable" class="block text-sm font-medium text-slate-700">Special Tax Table</label>
+                    <label class="block text-sm font-medium text-slate-700">Special Tax</label>
                     <select id="specialTaxTable" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
                 </div>
                 <div>
-                    <label for="liquorTaxAmount" class="block text-sm font-medium text-slate-700">Surcharge</label>
+                    <label class="block text-sm font-medium text-slate-700">Surcharge</label>
                     <select id="liquorTaxAmount" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
                 </div>
             </div>
 
             <hr class="my-5 border-slate-200" />
 
-            <div class="grid grid-cols-2 gap-4">
-                <div><label for="remote1" class="block text-sm font-medium text-slate-700">Remote Printer 1</label><select id="remote1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select></div>
-                <div><label for="remote4" class="block text-sm font-medium text-slate-700">Remote Printer 4</label><select id="remote4" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select></div>
-                <div><label for="remote2" class="block text-sm font-medium text-slate-700">Remote Printer 2</label><select id="remote2" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select></div>
-                <div><label for="remote5" class="block text-sm font-medium text-slate-700">Remote Printer 5</label><select id="remote5" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select></div>
-                <div><label for="remote3" class="block text-sm font-medium text-slate-700">Remote Printer 3</label><select id="remote3" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select></div>
-                <div><label for="remote6" class="block text-sm font-medium text-slate-700">Remote Printer 6</label><select id="remote6" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select></div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Remote Printer 1</label>
+                <select id="remote1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Remote Printer 2</label>
+                <select id="remote2" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Remote Printer 3</label>
+                <select id="remote3" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Remote Printer 4</label>
+                <select id="remote4" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Remote Printer 5</label>
+                <select id="remote5" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Remote Printer 6</label>
+                <select id="remote6" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
             </div>
 
             <hr class="my-5 border-slate-200" />
 
             <div class="grid grid-cols-2 gap-2">
-                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="avalibility" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> Available</label>
-                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="taxable" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> Taxable</label>
-                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="useModifiers" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> Use Modifiers</label>
-                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="modifiersAreOptional" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> Modifiers Optional</label>
-                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="openPrice" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> Open Price</label>
-                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="quickPick" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> Quick Pick</label>
-                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="quickButton" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> Quick Button</label>
-                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="onLine" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /> On Line</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="avalibility" /> Available</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="taxable" /> Taxable</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="useModifiers" /> Use Modifiers</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="modifiersAreOptional" /> Modifiers Optional</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="openPrice" /> Open Price</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="quickPick" /> Quick Pick</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="quickButton" /> Quick Button</label>
+                <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200"><input type="checkbox" id="onLine" /> On Line</label>
             </div>
 
             <div id="status" class="mt-4 text-sm font-medium text-slate-600"></div>
         </div>
     </div>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="text-base font-semibold text-slate-900">Timed Pricing</h3>
+
+            <label class="mt-4 flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200">
+                <input type="checkbox" id="timedPrice" />
+                Use Timed Pricing
+            </label>
+
+            <div class="mt-4 space-y-3">
+                <div class="mt-4 space-y-3">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-medium text-slate-700">Time Event 1</label><select id="timeEvent1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                        <div><label class="block text-sm font-medium text-slate-700">Time Price 1</label><input id="timePrice1" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-medium text-slate-700">Time Event 2</label><select id="timeEvent2" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                        <div><label class="block text-sm font-medium text-slate-700">Time Price 2</label><input id="timePrice2" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-medium text-slate-700">Time Event 3</label><select id="timeEvent3" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                        <div><label class="block text-sm font-medium text-slate-700">Time Price 3</label><input id="timePrice3" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-medium text-slate-700">Time Event 4</label><select id="timeEvent4" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                        <div><label class="block text-sm font-medium text-slate-700">Time Price 4</label><input id="timePrice4" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm font-medium text-slate-700">Time Event 5</label><select id="timeEvent5" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                        <div><label class="block text-sm font-medium text-slate-700">Time Price 5</label><input id="timePrice5" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="text-base font-semibold text-slate-900">Modifier Assignments</h3>
+
+            <label class="mt-4 flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200">
+                <input type="checkbox" id="minMaxChoices" />
+                Use Min / Max Choices
+            </label>
+
+            <div class="mb-4 mt-4 grid gap-4" style="grid-template-columns: 2fr 120px;">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">
+                        Modifier Group Starts At
+                    </label>
+                    <select id="modifierGroupStart"
+                            class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-4 space-y-3">
+                <div class="grid gap-3" style="grid-template-columns: 3fr 1fr 1fr 1fr;">
+                    <div><label class="block text-sm font-medium text-slate-700">Modifier 1</label><select id="modifier1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Optional</label><input type="checkbox" id="modifierOption1" /></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Min</label><input id="modifierMin1" type="number" step="1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Max</label><input id="modifierMax1" type="number" step="1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                </div>
+
+                <div class="grid gap-3" style="grid-template-columns: 3fr 1fr 1fr 1fr;">
+                    <div><label class="block text-sm font-medium text-slate-700">Modifier 2</label><select id="modifier2" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Optional</label><input type="checkbox" id="modifierOption2" /></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Min</label><input id="modifierMin2" type="number" step="1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Max</label><input id="modifierMax2" type="number" step="1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                </div>
+
+                <div class="grid gap-3" style="grid-template-columns: 3fr 1fr 1fr 1fr;">
+                    <div><label class="block text-sm font-medium text-slate-700">Modifier 3</label><select id="modifier3" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Optional</label><input type="checkbox" id="modifierOption3" /></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Min</label><input id="modifierMin3" type="number" step="1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Max</label><input id="modifierMax3" type="number" step="1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                </div>
+
+                <div class="grid gap-3" style="grid-template-columns: 3fr 1fr 1fr 1fr;">
+                    <div><label class="block text-sm font-medium text-slate-700">Modifier 4</label><select id="modifier4" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Optional</label><input type="checkbox" id="modifierOption4" /></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Min</label><input id="modifierMin4" type="number" step="1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Max</label><input id="modifierMax4" type="number" step="1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                </div>
+
+                <div class="grid gap-3" style="grid-template-columns: 3fr 1fr 1fr 1fr;">
+                    <div><label class="block text-sm font-medium text-slate-700">Modifier 5</label><select id="modifier5" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Optional</label><input type="checkbox" id="modifierOption5" /></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Min</label><input id="modifierMin5" type="number" step="1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Max</label><input id="modifierMax5" type="number" step="1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                </div>
+
+                <div class="grid gap-3" style="grid-template-columns: 3fr 1fr 1fr 1fr;">
+                    <div><label class="block text-sm font-medium text-slate-700">Modifier 6</label><select id="modifier6" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Optional</label><input type="checkbox" id="modifierOption6" /></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Min</label><input id="modifierMin6" type="number" step="1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                    <div><label class="block text-sm font-medium text-slate-700">Max</label><input id="modifierMax6" type="number" step="1" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shift Pricing -->
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <h3 class="text-base font-semibold text-slate-900">Shift Pricing</h3>
+
+        <div class="mt-4 flex flex-wrap gap-4">
+            <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200">
+                <input type="checkbox" id="priceLevels" /> Enable Timed Price Levels
+            </label>
+            <label class="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2.5 text-sm text-slate-700 ring-1 ring-inset ring-slate-200">
+                <input type="checkbox" id="priceLock" /> Lock Price
+            </label>
+        </div>
+
+        <div class="mt-4">
+            <p class="mb-2 text-sm font-medium text-slate-700">Price Levels (1–5)</p>
+            <div class="grid grid-cols-5 gap-3">
+                <div><label class="block text-xs text-slate-500">Price 1</label><input id="price1" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" /></div>
+                <div><label class="block text-xs text-slate-500">Price 2</label><input id="price2" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" /></div>
+                <div><label class="block text-xs text-slate-500">Price 3</label><input id="price3" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" /></div>
+                <div><label class="block text-xs text-slate-500">Price 4</label><input id="price4" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" /></div>
+                <div><label class="block text-xs text-slate-500">Price 5</label><input id="price5" type="number" step="0.01" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" /></div>
+            </div>
+        </div>
+
+        <div class="mt-6 overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-slate-200">
+                        <th class="pb-2 pr-3 text-left text-xs font-medium text-slate-500">#</th>
+                        <th class="pb-2 pr-3 text-left text-xs font-medium text-slate-500">Timed Event</th>
+                        <th class="pb-2 pr-3 text-left text-xs font-medium text-slate-500">Shift Price</th>
+                        <th class="pb-2 pr-3 text-left text-xs font-medium text-slate-500">PLU</th>
+                        <th class="pb-2 pr-3 text-left text-xs font-medium text-slate-500">Modifier Group</th>
+                        <th class="pb-2 pr-3 text-left text-xs font-medium text-slate-500">Mod Shift Level</th>
+                        <th class="pb-2 text-left text-xs font-medium text-slate-500">Price Mod Shift</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    <tr>
+                        <td class="py-2 pr-3 font-medium text-slate-500">1</td>
+                        <td class="py-2 pr-3"><select id="shiftEvent1" class="block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></td>
+                        <td class="py-2 pr-3"><input id="shiftPrice1" type="number" step="0.01" class="block w-24 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2 pr-3"><input id="shiftPLU1" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2 pr-3"><select id="shiftMod1" class="block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></td>
+                        <td class="py-2 pr-3"><input id="eModShift1" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2"><input id="pModShift1" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                    </tr>
+                    <tr>
+                        <td class="py-2 pr-3 font-medium text-slate-500">2</td>
+                        <td class="py-2 pr-3"><select id="shiftEvent2" class="block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></td>
+                        <td class="py-2 pr-3"><input id="shiftPrice2" type="number" step="0.01" class="block w-24 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2 pr-3"><input id="shiftPLU2" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2 pr-3"><select id="shiftMod2" class="block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></td>
+                        <td class="py-2 pr-3"><input id="eModShift2" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2"><input id="pModShift2" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                    </tr>
+                    <tr>
+                        <td class="py-2 pr-3 font-medium text-slate-500">3</td>
+                        <td class="py-2 pr-3"><select id="shiftEvent3" class="block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></td>
+                        <td class="py-2 pr-3"><input id="shiftPrice3" type="number" step="0.01" class="block w-24 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2 pr-3"><input id="shiftPLU3" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2 pr-3"><select id="shiftMod3" class="block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></td>
+                        <td class="py-2 pr-3"><input id="eModShift3" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2"><input id="pModShift3" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                    </tr>
+                    <tr>
+                        <td class="py-2 pr-3 font-medium text-slate-500">4</td>
+                        <td class="py-2 pr-3"><select id="shiftEvent4" class="block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></td>
+                        <td class="py-2 pr-3"><input id="shiftPrice4" type="number" step="0.01" class="block w-24 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2 pr-3"><input id="shiftPLU4" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2 pr-3"><select id="shiftMod4" class="block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></td>
+                        <td class="py-2 pr-3"><input id="eModShift4" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2"><input id="pModShift4" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                    </tr>
+                    <tr>
+                        <td class="py-2 pr-3 font-medium text-slate-500">5</td>
+                        <td class="py-2 pr-3"><select id="shiftEvent5" class="block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></td>
+                        <td class="py-2 pr-3"><input id="shiftPrice5" type="number" step="0.01" class="block w-24 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2 pr-3"><input id="shiftPLU5" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2 pr-3"><select id="shiftMod5" class="block w-full rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300"></select></td>
+                        <td class="py-2 pr-3"><input id="eModShift5" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                        <td class="py-2"><input id="pModShift5" type="number" step="1" class="block w-20 rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300" /></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
 <script>
     let isNewItem = false;
-    let lookupsReady = false;
 
-    document.addEventListener("DOMContentLoaded", function () {
-        startup();
-    });
+    document.addEventListener("DOMContentLoaded", startup);
 
     async function startup() {
         loadTaxOptions();
 
-        await loadDepartments();
-        await loadReportCategories();
-        await loadSystemPrinters();
-        await loadMenuItems();
+        await safeLoad("Departments", loadDepartments);
+        await safeLoad("Report Categories", loadReportCategories);
+        await safeLoad("Printers", loadSystemPrinters);
+        await safeLoad("Timed Events", loadTimedEvents);
+        await safeLoad("Modifiers", loadModifierNames);
+        await safeLoad("Menu Items", loadMenuItems);
 
-        lookupsReady = true;
         newItem();
+    }
+
+    async function safeLoad(name, fn) {
+        try {
+            await fn();
+            console.log(name + " loaded");
+        } catch (err) {
+            console.error(name + " failed:", err);
+            alert(name + " failed: " + err.message);
+        }
     }
 
     function loadTaxOptions() {
         ["salesTaxTable", "specialTaxTable", "liquorTaxAmount"].forEach(id => {
             const ddl = document.getElementById(id);
             ddl.innerHTML = "";
-
-            for (let i = 0; i <= 5; i++) {
-                ddl.add(new Option(i.toString(), i.toString()));
-            }
+            for (let i = 0; i <= 5; i++) ddl.add(new Option(i.toString(), i.toString()));
         });
     }
 
     function loadDepartments() {
         return fetch('/MenuItem/GetDepartments')
             .then(r => r.json())
-            .then(data => {
-                const ddl = document.getElementById("departmentName");
-                ddl.innerHTML = "";
-                ddl.add(new Option("-- Select Department --", ""));
-                data.forEach(x => ddl.add(new Option(x, x)));
-            });
+            .then(data => fillSelect("departmentName", data, "-- Select Department --"));
     }
 
     function loadReportCategories() {
         return fetch('/MenuItem/GetReportCategories')
             .then(r => r.json())
-            .then(data => {
-                const ddl = document.getElementById("reportCategory");
-                ddl.innerHTML = "";
-                ddl.add(new Option("-- Select Report Category --", ""));
-                data.forEach(x => ddl.add(new Option(x, x)));
-            });
+            .then(data => fillSelect("reportCategory", data, "-- Select Report Category --"));
     }
 
     function loadSystemPrinters() {
         return fetch('/MenuItem/GetSystemPrinters')
             .then(r => r.json())
             .then(data => {
-                ["remote1", "remote2", "remote3", "remote4", "remote5", "remote6"].forEach(id => {
+                console.log("Printers:", data);
+
+                for (let i = 1; i <= 6; i++) {
+                    const id = "remote" + i;
                     const ddl = document.getElementById(id);
+
+                    if (ddl === null) {
+                        alert("Missing dropdown ID: " + id);
+                        continue;
+                    }
+
                     ddl.innerHTML = "";
                     ddl.add(new Option("-- None --", ""));
+
                     data.forEach(x => ddl.add(new Option(x, x)));
-                });
+                }
+            });
+    }
+
+    function loadTimedEvents() {
+        return fetch('/MenuItem/GetTimedEvents')
+            .then(r => {
+                if (!r.ok) throw new Error("GetTimedEvents failed: " + r.status);
+                return r.json();
+            })
+            .then(data => {
+                console.log("Timed Events:", data);
+
+                for (let i = 1; i <= 5; i++) {
+                    const ddl = document.getElementById("timeEvent" + i);
+                    if (!ddl) {
+                        console.error("Missing timeEvent" + i);
+                        continue;
+                    }
+
+                    ddl.innerHTML = "";
+                    ddl.add(new Option("-- None --", ""));
+
+                    data.forEach(x => ddl.add(new Option(x, x)));
+                }
+
+                for (let i = 1; i <= 5; i++) {
+                    const ddl = document.getElementById("shiftEvent" + i);
+                    if (!ddl) continue;
+                    ddl.innerHTML = "";
+                    ddl.add(new Option("None", ""));
+                    ddl.add(new Option("Follow Main Events", "Follow Main Events"));
+                    data.forEach(x => ddl.add(new Option(x, x)));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Could not load timed events: " + err.message);
+            });
+    }
+
+    function loadModifierNames() {
+        return fetch('/MenuItem/GetModifierNames')
+            .then(r => {
+                if (!r.ok) throw new Error("GetModifierNames failed: " + r.status);
+                return r.json();
+            })
+            .then(data => {
+                console.log("Modifiers:", data);
+
+                for (let i = 1; i <= 6; i++) {
+                    const ddl = document.getElementById("modifier" + i);
+                    if (!ddl) {
+                        console.error("Missing modifier" + i);
+                        continue;
+                    }
+
+                    ddl.innerHTML = "";
+                    ddl.add(new Option("-- None --", ""));
+
+                    data.forEach(x => ddl.add(new Option(x, x)));
+                }
+
+                for (let i = 1; i <= 5; i++) {
+                    const ddl = document.getElementById("shiftMod" + i);
+                    if (!ddl) continue;
+                    ddl.innerHTML = "";
+                    ddl.add(new Option("None", ""));
+                    ddl.add(new Option("Follow Main Item", "Follow Main Item"));
+                    ddl.add(new Option("No Mod", "No Mod"));
+                    data.forEach(x => ddl.add(new Option(x, x)));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Could not load modifiers: " + err.message);
             });
     }
 
     function loadMenuItems() {
         return fetch('/MenuItem/GetMenuItemNames')
             .then(r => r.json())
-            .then(data => {
-                const ddl = document.getElementById("menuItemSelect");
-                ddl.innerHTML = "";
-                ddl.add(new Option("-- Select Menu Item --", ""));
-                data.forEach(x => ddl.add(new Option(x, x)));
-            });
+            .then(data => fillSelect("menuItemSelect", data, "-- Select Menu Item --"));
+    }
+
+    function fillSelect(id, data, firstText) {
+        const ddl = document.getElementById(id);
+        ddl.innerHTML = "";
+        ddl.add(new Option(firstText, ""));
+        data.forEach(x => ddl.add(new Option(x, x)));
     }
 
     function loadMenuItem() {
         const name = document.getElementById("menuItemSelect").value;
-
         if (!name) {
             newItem();
             return;
@@ -202,87 +500,122 @@
                 const x = result.data;
                 isNewItem = false;
 
-                document.getElementById("originalMenuItemName").value = x.menuItemName || "";
-                document.getElementById("menuItemName").value = x.menuItemName || "";
-                document.getElementById("departmentName").value = x.departmentName || "";
-                document.getElementById("reportCategory").value = x.reportCategory || "";
+                val("originalMenuItemName", x.menuItemName);
+                val("menuItemName", x.menuItemName);
+                val("departmentName", x.departmentName);
+                val("reportCategory", x.reportCategory);
 
-                document.getElementById("regularPrice").value = x.regularPrice ?? 0;
-                document.getElementById("inventoryAmount").value = x.inventoryAmount ?? 0;
-                document.getElementById("productCost").value = x.productCost ?? 0;
-                document.getElementById("upCharge").value = x.upCharge ?? 0;
+                val("regularPrice", x.regularPrice ?? 0);
+                val("inventoryAmount", x.inventoryAmount ?? 0);
+                val("productCost", x.productCost ?? 0);
+                val("upCharge", x.upCharge ?? 0);
 
-                document.getElementById("barCode").value = x.barCode || "";
-                document.getElementById("itemInfo").value = x.itemInfo || "";
+                val("barCode", x.barCode);
+                val("itemInfo", x.itemInfo);
 
-                document.getElementById("salesTaxTable").value = String(x.salesTaxTable ?? 0);
-                document.getElementById("specialTaxTable").value = String(x.specialTaxTable ?? 0);
-                document.getElementById("liquorTaxAmount").value = String(x.liquorTaxAmount ?? 0);
+                val("salesTaxTable", x.salesTaxTable ?? 0);
+                val("specialTaxTable", x.specialTaxTable ?? 0);
+                val("liquorTaxAmount", x.liquorTaxAmount ?? 0);
 
-                setPrinterValue("remote1", x.remote1);
-                setPrinterValue("remote2", x.remote2);
-                setPrinterValue("remote3", x.remote3);
-                setPrinterValue("remote4", x.remote4);
-                setPrinterValue("remote5", x.remote5);
-                setPrinterValue("remote6", x.remote6);
+                for (let i = 1; i <= 6; i++) setSelectValue("remote" + i, x["remote" + i]);
 
-                document.getElementById("avalibility").checked = x.avalibility === true;
-                document.getElementById("taxable").checked = x.taxable === true;
-                document.getElementById("useModifiers").checked = x.useModifiers === true;
-                document.getElementById("modifiersAreOptional").checked = x.modifiersAreOptional === true;
-                document.getElementById("openPrice").checked = x.openPrice === true;
-                document.getElementById("quickPick").checked = x.quickPick === true;
-                document.getElementById("quickButton").checked = x.quickButton === true;
-                document.getElementById("onLine").checked = x.onLine === true;
+                chk("avalibility", x.avalibility);
+                chk("taxable", x.taxable);
+                chk("useModifiers", x.useModifiers);
+                chk("modifiersAreOptional", x.modifiersAreOptional);
+                chk("openPrice", x.openPrice);
+                chk("quickPick", x.quickPick);
+                chk("quickButton", x.quickButton);
+                chk("onLine", x.onLine);
+
+                chk("timedPrice", x.timedPrice);
+                chk("minMaxChoices", x.minMaxChoices);
+
+                for (let i = 1; i <= 5; i++) {
+                    setSelectValue("timeEvent" + i, x["timeEvent" + i]);
+                    val("timePrice" + i, x["timePrice" + i] ?? 0);
+                }
+for (let i = 1; i <= 6; i++) {
+                    setSelectValue("modifier" + i, x["modifier" + i]);
+                   chk("modifierOption" + i, (x["modifierOption" + i] ?? 0) == 1);
+                    val("modifierMin" + i, x["modifierMin" + i] ?? 0);
+                    val("modifierMax" + i, x["modifierMax" + i] ?? 0);
+                }
+
+                chk("priceLevels", x.priceLevels);
+                chk("priceLock", x.priceLock);
+                for (let i = 1; i <= 5; i++) {
+                    val("price" + i, x["price" + i] ?? 0);
+                    setSelectValue("shiftEvent" + i, x["shiftEvent" + i]);
+                    val("shiftPrice" + i, x["shiftPrice" + i] ?? 0);
+                    val("shiftPLU" + i, x["shiftPLU" + i] ?? 0);
+                    setSelectValue("shiftMod" + i, x["shiftMod" + i]);
+                    val("eModShift" + i, x["eModShift" + i] ?? 0);
+                    val("pModShift" + i, x["pModShift" + i] ?? 0);
+                }
 
                 document.getElementById("status").innerText = "Editing existing item";
             });
     }
 
-    function setPrinterValue(id, value) {
-        const ddl = document.getElementById(id);
-        const val = value || "";
-
-        if (val && !Array.from(ddl.options).some(o => o.value === val)) {
-            ddl.add(new Option(val, val));
-        }
-
-        ddl.value = val;
-    }
-
     function newItem() {
         isNewItem = true;
 
-        document.getElementById("menuItemSelect").value = "";
-        document.getElementById("originalMenuItemName").value = "";
-        document.getElementById("menuItemName").value = "";
-        document.getElementById("departmentName").value = "";
-        document.getElementById("reportCategory").value = "";
+        val("menuItemSelect", "");
+        val("originalMenuItemName", "");
+        val("menuItemName", "");
+        val("departmentName", "");
+        val("reportCategory", "");
 
-        document.getElementById("regularPrice").value = "0.00";
-        document.getElementById("inventoryAmount").value = "0";
-        document.getElementById("productCost").value = "0.00";
-        document.getElementById("upCharge").value = "0.00";
+        val("regularPrice", "0.00");
+        val("inventoryAmount", "0");
+        val("productCost", "0.00");
+        val("upCharge", "0.00");
+        val("barCode", "");
+        val("itemInfo", "");
 
-        document.getElementById("barCode").value = "";
-        document.getElementById("itemInfo").value = "";
+        val("salesTaxTable", "0");
+        val("specialTaxTable", "0");
+        val("liquorTaxAmount", "0");
 
-        document.getElementById("salesTaxTable").value = "0";
-        document.getElementById("specialTaxTable").value = "0";
-        document.getElementById("liquorTaxAmount").value = "0";
+        for (let i = 1; i <= 6; i++) val("remote" + i, "");
 
-        ["remote1", "remote2", "remote3", "remote4", "remote5", "remote6"].forEach(id => {
-            document.getElementById(id).value = "";
-        });
+        chk("avalibility", true);
+        chk("taxable", true);
+        chk("useModifiers", false);
+        chk("modifiersAreOptional", false);
+        chk("openPrice", false);
+        chk("quickPick", false);
+        chk("quickButton", false);
+        chk("onLine", false);
+        chk("timedPrice", false);
+        chk("minMaxChoices", false);
 
-        document.getElementById("avalibility").checked = true;
-        document.getElementById("taxable").checked = true;
-        document.getElementById("useModifiers").checked = false;
-        document.getElementById("modifiersAreOptional").checked = false;
-        document.getElementById("openPrice").checked = false;
-        document.getElementById("quickPick").checked = false;
-        document.getElementById("quickButton").checked = false;
-        document.getElementById("onLine").checked = false;
+        for (let i = 1; i <= 5; i++) {
+            val("timeEvent" + i, "");
+            val("timePrice" + i, "0.00");
+        }
+
+        for (let i = 1; i <= 6; i++) {
+            val("modifier" + i, "");
+           chk("modifierOption" + i, false);
+            val("modifierMin" + i, "0");
+            val("modifierMax" + i, "0");
+        }
+        const modifierGroupStart = document.getElementById("modifierGroupStart");
+        if (modifierGroupStart) modifierGroupStart.value = "1";
+
+        chk("priceLevels", false);
+        chk("priceLock", false);
+        for (let i = 1; i <= 5; i++) {
+            val("price" + i, "0.00");
+            val("shiftEvent" + i, "");
+            val("shiftPrice" + i, "0.00");
+            val("shiftPLU" + i, "0");
+            val("shiftMod" + i, "");
+            val("eModShift" + i, "0");
+            val("pModShift" + i, "0");
+        }
 
         document.getElementById("status").innerText = "Adding new menu item";
     }
@@ -296,40 +629,127 @@
         }
 
         const model = {
-            isNewItem: isNewItem,
+            isNewItem,
             menuItemName: name,
-            originalMenuItemName: document.getElementById("originalMenuItemName").value,
+            originalMenuItemName: get("originalMenuItemName"),
 
-            departmentName: document.getElementById("departmentName").value,
-            reportCategory: document.getElementById("reportCategory").value,
+            departmentName: get("departmentName"),
+            reportCategory: get("reportCategory"),
 
-            regularPrice: parseFloat(document.getElementById("regularPrice").value || 0),
-            inventoryAmount: parseFloat(document.getElementById("inventoryAmount").value || 0),
-            productCost: parseFloat(document.getElementById("productCost").value || 0),
-            upCharge: parseFloat(document.getElementById("upCharge").value || 0),
+            regularPrice: dec("regularPrice"),
+            inventoryAmount: dec("inventoryAmount"),
+            productCost: dec("productCost"),
+            upCharge: dec("upCharge"),
 
-            barCode: document.getElementById("barCode").value,
-            itemInfo: document.getElementById("itemInfo").value,
+            barCode: get("barCode"),
+            itemInfo: get("itemInfo"),
 
-            salesTaxTable: parseInt(document.getElementById("salesTaxTable").value || 0),
-            specialTaxTable: parseInt(document.getElementById("specialTaxTable").value || 0),
-            liquorTaxAmount: parseInt(document.getElementById("liquorTaxAmount").value || 0),
+            salesTaxTable: num("salesTaxTable"),
+            specialTaxTable: num("specialTaxTable"),
+            liquorTaxAmount: dec("liquorTaxAmount"),
 
-            remote1: document.getElementById("remote1").value,
-            remote2: document.getElementById("remote2").value,
-            remote3: document.getElementById("remote3").value,
-            remote4: document.getElementById("remote4").value,
-            remote5: document.getElementById("remote5").value,
-            remote6: document.getElementById("remote6").value,
+            remote1: get("remote1"),
+            remote2: get("remote2"),
+            remote3: get("remote3"),
+            remote4: get("remote4"),
+            remote5: get("remote5"),
+            remote6: get("remote6"),
 
-            avalibility: document.getElementById("avalibility").checked,
-            taxable: document.getElementById("taxable").checked,
-            useModifiers: document.getElementById("useModifiers").checked,
-            modifiersAreOptional: document.getElementById("modifiersAreOptional").checked,
-            openPrice: document.getElementById("openPrice").checked,
-            quickPick: document.getElementById("quickPick").checked,
-            quickButton: document.getElementById("quickButton").checked,
-            onLine: document.getElementById("onLine").checked
+            avalibility: checked("avalibility"),
+            taxable: checked("taxable"),
+            useModifiers: checked("useModifiers"),
+            modifiersAreOptional: checked("modifiersAreOptional"),
+            openPrice: checked("openPrice"),
+            quickPick: checked("quickPick"),
+            quickButton: checked("quickButton"),
+            onLine: checked("onLine"),
+
+            timedPrice: checked("timedPrice"),
+            minMaxChoices: checked("minMaxChoices"),
+
+            timeEvent1: get("timeEvent1"),
+            timeEvent2: get("timeEvent2"),
+            timeEvent3: get("timeEvent3"),
+            timeEvent4: get("timeEvent4"),
+            timeEvent5: get("timeEvent5"),
+
+            timePrice1: dec("timePrice1"),
+            timePrice2: dec("timePrice2"),
+            timePrice3: dec("timePrice3"),
+            timePrice4: dec("timePrice4"),
+            timePrice5: dec("timePrice5"),
+
+            modifier1: get("modifier1"),
+            modifier2: get("modifier2"),
+            modifier3: get("modifier3"),
+            modifier4: get("modifier4"),
+            modifier5: get("modifier5"),
+            modifier6: get("modifier6"),
+
+            modifierOption1: checked("modifierOption1") ? 1 : 0,
+            modifierOption2: checked("modifierOption2") ? 1 : 0,
+            modifierOption3: checked("modifierOption3") ? 1 : 0,
+            modifierOption4: checked("modifierOption4") ? 1 : 0,
+            modifierOption5: checked("modifierOption5") ? 1 : 0,    
+           modifierOption6: checked("modifierOption6") ? 1 : 0,
+
+            modifierMin1: num("modifierMin1"),
+            modifierMin2: num("modifierMin2"),
+            modifierMin3: num("modifierMin3"),
+            modifierMin4: num("modifierMin4"),
+            modifierMin5: num("modifierMin5"),
+            modifierMin6: num("modifierMin6"),
+
+            modifierMax1: num("modifierMax1"),
+            modifierMax2: num("modifierMax2"),
+            modifierMax3: num("modifierMax3"),
+            modifierMax4: num("modifierMax4"),
+            modifierMax5: num("modifierMax5"),
+            modifierMax6: num("modifierMax6"),
+
+            priceLevels: checked("priceLevels"),
+            priceLock: checked("priceLock"),
+            price1: dec("price1"),
+            price2: dec("price2"),
+            price3: dec("price3"),
+            price4: dec("price4"),
+            price5: dec("price5"),
+
+            shiftEvent1: get("shiftEvent1"),
+            shiftEvent2: get("shiftEvent2"),
+            shiftEvent3: get("shiftEvent3"),
+            shiftEvent4: get("shiftEvent4"),
+            shiftEvent5: get("shiftEvent5"),
+
+            shiftPrice1: dec("shiftPrice1"),
+            shiftPrice2: dec("shiftPrice2"),
+            shiftPrice3: dec("shiftPrice3"),
+            shiftPrice4: dec("shiftPrice4"),
+            shiftPrice5: dec("shiftPrice5"),
+
+            shiftMod1: get("shiftMod1"),
+            shiftMod2: get("shiftMod2"),
+            shiftMod3: get("shiftMod3"),
+            shiftMod4: get("shiftMod4"),
+            shiftMod5: get("shiftMod5"),
+
+            eModShift1: num("eModShift1"),
+            eModShift2: num("eModShift2"),
+            eModShift3: num("eModShift3"),
+            eModShift4: num("eModShift4"),
+            eModShift5: num("eModShift5"),
+
+            pModShift1: num("pModShift1"),
+            pModShift2: num("pModShift2"),
+            pModShift3: num("pModShift3"),
+            pModShift4: num("pModShift4"),
+            pModShift5: num("pModShift5"),
+
+            shiftPLU1: num("shiftPLU1"),
+            shiftPLU2: num("shiftPLU2"),
+            shiftPLU3: num("shiftPLU3"),
+            shiftPLU4: num("shiftPLU4"),
+            shiftPLU5: num("shiftPLU5")
         };
 
         fetch('/MenuItem/SaveMenuItem', {
@@ -337,17 +757,52 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(model)
         })
-        .then(r => r.json())
-        .then(x => {
-            alert(x.message || "Saved");
+            .then(r => r.json())
+            .then(x => {
+                alert(x.message || "Saved");
 
-            if (x.success === true) {
-                isNewItem = false;
-                document.getElementById("originalMenuItemName").value = name;
-                document.getElementById("status").innerText = "Saved";
-                loadMenuItems();
-            }
-        })
-        .catch(err => alert("Save failed: " + err.message));
+                if (x.success === true) {
+                    isNewItem = false;
+                    val("originalMenuItemName", name);
+                    document.getElementById("status").innerText = "Saved";
+                    loadMenuItems();
+                }
+            })
+            .catch(err => alert("Save failed: " + err.message));
+    }
+
+    function val(id, value) {
+        document.getElementById(id).value = value ?? "";
+    }
+
+    function get(id) {
+        return document.getElementById(id).value;
+    }
+
+    function checked(id) {
+        return document.getElementById(id).checked;
+    }
+
+    function chk(id, value) {
+        document.getElementById(id).checked = value === true;
+    }
+
+    function num(id) {
+        return parseInt(document.getElementById(id).value || 0);
+    }
+
+    function dec(id) {
+        return parseFloat(document.getElementById(id).value || 0);
+    }
+
+    function setSelectValue(id, value) {
+        const ddl = document.getElementById(id);
+        const v = value || "";
+
+        if (v && !Array.from(ddl.options).some(o => o.value === v)) {
+            ddl.add(new Option(v, v));
+        }
+
+        ddl.value = v;
     }
 </script>

@@ -1,0 +1,16 @@
+datepart() lines - fix by hand (Jet quoted-interval + arg order):
+  datepart('ww', cdate([d]),2,2) -> DATEPART(ISO_WEEK, TRY_CAST([d] AS date))
+  datepart('h',  [t])            -> DATEPART(hour,     TRY_CAST([t] AS time))
+  datepart('w',  cdate([d]))     -> DATEPART(weekday,  TRY_CAST([d] AS date))
+  (m->month, q->quarter, yyyy->year, d->day) ; drop the trailing numeric args.
+
+Display.frm:4689: Sql = Sql & " and datepart('ww', cdate([date]),2,2) = " & DatePart("ww", InDate, vbMonday, vbFirstFourDays)
+Display.frm:4690: Sql = Sql & " and datepart('w',cdate([date]),2,2) = " & DatePart("w", InDate, vbMonday, vbFirstFourDays)
+Display.frm:4721: Sql = Sql & " and datepart('ww', cdate([date]),2,2) = " & DatePart("ww", InDate, vbMonday, vbFirstFourDays)
+Display.frm:4722: Sql = Sql & " and datepart('w',cdate([date]),2,2) = " & DatePart("w", InDate, vbMonday, vbFirstFourDays)
+Display.frm:6764: Sql = "Select * from [Sales] Where datepart('ww',cdate([date])," & WeekStartsOn & ", 3) = " & Scroll & " and year([date]) = " & wYear & " order by cdate([date]) desc"
+Display.frm:6981: Sql = "Select * from [Sales] Where datepart('ww',cdate([date])," & WeekStartsOn & ",3) = " & DatePart("ww", CDate(Compare.TextMatrix(0, 1)) + SearchSpan, WeekStartsOn, 3) & " and year([date]) = '" & wYear & "'"
+Display.frm:6989: Sql = "Select * from [Sales] Where datepart('ww',cdate([date])," & WeekStartsOn & ",1) = " & DatePart("ww", CDate(Compare.TextMatrix(0, 2)), WeekStartsOn, 3) & " and year([date]) = '" & wYear & "'"
+Subs.bas:7386: Sql = "Select datepart('h',[Time]),[Payment Type],Sum([Payment Amount]) as sales, Count([Payment Type]) as Sold "
+Subs.bas:7391: Sql = Sql & " Group by datepart('h',[Time]),[Payment Type]"
+Subs.bas:7392: Sql = Sql & " order by datepart('h',[Time]) asc "

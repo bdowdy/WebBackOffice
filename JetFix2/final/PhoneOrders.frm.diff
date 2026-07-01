@@ -1,0 +1,11 @@
+--- PhoneOrders.frm
++++ PhoneOrders.frm (final)
+@@ -10273,7 +10273,7 @@
+ Else
+  Sql = "Select * from [Open Checks] where [presented] = 0 " 'and TRY_CAST([Pick Up date] AS date) = '" & Date & "'"
+ End If
+-'Sql = Sql & " Order by cast(([Pick Up date] + [Pick Up Time]) as datetime) asc"
++'Sql = Sql & " Order by TRY_CAST(([Pick Up date] + [Pick Up Time]) AS datetime) asc"
+ Set Tb = GRS.ReturnRecordset(Sql, ReturnAdoConnection(SvrPath.TerminalPath & CallInOrderDb), "Open Checks")
+ If Not Tb Is Nothing Then
+   If Not Tb.BOF Then Tb.MoveFirst

@@ -1,0 +1,558 @@
+Lines still needing a manual T-SQL rewrite: 554
+(mostly BETWEEN #start+time# AND #end+time# ranges, datepart(), and the
+ Format(...,'MM/DD/YYYY')-inside-# cases. Use JetToSqlServer_Remediation.md.)
+
+Assign_Name.frm:7809: Sql = Sql & " cast([Date] as datetime) between '" & CDate(SearchDates.Item(1).StartDate) & "' and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+Assign_Name.frm:7927: Sql = Sql & " and cast([Check Date] as datetime) between '" & CDate(SearchDates.Item(1).StartDate) & "' and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+Assign_Name.frm:8179: Sql = Sql & " and Cast([date] as datetime) Between '01/01/2000' and '" & CDate(SearchDates.Item(1).StartDate) & "'"
+Assign_Name.frm:8205: If CDate(SearchDates.Item(1).StartDate) > CDate(StartDate.Value) Then
+Assign_Name.frm:8771: AExpiration.Text = CDate(AExpiration.Text) + DateDiff("d", Now, CDate(aExpDate))
+Assign_Name.frm:8885: If CDate(SearchDates.Item(1).StartDate) > CDate(StartDate.Value) Then
+Assign_Name.frm:9426: If CDate(SearchDates.Item(1).StartDate) > CDate(StartDate.Value) Then
+Assign_Name.frm:9648: ' If CDate(SearchDates.Item(1).StartDate) > CDate(StartDate.Value) Then
+Assign_Name.frm:9662: Sql = Sql & " and Cast([Check date] as datetime) Between '01/01/2000' and '" & CDate(SearchDates.Item(1).StartDate) & "'"
+Assign_Name.frm:9664: Sql = Sql & " Where Cast([Check date] as datetime) Between '01/01/2000' and '" & CDate(SearchDates.Item(1).StartDate) & "'"
+Assign_Name.frm:9671: Sql = Sql & " and Cast([Check date] as datetime) Between '01/01/2000' and '" & CDate(SearchDates.Item(1).StartDate) & "'"
+Assign_Name.frm:9949: If CDate(vRc![Account Expires On] & "") < Date Then
+Assign_Name.frm:10382: Sql = Sql & " and Cast([Check date] as datetime) Between '01/01/2000' and '" & CDate(DDate) & "'"
+Assign_Name.frm:10387: Sql = Sql & " and Cast([Check date] as datetime) Between '01/01/2000' and '" & CDate(DDate) & "'"
+Assign_Name.frm:10391: Sql = Sql & " and Cast([date] as datetime) Between '01/01/2000' and '" & CDate(DDate) & "'"
+Assign_Name.frm:10394: Sql = Sql & " and Cast([date] as datetime) Between '01/01/2000' and '" & CDate(DDate) & "'"
+AuditDeposit.frm:462: Sql = "Select * from [Audits]" 'Where cdate([Start Date]) + Cdate([start time]) Between #" & CDate(Adate) & " " & GetStartTime & "#"
+AuditDeposit.frm:561: Sql = Sql & " and cdate([Start Time]) = # " & CDate(.TextMatrix(R, 1)) & "#"
+Call_In_Order.frm:7743: CallorderInfo = "Deliver By " & Format(CDate(CNeeded.Text), "hh:mm ampm")
+Call_In_Order.frm:7755: If CDate(CPICKUPDate.Text) <> Format(Date, "MM/DD/YYYY") Then
+Call_In_Order.frm:8059: 'Answer(Val(PhoneRing(showlines).Line) - 1).TextDescrLM.Text = "Line #" & showlines
+Closing_Report.frm:3519: Display.DSRBalanceSheet CStr(CDate(CloseDate)), CStr(CDate(CloseDate)), SendEmails(5).Send, DoReports(9)
+Closing_Report.frm:3522: Display.DailySummary CStr(CDate(CloseDate)), SendEmails(4).Send, DoReports(9)
+Closing_Report.frm:3677: DOW = GetDateToNo(CDate(Tb.fields("Order Date").Value))
+Closing_Report.frm:3772: Sql = Sql & " Where cast([Date] as datetime) < '" & CDate(Date) & "'"
+Closing_Report.frm:3912: Sql = Sql & " AND cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(ClosingDate) & " " & GetStartTime & "'"
+Closing_Report.frm:3913: Sql = Sql & " and '" & SetEndingDate(CDate(ClosingDate)) & " " & SetEndingTime & "'"
+Closing_Report.frm:4499: GetOrderHistory CStr(CDate(CloseDate) + 1), CStr(CDate(CloseDate) + 1)
+Closing_Report.frm:4554: Display.DSRBalanceSheet CStr(CDate(CloseDate)), CStr(CDate(CloseDate)), SendEmails(5).Send, DoReports(9)
+Closing_Report.frm:4558: Display.DailySummary CStr(CDate(CloseDate)), SendEmails(4).Send, DoReports(9)
+Closing_Report.frm:4619: Sql = Sql & " Set [Day of Charge] = " & DatePart("d", CDate(ClosingDate), WeekStartsOn, vbFirstJan1)
+DatePicker.frm:810: If CDate(StartingDate.Text) > CDate(EndingDate.Text) Then
+Display.frm:2239: Sql = Sql & " Where cast([Date] as datetime) Between '" & CDate(InDate & " " & GetStartTime) & "'"
+Display.frm:2240: Sql = Sql & " and '" & CDate(SetEndingDate(EDate) & " " & SetEndingTime) & "'"
+Display.frm:2421: Sql = "Delete from [Deposits] where cdate([Date]) = '" & CDate(SearchDate) & "'"
+Display.frm:2423: Sql = "Select * from [Deposits] where cdate([Date]) = '" & CDate(SearchDate) & "'"
+Display.frm:2436: Sql = "Update [Sales] Set [Deposits] = " & Format(Val(DTotal), "0.00") & " where cdate([Date]) = #" & Format(CDate(SearchDate), "MM/DD/YYYY") & "#"
+Display.frm:2440: Sql = "Select * from [Sales] where cdate([Date]) = '" & CDate(SearchDate) & "'"
+Display.frm:2568: Sql = "Select * from [Discounts] Where cdate([Date]) = '" & CDate(Trim(PrintDate)) & "'"
+Display.frm:2615: Sql = "Select * from [Deposits] Where cdate([Date]) = '" & CDate(Trim(PrintDate)) & "'"
+Display.frm:2817: Sql = "Select * from [Order Destination] Where cdate([Date]) = '" & CDate(Trim(PrintDate)) & "'"
+Display.frm:2883: Sql = Sql & " Where cdate([Date]) Between #" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "#"
+Display.frm:2884: Sql = Sql & " and #" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "#"
+Display.frm:2944: Sql = Sql & " Where  cast([Date] as date) Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
+Display.frm:2945: Sql = Sql & " and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+Display.frm:3209: Sql = "Select * from [AuditSales] Where cast([Date] as date) Between '" & StartDate & "' and '" & DateAdd("d", 1, CDate(StartDate)) & "'"
+Display.frm:3222: If Not IsDate(CDate(Input_Option(84))) Then Input_Option(84) = "04:00 AM"  '// end of business day  -- default is 4:00 am
+Display.frm:3223: If CDate(DateAdd("d", 1, CDate(StartDate)) & " " & CDate(Input_Option(84))) < CDate(DateAdd("d", 1, CDate(StartDate)) & " " & ETime) Then
+Display.frm:3226: SqlBetweenStatment = "Between '" & CDate(StartDate & " " & STime) & "' and '" & CDate(DateAdd("d", 1, CDate(StartDate))) & " " & BusDayEndsAt & "'"
+Display.frm:3227: AccessBetweenStatment = "Between '" & CDate(StartDate & " " & STime) & "' and '" & CDate(DateAdd("d", 1, CDate(StartDate))) & " " & BusDayEndsAt & "'"
+Display.frm:3356: Sql = Sql & "CAST([Date] AS DATETIME) BETWEEN '" & Format(CDate(SDate & " " & GetStartTime), "yyyy-mm-dd hh:nn:ss") & "' "
+Display.frm:3357: Sql = Sql & "AND '" & Format(CDate(SetEndingDate(EDate) & " " & SetEndingTime), "yyyy-mm-dd hh:nn:ss") & "' "
+Display.frm:3375: Sql = Sql & " Where cast([Date] as datetime) Between '" & CDate(SDate & " " & GetStartTime) & "'"
+Display.frm:3376: Sql = Sql & " and '" & CDate(SetEndingDate(EDate) & " " & SetEndingTime) & "'"
+Display.frm:3576: If CDate(InDate) = CDate(EDate) Then
+Display.frm:3604: Sql = Sql & " Where [Date] Between '" & CDate(InDate & " " & GetStartTime) & "'"
+Display.frm:3605: Sql = Sql & " and '" & CDate(SetEndingDate(EDate) & " " & SetEndingTime) & "'"
+Display.frm:3658: Sql = Sql & " and cdate([Date]) Between #" & CDate(InDate & " " & GetStartTime) & "#"
+Display.frm:3659: Sql = Sql & " and #" & CDate(SetEndingDate(EDate) & " " & SetEndingTime) & "#"
+Display.frm:3685: Sql = Sql & " Where cdate([Date]) Between #" & CDate(InDate & " " & GetStartTime) & "#"
+Display.frm:3686: Sql = Sql & " and #" & CDate(SetEndingDate(EDate) & " " & SetEndingTime) & "#"
+Display.frm:3750: Sql = Sql & " and cdate([Date]) Between #" & CDate(InDate & " " & GetStartTime) & "#"
+Display.frm:3751: Sql = Sql & " and #" & CDate(SetEndingDate(EDate) & " " & SetEndingTime) & "#"
+Display.frm:3815: Sql = Sql & " and '" & CDate(EDate) & "'"
+Display.frm:3878: Sql = Sql & " and '" & CDate(EDate) & "'"
+Display.frm:4007: Sql = Sql & " Where cast([Date] as datetime) Between '" & CDate(InDate & " " & GetStartTime) & "'"
+Display.frm:4008: Sql = Sql & " and '" & CDate(SetEndingDate(EDate) & " " & SetEndingTime) & "'"
+Display.frm:4542: LastYear = CDate(InDate) - 365
+Display.frm:4673: Sql = "Select * from [Hourly Sales] Where cdate([Date]) = #" & Format(InDate, "MM/DD/YYYY") & "#"
+Display.frm:4689: Sql = Sql & " and datepart('ww', cdate([date]),2,2) = " & DatePart("ww", InDate, vbMonday, vbFirstFourDays)
+Display.frm:4690: Sql = Sql & " and datepart('w',cdate([date]),2,2) = " & DatePart("w", InDate, vbMonday, vbFirstFourDays)
+Display.frm:4691: Sql = Sql & " and format([Hour],'HH:MM ampm') = '" & Format(RS![Hour] & "", "HH:MM ampm") & "'"
+Display.frm:4721: Sql = Sql & " and datepart('ww', cdate([date]),2,2) = " & DatePart("ww", InDate, vbMonday, vbFirstFourDays)
+Display.frm:4722: Sql = Sql & " and datepart('w',cdate([date]),2,2) = " & DatePart("w", InDate, vbMonday, vbFirstFourDays)
+Display.frm:4723: Sql = Sql & " and format([Hour],'HH:MM ampm') = '" & Format(RS![Hour] & "", "HH:MM ampm") & "'"
+Display.frm:5104: HrsUse = DateDiff("n", CDate(PRTb![Shift date]) & " " & PRTb![Time In], CDate(PRTb![Punch out Date]) & " " & CDate(EndTime))
+Display.frm:5107: MinsWorked = DateDiff("n", CDate(SDate) & " " & CDate(CStr(CountHrs - 1) & ":00"), CDate(PRTb![Punch out Date] & " " & CDate(EndTime)))
+Display.frm:5253: Sql = Sql & " Where [Item Price] < 0 and cdate([Date]) Between #" & CDate(SearchDates.Item(1).StartDate + " " + GetStartTime) & "#"
+Display.frm:5254: Sql = Sql & " and #" & SetEndingDate(SearchDates.Item(1).EndDate) + " " + SetEndingTime & "#"
+Display.frm:5308: Sql = Sql & " Where [Item Price] < 0 and cdate([Date]) Between #" & CDate(SearchDates.Item(1).StartDate + " " + GetStartTime) & "#"
+Display.frm:5309: Sql = Sql & " and #" & SetEndingDate(SearchDates.Item(1).EndDate) + " " + SetEndingTime & "#"
+Display.frm:5758: Scroll = DatePart("WW", CDate(HistoryDate.Text), WeekStartsOn, vbFirstFullWeek)
+Display.frm:5795: Sql = Sql & " Where Cast([date] as datetime) Between '" & CDate(StartDate & " " & GetStartTime()) & "'"
+Display.frm:5796: Sql = Sql & " and '" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime()) & "'"
+Display.frm:5927: Scroll = DatePart("WW", CDate(HistoryDate.Text), WeekStartsOn, vbFirstFullWeek)
+Display.frm:6200: Sql = Sql & " Where cdate([Date]) Between #" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "#"
+Display.frm:6201: Sql = Sql & " and #" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "#"
+Display.frm:6264: StoreDetail DatePart("w", CDate(ShowEdit.TextMatrix(0, ShowEdit.Col))), False
+Display.frm:6387: Sql = Sql & " Where [Department Name] <> 'Gratuity' and Cdate([Date]) Between #" & CDate(SearchDates.Item(1).StartDate) & " " & GetStartTime & "#"
+Display.frm:6388: Sql = Sql & " and #" & CDate(SetEndingDate(SearchDates.Item(1).EndDate)) & " " & SetEndingTime & "#"
+Display.frm:6394: Sql = Sql & " Where [Department Name] <> 'Gratuity' and Cdate([Date]) Between #" & CDate(SearchDates.Item(1).StartDate) & " " & GetStartTime & "#"
+Display.frm:6395: Sql = Sql & " and #" & CDate(SetEndingDate(SearchDates.Item(1).EndDate)) & " " & SetEndingTime & "#"
+Display.frm:6401: Sql = Sql & " Where [Department Name] <> 'Gratuity' and Cdate([Date]) Between #" & CDate(SearchDates.Item(1).StartDate) & " " & GetStartTime & "#"
+Display.frm:6402: Sql = Sql & " and #" & CDate(SetEndingDate(SearchDates.Item(1).EndDate)) & " " & SetEndingTime & "#"
+Display.frm:6689: Sql = Sql & " Where cast([Date] as date) Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
+Display.frm:6690: Sql = Sql & " and '" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "'"
+Display.frm:6743: MyDate = CDate(SummarySheet.TextMatrix(0, 1)) + 7
+Display.frm:6745: MyDate = CDate(SummarySheet.TextMatrix(0, 1)) - 7
+Display.frm:6764: Sql = "Select * from [Sales] Where datepart('ww',cdate([date])," & WeekStartsOn & ", 3) = " & Scroll & " and year([date]) = " & wYear & " order by cdate([date]) desc"
+Display.frm:6772: NODays = 7 - WeekDay(CDate(MyDate), WeekStartsOn)
+Display.frm:6828: If RS![Date] & "" > "" And CDate(StartingDate) <= CDate(RS![Date]) Then
+Display.frm:6830: SummarySheet.Cell(flexcpForeColor, 0, WeekDay(CDate(RS![Date]), WeekStartsOn), 0, WeekDay(CDate(RS![Date]), WeekStartsOn)) = vbRed
+Display.frm:6832: SummarySheet.Cell(flexcpForeColor, 0, WeekDay(CDate(RS![Date]), WeekStartsOn), 0, WeekDay(CDate(RS![Date]), WeekStartsOn)) = vbBlack
+Display.frm:6834: SummarySheet.TextMatrix(0, WeekDay(CDate(RS![Date]), WeekStartsOn)) = Format(RS![Date], "  mm/dd/yy")
+Display.frm:6835: DayInfo(0, WeekDay(CDate(RS![Date]), WeekStartsOn)) = CStr(Val(Check_Null(RS![Gross Sales])))
+Display.frm:6836: DayInfo(1, WeekDay(CDate(RS![Date]), WeekStartsOn)) = CStr(Val(Check_Null(RS![Net Sales])))
+Display.frm:6838: DayInfo(2, WeekDay(CDate(RS![Date]), WeekStartsOn)) = CStr(Val(Check_Null(RS![Sales Tax])))
+Display.frm:6839: DayInfo(3, WeekDay(CDate(RS![Date]), WeekStartsOn)) = CStr(Val(Check_Null(RS![Special Tax])))
+Display.frm:6840: DayInfo(4, WeekDay(CDate(RS![Date]), WeekStartsOn)) = CStr(Val(Check_Null(RS![Liquor Tax])))
+Display.frm:6841: DayInfo(5, WeekDay(CDate(RS![Date]), WeekStartsOn)) = CStr(Val(Check_Null(RS![Voids])))
+Display.frm:6842: DayInfo(6, WeekDay(CDate(RS![Date]), WeekStartsOn)) = CStr(Val(Check_Null(RS![Discounts])))
+Display.frm:6844: 'DayInfo(7, WeekDay(CDate(RS![Date]), WeekStartsOn)) = Non_CashTenders(pDb, RS.fields("Date").Value, RS.fields("Date").Value)
+Display.frm:6845: DayInfo(7, WeekDay(CDate(RS![Date]), WeekStartsOn)) = CStr(Val(Check_Null(RS![Tenders])))
+Display.frm:6846: DayInfo(8, WeekDay(CDate(RS![Date]), WeekStartsOn)) = CStr(Val(Check_Null(RS![Paid Outs])))
+Display.frm:6847: DayInfo(9, WeekDay(CDate(RS![Date]), WeekStartsOn)) = CStr(Val(Check_Null(RS![Deposits])))
+Display.frm:6848: DayInfo(10, WeekDay(CDate(RS![Date]), WeekStartsOn)) = CStr(Val(Check_Null(RS![None Taxed Sales])))
+Display.frm:6850: DayInfo(25, WeekDay(CDate(RS![Date]), WeekStartsOn)) = GetTipwitheld(RS![Date])
+Display.frm:6852: DayInfo(25, WeekDay(CDate(RS![Date]), WeekStartsOn)) = 0
+Display.frm:6856: DayInfo(12, WeekDay(CDate(RS![Date]), WeekStartsOn)) = Val(Check_Null(RS![Tenders])) + Val(Check_Null(RS![Paid Outs])) + Val(Check_Null(RS![Deposits])) - (Val(RS![Deposits Collected] & "") + Val(RS![House Charges] & "") + Val(RS![Tip Charge Back] & ""))
+Display.frm:6857: DayInfo(11, WeekDay(CDate(RS![Date]), WeekStartsOn)) = Val(Check_Null(RS![Net Sales])) + Val(Check_Null(RS![Sales Tax])) + Val(Check_Null(RS![Special Tax])) + Val(Check_Null(RS![Liquor Tax])) + OverSales
+Display.frm:6861: DayInfo(13, WeekDay(CDate(RS![Date]), WeekStartsOn)) = (Val(DayInfo(12, WeekDay(CDate(RS![Date]), WeekStartsOn))) - (Val(DayInfo(11, WeekDay(CDate(RS![Date]), WeekStartsOn))) + DayInfo(25, WeekDay(CDate(RS![Date]), WeekStartsOn)))) '- OverSales
+Display.frm:6862: DayInfo(14, WeekDay(CDate(RS![Date]), WeekStartsOn)) = CStr(Val(Check_Null(RS![Labor Dollars])))
+Display.frm:6866: DayInfo(15, WeekDay(CDate(RS![Date]), WeekStartsOn)) = CStr(Val(Check_Null(RS![Labor Hours])))
+Display.frm:6867: DayInfo(16, WeekDay(CDate(RS![Date]), WeekStartsOn)) = LP
+Display.frm:6868: DayInfo(18, WeekDay(CDate(RS![Date]), WeekStartsOn)) = Val(RS![Go Sales] & "")
+Display.frm:6869: DayInfo(19, WeekDay(CDate(RS![Date]), WeekStartsOn)) = Val(RS![Call In Sales] & "")
+Display.frm:6870: DayInfo(20, WeekDay(CDate(RS![Date]), WeekStartsOn)) = Val(RS![Drive Thru Sales] & "")
+Display.frm:6871: DayInfo(21, WeekDay(CDate(RS![Date]), WeekStartsOn)) = OverSales   'Val(Rs![Exempt Sales] & "")
+Display.frm:6872: DayInfo(22, WeekDay(CDate(RS![Date]), WeekStartsOn)) = Val(RS![Tip Charge Back] & "")
+Display.frm:6873: DayInfo(23, WeekDay(CDate(RS![Date]), WeekStartsOn)) = Val(RS![Refunds] & "")
+Display.frm:6874: DayInfo(24, WeekDay(CDate(RS![Date]), WeekStartsOn)) = Val(RS![Deposits Collected] & "")
+Display.frm:6981: Sql = "Select * from [Sales] Where datepart('ww',cdate([date])," & WeekStartsOn & ",3) = " & DatePart("ww", CDate(Compare.TextMatrix(0, 1)) + SearchSpan, WeekStartsOn, 3) & " and year([date]) = '" & wYear & "'"
+Display.frm:6983: '  Sql = "Select * from [Sales] Where cdate([date]) = '" & CDate(Compare.TextMatrix(0, 1)) + SearchSpan & "' and year([date]) = '" & wYear & "' and not isnull([date])"
+Display.frm:6984: Sql = "Select * from [Sales] Where cdate([date]) = '" & CDate(Compare.TextMatrix(0, 1)) + SearchSpan & "'"
+Display.frm:6989: Sql = "Select * from [Sales] Where datepart('ww',cdate([date])," & WeekStartsOn & ",1) = " & DatePart("ww", CDate(Compare.TextMatrix(0, 2)), WeekStartsOn, 3) & " and year([date]) = '" & wYear & "'"
+Display.frm:6991: 'Sql = "Select * from [Sales] Where cdate([date]) = '" & CDate(Compare.TextMatrix(0, 2)) & "' and year([date]) = '" & wYear & "' and not isnull([date])"
+Display.frm:6992: Sql = "Select * from [Sales] Where cdate([date]) = '" & CDate(Compare.TextMatrix(0, 2)) & "'"
+Display.frm:6999: CompareDisp.Caption = Get_DayofWeek(DatePart("w", CDate(Compare.TextMatrix(0, 1)))) & " / " & Get_DayofWeek(DatePart("w", CDate(Compare.TextMatrix(0, 2))))
+Display.frm:7001: CompareDisp.Caption = Get_DayofWeek(DatePart("w", CDate(Compare.TextMatrix(0, 1)))) & " / " & Get_DayofWeek(DatePart("w", CDate(Compare.TextMatrix(0, 1)) + SearchSpan))
+Display.frm:7007: Compare.TextMatrix(0, 2) = Format(CDate(Compare.TextMatrix(0, 1)) + SearchSpan, "MM/DD/YY")
+Display.frm:7011: Compare.TextMatrix(0, 2) = Format(CDate(Compare.TextMatrix(0, 1)) + SearchSpan, "MM/DD/YY")
+Display.frm:7037: .TextMatrix(14, 2) = Val(.TextMatrix(14, 2)) + Format((Val(DayInfo(12, WeekDay(CDate(RS![Date]), WeekStartsOn))) - Val(DayInfo(11, WeekDay(CDate(RS![Date]), WeekStartsOn)))), "0.00") '- OverSales
+Display.frm:7139: Sql = "Select * from [Sales] Where cdate([Date]) = '" & CDate(MDate) & "'"
+Display.frm:7187: Sql = "Select * from [Sales] where cdate([Date]) = '" & CDate(SummarySheet.TextMatrix(0, SummarySheet.Col)) & "'"
+Display.frm:7366: Sql = "Select * from [Sales] Where cdate([Date]) = '" & CDate(MDate) & "'"
+Display.frm:7416: Sql = "Select * from [Paid Outs] where cdate([Date]) = '" & CDate(SearchDate) & "'"
+Display.frm:7455: ConnectADORS "Select * from [Order Destination] where cdate([Date]) = '" & CDate(SearchDate) & "'", Cdb, RS
+Display.frm:7491: ConnectADORS "Select * from [Labor] where cdate([Date]) = '" & CDate(SearchDate) & "'", Cdb, RS
+Display.frm:7525: ConnectADORS "Select * from [Department Sales] where cdate([Date]) = '" & CDate(SearchDate) & "'", Cdb, RS
+Display.frm:7563: ConnectADORS "Select * from [Deposits] where cdate([Date]) = '" & CDate(SearchDate) & "'", Cdb, RS
+Display.frm:7599: ConnectADORS "Select * from [Meal Periods] where cdate([Date]) = '" & CDate(SearchDate) & "'", Cdb, RS
+Display.frm:7658: ConnectADORS "Select * from [Refunds] where cdate([Date]) = '" & CDate(SearchDate) & "'", Cdb, RS
+Display.frm:7708: ConnectADORS "Select * from [Hourly Sales] where cdate([Date]) = '" & CDate(SearchDate) & "'", Cdb, RS
+Display.frm:7766: Sql = "Select [Item Name], sum([Amount]) as TotalAmt from [Voids] where [Amount] > 0 and cdate([Date]) Between #" & CDate(SearchDate) & " " & GetStartTime & "# and #" & SetEndingDate(SearchDate) & " " & SetEndingTime & "# group by [Item Name]"
+Display.frm:7812: ConnectADORS "Select * from [Discounts] where cdate([Date]) = '" & CDate(SearchDate) & "'", Cdb, RS
+Display.frm:7854: ConnectADORS "Select * from [Tenders] where cdate([Date]) = '" & CDate(SearchDate) & "'", Cdb, RS
+Drive_Thru.frm:4028: Avg_Time = Avg_Time + Val(ElapsedTime(CDate(OpenCars(Ck).Orderdate), Now))
+Drive_Thru.frm:4164: .TextMatrix(DT, 2) = ElapsedTime(CDate(OpenTime), Now)
+Drive_Thru.frm:4169: WTimer = ElapsedTime(CDate(WTime.Caption), Now)
+Drive_Thru.frm:4213: .TextMatrix(LR, 2) = ElapsedTime(CDate(OpenTime), Now)
+DriverMenu.frm:984: If CDate(StartAudit) < CDate(GetStartingTime) Then
+Financal_Reports.frm:9718: Sql = Sql & " Where cast([date] as date) Between #" & CDate(StartDate) & " " & GetStartTime & "# and #" & SetEndingDate(EndDate) & " " & SetEndingTime & "#"
+Financal_Reports.frm:9722: Sql = Sql & " Where cdate([date]) Between #" & CDate(StartDate) & " " & GetStartTime & "# and #" & SetEndingDate(EndDate) & " " & SetEndingTime & "#"
+Financal_Reports.frm:9730: Sql = Sql & " Where cdate([date]) Between #" & CDate(StartDate) & " " & GetStartTime & "# and #" & SetEndingDate(EndDate) & " " & SetEndingTime & "#"
+Financal_Reports.frm:9750: Data = Data & Format(CDate(HRS & ":00"), "H:MM ampm") & "|"
+Financal_Reports.frm:9761: Data = Data & Format(CDate(HRS & ":00"), "H:MM ampm") & "|"
+Financal_Reports.frm:11816: Display.DSRBalanceSheet CStr(CDate(BeginDate)), CStr(CDate(BeginDate) + 6), True, 0
+Financal_Reports.frm:11878: Sql = Sql & " and Cast([Check Date] as datetime) + cast([recorded time] as datetime) between '" & CDate(StartDate & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "'"
+Financal_Reports.frm:11880: Sql = Sql & " and cdate([Check Date] & ' ' & [recorded time]) between #" & CDate(StartDate & " " & GetStartTime) & "# and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+Financal_Reports.frm:12017: Sql = Sql & " and Cast([Check Date] as datetime) between '" & CDate(StartDate) & "' and '" & CDate(EndDate) & "'"
+Financal_Reports.frm:12162: Sql = Sql & " and Cast([Check Date] as datetime) between '" & CDate(StartDate) & "' and '" & CDate(EndDate) & "'"
+Financal_Reports.frm:12172: Sql = Sql & " and Cast([Check Date] as datetime) between '" & CDate(StartDate) & "' and '" & CDate(EndDate) & "'"
+Financal_Reports.frm:12314: Sql = Sql & " and cdate([Date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+Financal_Reports.frm:12315: Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+GFunctions.cls:26: Sql = Sql & " cast([time] as datetime) between '" & CDate(StartTime) & "' and '" & CDate(EndTime) & "'"
+KioskOrder.frm:9874: Do Until DateDiff("s", CDate(ScaleTimeOut), Time) > 10
+Mix.frm:5651: If CDate(SearchDates.Item(1).StartDate) = CDate(Date) Then
+Module1.bas:71: If CDate(RS![Expires]) < Date Then
+Module1.bas:105: If IsValidTime(Time, CDate(RS![Start Time]), CDate(RS![End Time]), -1) Then
+Office_Menu.frm:2512: If CDate(Tb![Check Date]) < CDate(AW(0).Text) Then
+Office_Menu.frm:2522: If CDate(Tb![Check Date]) < CDate(AW(1).Text) Then
+Office_Menu.frm:2571: If CDate(Tb![Shift date]) < CDate(APR(0).Text) Then
+Office_Menu.frm:2579: If CDate(Tb![Shift date]) < CDate(APR(1).Text) Then
+Office_Menu.frm:2615: If CDate(Tb![Date]) < CDate(ABT(0).Text) Then
+Office_Menu.frm:2623: If CDate(Tb![Date]) < CDate(ABT(1).Text) Then
+Office_Menu.frm:3105: Sql = Sql & " AND cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(BusinessDay) & " " & GetStartTime & "'"
+Office_Menu.frm:3106: Sql = Sql & " and '" & SetEndingDate(CDate(BusinessDay)) & " " & SetEndingTime & "'"
+Office_Menu.frm:3597: Sql = "Update [Wait List] Set [day] = " & GetDateToNo(CDate(Date))
+Office_Menu.frm:3694: If Hour(Time) = Hour(CDate(Input_Option(46))) Then
+Office_Menu.frm:3702: If DateDiff("n", CDate(PollingTime), Now) < 5 Then Exit Sub
+Office_Menu.frm:3705: If Format(CDate(Input_Option(46)), "HH:MM") = Format(Time, "HH:MM") Then
+PhoneOrders.frm:9527: Sql = "Select * from [Open Checks] where [Presented] = 1 and [Check Number] = " & PhoneOrderNo & " or cast([pick up date] as date) = '" & CDate(Date) & "' and [Check Number] = " & PhoneOrderNo
+PhoneOrders.frm:10075: If CDate(IsPickUpDate(AllPhoneOrders.Item(PHCheckNo).PDate, PDate)) > Date Then
+PhoneOrders.frm:10219: If AllPhoneOrders.Item(TScroll + sb).OrderType = "Delivery" Then  'Abs(DateDiff("n", CDate(Tb![Time Assigned]), Time))
+PhoneOrders.frm:10313: If CDate(AllPhoneOrders.Item(CStr(Tb![Check Number])).PDate) > Date Then
+PhoneOrders.frm:10423: AllPhoneOrders.Item(CStr(Tb![Check Number])).AssignmentTime = Abs(DateDiff("n", CDate(Tb![Time assigned]), Time))
+PhoneOrders.frm:10429: AllPhoneOrders.Item(CStr(Tb![Check Number])).OrderTakenTime = Abs(DateDiff("n", CDate(Tb![check Opened]), Tb.fields("Driver Return").Value))
+PhoneOrders.frm:10431: AllPhoneOrders.Item(CStr(Tb![Check Number])).OrderTakenTime = Abs(DateDiff("n", CDate(Tb![check Opened]), Time))
+PhoneOrders.frm:10446: ElseIf CDate(IsPickUpDate(Tb![Pick Up Date] & "", PDate)) <> Format(Date, "MM/DD/YYYY") Then
+PhoneOrders.frm:10695: If Check_Status = MyOrderStatus(CallIncheck) And CDate(.PDate) > Date Then
+Red_Book.frm:3796: Sql = Sql & " AND Cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(BusinessDay) & " " & GetStartTime & "'"
+Red_Book.frm:3797: Sql = Sql & " and '" & SetEndingDate(CDate(BusinessDay)) & " " & SetEndingTime & "'"
+Reservations.frm:1708: Sql = Sql & " and Cast([Date] as datetime) = '" & CDate(Data(0).Text) & "'"
+Reservations.frm:1848: Sql = Sql & " and Cast([Date] as datetime) = '" & CDate(Data(0).Text) & "'"
+Reservations.frm:1856: Sql = "Select * from [Reservations] Where Cast([date] as datetime) = '" & CDate(Data(0).Text) & "'"
+Reservations.frm:1887: Sql = Sql & " and Cast([Date] as datetime) = '" & CDate(Data(0).Text) & "'"
+Reservations.frm:1891: Sql = "Select * from [Reservations] Where Cast([date] as datetime) = '" & CDate(Data(0).Text) & "'"
+Reservations.frm:1938: Sql = Sql & " and Cast([Date] as datetime) = '" & CDate(Data(0).Text) & "'"
+Reservations.frm:1951: Sql = "Select * from [Reservations] Where Cast([date] as datetime) = '" & CDate(Data(0).Text) & "'"
+Reservations.frm:2010: Sql = Sql & " and Cast([Date] as datetime) = '" & CDate(Data(0).Text) & "'"
+Reservations.frm:2454: Sql = "Select * from [Reservations] Where Cast([date] as datetime) = '" & CDate(Date) & "'"
+Reservations.frm:2590: Sql = "Select * from [Reservations] Where Cast([date] as datetime) = '" & CDate(Data(0).Text) & "'"
+Select_What.frm:634: Sql = Sql & " Where cast([Date] as date) = '" & CDate(SearchDates.Item(1).StartDate) & "'"
+Select_What.frm:798: ConnectADODB ProductHistory, Db   'CDate(SetEndingDate(SalesDate))
+Select_What.frm:799: Sql = "Select Distinct [Revenue Center] from [Detail] where cdate([Date]) Between #" & SearchDates.Item(1).StartDate + CDate(GetStartTime) & "# and #" & CDate(SetEndingDate(SearchDates.Item(1).EndDate)) & " " & CDate(SetEndingTime) & "#"
+SendCallin.cls:25: HowManyMin = DateDiff("n", Now, CDate(PU_Date) + CDate(PU_Time))
+SendCallin.cls:32: If DateDiff("n", Now, CDate(IsPickUpDate(PU_Date, PDate)) + CDate(TimeValue(IsPickUpDate(PU_Time, PTime))), 2, vbFirstJan1) <= Val(Input_Option(21)) Then 'if not todays work then do not print
+Server_Report_Menu.frm:2947: Sql = Sql & " Where cast([Date] as date)  Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
+Server_Report_Menu.frm:2948: Sql = Sql & " and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+Server_Report_Menu.frm:3099: 'Sql = Sql & " Where cast([Order Date] as date) + cast([Open Time] as datetime)  Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
+Server_Report_Menu.frm:3100: 'Sql = Sql & " and '" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "'"
+Server_Report_Menu.frm:3106: Sql = Sql & " Where cast([Order Date] as date) + cast([Open Time] as datetime)  Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
+Server_Report_Menu.frm:3107: Sql = Sql & " and '" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "'"
+Server_Report_Menu.frm:3310: Sql = Sql & " Where [Server Name] = '" & WhichServer & "' and  cast([Date] as date)  Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
+Server_Report_Menu.frm:3311: Sql = Sql & " and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+Server_Report_Menu.frm:3382: Sql = Sql & " Where cast([Date] as date)  Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
+Server_Report_Menu.frm:3383: Sql = Sql & " and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+Server_Report_Menu.frm:3398: Sql = Sql & " Where [Server Name] = '" & SRd.fields("Server Name").Value & "' and  cast([Date] as date)  Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
+Server_Report_Menu.frm:3399: Sql = Sql & " and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+Server_Report_Menu.frm:3706: Sql = Sql & " Where [Department Name] <> 'Gratuity' and cast([Date] as datetime) Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
+Server_Report_Menu.frm:3707: Sql = Sql & " and '" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "'"
+Server_Report_Menu.frm:3713: Sql = Sql & " Where [Department Name] <> 'Gratuity' and cast([Date] as datetime) Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
+Server_Report_Menu.frm:3714: Sql = Sql & " and '" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "'"
+Server_Report_Menu.frm:3720: Sql = Sql & " Where [Department Name] <> 'Gratuity' and cast([Date] as datetime) Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
+Server_Report_Menu.frm:3721: Sql = Sql & " and '" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "'"
+Server_Report_Menu.frm:3871: Sql = Sql & " Where cdate([Date]) Between #" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "#"
+Server_Report_Menu.frm:3872: Sql = Sql & " and #" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "#"
+Server_Report_Menu.frm:3895: Sql = Sql & " Where cast([Date] as date) Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
+Server_Report_Menu.frm:3896: Sql = Sql & " and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+Server_Report_Menu.frm:3899: Sql = Sql & " Where cast([Date] as date) Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
+Server_Report_Menu.frm:3900: Sql = Sql & " and '" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "'"
+Subs.bas:131: If IsDate(D) Then SafeDateOr = CDate(D) Else SafeDateOr = fallback
+Subs.bas:463: Sql = Sql & " and cast([recorded time] as datetime) between '" & CDate(STime) & "' and '" & CDate(ETime) & "'"
+Subs.bas:695: Sql = Sql & " Where cast([date] as datetime) Between '" & CDate(SDate) & " " & GetStartTime & "' and '" & SetEndingDate(EDate) & " " & SetEndingTime & "'"
+Subs.bas:736: Sql = Sql & " Where cast([date] as datetime) between '" & CDate(SDate) & " " & CDate(STime) & "' and '" & CDate(EDate) & " " & CDate(ETime) & "' and [Menu Item] = '" & Item_Search(Inds) & "'"
+Subs.bas:738: Sql = Sql & " Where cast([date] as datetime) Between '" & CDate(SDate) & " " & GetStartTime & "' and '" & SetEndingDate(EDate) & " " & SetEndingTime & "' and [Menu Item] = '" & Item_Search(Inds) & "'"
+Subs.bas:814: Sql = Sql & " Where cdate([date]) Between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
+Subs.bas:897: Sql = Sql & " Where cdate([date]) Between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "# and [Menu Item] = '" & Item_Search(Inds) & "'"
+Subs.bas:898: GIsql = " Where cdate([date]) Between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "# and [Menu Item] = '" & Item_Search(Inds) & "'"
+Subs.bas:995: Sql = Sql & " Where Cdate([date]) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
+Subs.bas:1005: Sql = Sql & " Where Cdate([date]) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
+Subs.bas:1008: Sql = Sql & " Or Cdate([date]) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
+Subs.bas:1040: Sql = Sql & " Where Cdate([date]) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
+Subs.bas:1043: Sql = Sql & " Or Cdate([date]) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
+Subs.bas:1599: Sql = Sql & " and cast([recorded time] as datetime) between '" & CDate(STime) & "' and '" & CDate(ETime) & "'"
+Subs.bas:1747: Sql = "Select [Department Name] From [Detail] Where [Date] Between '" & CDate(StartDate) + CDate(GetStartTime) & "' and '" & CDate(SetEndingDate(EndDate)) + CDate(SetEndingTime) & "'"
+Subs.bas:1773: Sql = "Select * From [Detail] where [Date] Between '" & CDate(StartDate) + CDate(GetStartTime) & "' and '" & CDate(SetEndingDate(StartDate)) + CDate(SetEndingTime) & "'"
+Subs.bas:1779: If CDate(TimeIn) > CDate(StartDate & " " & BusinessPeriods(MP).PeriodStart) And CDate(Tb.fields("date").Value) < CDate(AdvanceDate(StartDate, BusinessPeriods(MP).PeriodEnd) & " " & BusinessPeriods(MP).PeriodEnd) Then
+Subs.bas:1864: Sql = Sql & " Where cdate([date])  Between #" & CDate(ClosingDate & " " & GetStartTime) & "#"
+Subs.bas:1865: Sql = Sql & " and #" & CDate(SetEndingDate(ClosingDate) & " " & SetEndingTime) & "#"
+Subs.bas:1869: Sql = Sql & " Where cdate([date])  Between #" & CDate(ClosingDate & " " & GetStartTime) & "#"
+Subs.bas:1870: Sql = Sql & " and #" & CDate(SetEndingDate(ClosingDate) & " " & SetEndingTime) & "#"
+Subs.bas:1960: Cod = GetDateToNo(CDate(MyDate))
+Subs.bas:1963: Sql = Sql & " Where Cast([Check date] as datetime) + cast([Recorded Time] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+Subs.bas:1964: Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+Subs.bas:1967: Sql = Sql & " Where Cast([Order date] as datetime) + cast([Open Time] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+Subs.bas:1968: Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+Subs.bas:1971: Sql = Sql & " Where Cast([date] as datetime) + cast([Time] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+Subs.bas:1972: Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+Subs.bas:1975: Sql = Sql & " Where Cast([date] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+Subs.bas:1976: Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+Subs.bas:1979: Sql = Sql & " Where Cast([date] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+Subs.bas:1980: Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+Subs.bas:1985: Sql = Sql & " Where Cast([date] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+Subs.bas:1986: Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+Subs.bas:1989: Sql = Sql & " Where Cast([date] as datetime) + cast([time] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+Subs.bas:1990: Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+Subs.bas:1993: Sql = Sql & " Where Cast([date] as datetime) + + cast([time] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+Subs.bas:1994: Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+Subs.bas:2052: Sql = "Delete from [Check Header] where cast([Date] as datetime)  Between '" & CDate(ClosingDate) + CDate(GetStartTime) & "' and '" & CDate(SetEndingDate(Date)) + CDate(SetEndingTime) & "'"
+Subs.bas:2056: Sql = Sql & " Where cast([date] as datetime)  Between '" & CDate(ClosingDate & " " & GetStartTime) & "'"
+Subs.bas:2057: Sql = Sql & " and '" & CDate(SetEndingDate(Date) & " " & SetEndingTime) & "'"
+Subs.bas:2061: Sql = Sql & " Where cast([date] as datetime)  Between '" & CDate(ClosingDate & " " & GetStartTime) & "'"
+Subs.bas:2062: Sql = Sql & " and '" & CDate(SetEndingDate(Date) & " " & SetEndingTime) & "'"
+Subs.bas:2065: Sql = ReturnDateString("Delete from [CheckPayments] where cast([Date] as datetime)  Between '" & CDate(ClosingDate) + CDate(GetStartTime) & "' and '" & CDate(SetEndingDate(Date)) + CDate(SetEndingTime) & "'")
+Subs.bas:2234: Sql = "Delete from [No Sale] where cast([Date] as datetime)  Between '" & CDate(ClosingDate) + CDate(GetStartTime) & "' and '" & CDate(SetEndingDate(ClosingDate)) + CDate(SetEndingTime) & "'"
+Subs.bas:2287: dtClose = CDate(ClosingDate)
+Subs.bas:2300: Hdb.Execute "DELETE FROM [Sales Tax] WHERE [Date] = #" & Format$(dtClose, "mm\/dd\/yyyy") & "#"
+Subs.bas:2331: InsertSalesTaxRow Hdb, IIf(isByDate, dtClose, CDate(ClosingDate)), taxName, TaxAmount
+Subs.bas:2348: InsertSalesTaxRow Hdb, IIf(isByDate, dtClose, CDate(ClosingDate)), "Surcharge/Tax", NzCur(RS.fields("TaxSales").Value)
+Subs.bas:2396: "#" & Format$(dtClose, "mm\/dd\/yyyy") & "#, '" & SqlQ(taxName) & "', " & _
+Subs.bas:2425: '   Sql = "Delete from [Item Refund] where cdate([Date]) < #" & Date - DaysToKeep & " 12:00 am #"
+Subs.bas:4074: SafeCDate0 = CDate(v)
+Subs.bas:4175: OpTime = CDate(Tb.fields("Open Time").Value)
+Subs.bas:4176: ClTime = CDate(Tb.fields("Close Time").Value)
+Subs.bas:4423: Sql = "Delete from [Sales Tax] where cdate([Date]) < #" & Date - DaysToKeep & " 12:00 am #"
+Subs.bas:4425: Sql = "Delete from [Item Refund] where cdate([Date]) < #" & Date - DaysToKeep & " 12:00 am #"
+Subs.bas:6716: TotalMinOpen = TotalMinOpen + ElapsedMinutes(OpenDate & " " & CDate(OP(4)), Now)
+Subs.bas:6730: Sql = Sql & " and Cast([Order date] as datetime) + cast([Close Time] as datetime) between '" & CDate(StartDate) + CDate(StartTime) & "' and '" & EndDateTime & "'"
+Subs.bas:6771: TotalMinOpen = TotalMinOpen + ElapsedMinutes(OpenDate & " " & CDate(OP(4)), OpenDate & " " & CDate(OP(5)))
+Subs.bas:6942: If Gross_Sales = 0 Then RemoteVideoSendItem "No Sale for Drawer #" & DrawerNo
+Subs.bas:7386: Sql = "Select datepart('h',[Time]),[Payment Type],Sum([Payment Amount]) as sales, Count([Payment Type]) as Sold "
+Subs.bas:7391: Sql = Sql & " Group by datepart('h',[Time]),[Payment Type]"
+Subs.bas:7392: Sql = Sql & " order by datepart('h',[Time]) asc "
+Subs.bas:7815: StartingDate = CDate(OP.fields("Check Date").Value)
+Subs.bas:7894: StartTime = CDate(Input_Option(startIdx))
+Subs.bas:7895: EndTime = CDate(Input_Option(endIdx))
+Subs.bas:7959: Sql = Sql & " Where cast([Order date] as datetime) + cast([Open Time] as datetime) between '" & CDate(PeriodStart) & "' and '" & CDate(PeriodEnd) & "'"
+Subs.bas:8096: Sql = Sql & " and cast([Check Date] as datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "' order by Cast([Check date] as datetime) asc"
+Subs.bas:8126: Sql = Sql & " and cast([Check Date] as datetime) = '" & CDate(RS![Check Date]) & "'"
+Subs.bas:8150: Sql = Sql & " and cast([Date] as datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "' Order by cast([Date] as datetime) asc"
+Subs.bas:8779: If CDate(StartWeekDate) > CDate(EndingWeekDate) Then
+Subs.bas:9235: Sql = Sql & " and Cast([Date] as datetime) = '" & CDate(Rdate) & "'"
+Subs.bas:10759: Sql = Sql & " Where cdate([date])  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+Subs.bas:10760: Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+Subs.bas:10766: Sql = Sql & " Where cdate([date])  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+Subs.bas:10767: Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+Subs.bas:10771: Sql = Sql & " Where cdate([date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+Subs.bas:10772: Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+Subs.bas:10889: Sql = Sql & " Where cdate([date])  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+Subs.bas:10890: Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+Subs.bas:10950: Sql = Sql & " Where cdate([date])  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+Subs.bas:10951: Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+Subs.bas:11002: Sql = Sql & " Where cdate([date])  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+Subs.bas:11003: Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+Subs.bas:12054: PData$ = PData$ & "# Of Hand Keyed Charges ( " & Format(Val(HandKey), "#") & " )" & EC(7)
+Subs.bas:12649: .StartTime = Format(CDate(StartTime), "HH:mm ampm")
+Subs.bas:12659: SaveReport PData$, server_t, TotalAudits, StartDate, Format(CDate(StartTime), "HH:mm ampm")
+Subs.bas:12769: Sql = "Select * from [Receipts] Where [Date] = '" & CDate(PrintDate) & "'"
+Subs.bas:13487: If CDate(Tb![Expires]) < Date Then
+Subs.bas:13495: If IsValidTime(Time, CDate(Tb![Start Time]), CDate(Tb![End Time]), -1) Then
+Subs.bas:17216: Sql = Sql & " and cast([Start Time] as datetime) = '" & CDate(ATime) & "'"
+Subs.bas:17217: Sql = Sql & " and cast([date] as date) = '" & CDate(Adate) & "'"
+Subs.bas:17657: Sql = "Select top 1 [Shift] from [Tip Income] Where [Server Name] = '" & SvrName & "' and cast([Date] as date) = '" & Format(CDate(ShiftDate), "MM/DD/YYYY") & "'"
+Subs.bas:19025: Sql = Sql & " AND cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(AuditStartDate & " " & AuditStartTime) & "'"
+Subs.bas:19042: If DateDiff("n", CDate(AuditStartDate & " " & AuditStartTime), CDate(FE.fields("Shift Date").Value & " " & FE.fields("Time In").Value)) < 0 Then
+Subs.bas:19117: Sql = Sql & " AND cast([Shift Date] as date) >= '" & CDate(AuditStartDate) & "'"
+Subs.bas:19118: ' Sql = Sql & " AND cast([Shift Date] as date) + cast([Time In] as datetime) Between '" & CDate(AuditStartDate & " " & AuditStartTime) & "'"
+Subs.bas:19131: If DateDiff("n", CDate(AuditStartDate & " " & AuditStartTime), CDate(FE.fields("Shift Date").Value & " " & FE.fields("Time In").Value)) < 0 Then
+Subs.bas:19190: Sql = "Select * from [Employee Records] Where cast([Shift Date] as datetime) = '" & CDate(ShiftDate) & "' and [Department Name] = '" & JobCode & "'"
+Subs.bas:21295: Sql = Sql & " Where cast([Check Date] as datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "'"
+Subs.bas:21325: Sql = Sql & " Where cast([Check Date] as datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "'"
+Subs.bas:21330: Sql = Sql & " and cast([Check Date] as datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "'"
+Subs.bas:21368: Sql = Sql & " and cast([Date] as datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "'"
+Subs.bas:21372: Print #PF, "Payment Date "; Format(CDate(Arc![Date]), "mm/dd/yyyy"); Tab(24); EC(7)
+Subs.bas:21455: Sql = Sql & " and Cast([Check date] as datetime) Between '01/01/2000' and '" & CDate(EndDate) & "'"
+Subs.bas:21459: Sql = Sql & " and Cast([date] as datetime) Between '01/01/2000' and '" & CDate(EndDate) & "'"
+Subs.bas:21463: Sql = Sql & " and Cast([date] as datetime) Between '01/01/2000' and '" & CDate(EndDate) & "'"
+Subs.bas:21506: Sql = Sql & " and Cast([date] as datetime) Between '01/01/2000' and '" & CDate(EndDate) & "'"
+Subs.bas:23152: Dstr = Dstr & EC(8) & "# " & Str(Check_no) & ReturnLabel(" Total ") & Format(Chk_Sales_data(5), "0.00") & vbCrLf
+Subs.bas:23154: Dstr = Dstr & EC(8) & "# " & Str(Check_no) & " Name " & Sold_To & ReturnLabel(" Total ") & Format(Chk_Sales_data(5), "0.00") & vbCrLf
+Subs.bas:24918: 'Time_Reports.PrintPayRoll True, CDate(BeginDate), CDate(EndingDate), False, ""
+Subs.bas:27685: Sql = "Delete from [Employee Records] where year(cast([Shift Date] as datetime)) <= '" & Year(CDate(Date)) - 2 & "'"
+Subs.bas:27723: If WNo < DatePart("ww", CDate(RS![Date]), WeekStartsOn, vbFirstJan1) Then
+Subs.bas:27724: WNo = DatePart("ww", CDate(RS![Date]), WeekStartsOn, vbFirstJan1)
+Subs.bas:27742: WeekS(DatePart("ww", CDate(RS![Date]), WeekStartsOn, vbFirstJan1), 0) = WeekS(DatePart("ww", RS![Date], WeekStartsOn, vbFirstJan1), 0) + RS![Net Sales]
+Subs.bas:27744: WeekS(DatePart("ww", CDate(RS![Date]), WeekStartsOn, vbFirstJan1), 1) = _
+Subs.bas:27745: WeekS(DatePart("ww", CDate(RS![Date]), WeekStartsOn, vbFirstJan1), 1) _
+Subs.bas:27748: WeekS(DatePart("ww", CDate(RS![Date]), WeekStartsOn, vbFirstJan1), 2) = Abs(WeekS(DatePart("ww", CDate(RS![Date]), WeekStartsOn, vbFirstJan1), 2)) + Abs(RS![Discounts])
+Subs.bas:27749: WeekS(DatePart("ww", CDate(RS![Date]), WeekStartsOn, vbFirstJan1), 3) = WeekS(DatePart("ww", CDate(RS![Date]), WeekStartsOn, vbFirstJan1), 3) + RS![None Taxed Sales]
+Subs.bas:28880: If SCharge(RWS).InvoiceNo = CDetail(SD).InvoiceNo And CDate(CDetail(SD).InvoiceDate) = CDate(SCharge(RWS).InvoiceDate) Then
+Subs.bas:30055: TimeIn = DateAdd("h", 1, CDate(Tb.fields("Check date").Value) + CDate(Tb.fields("Recorded Time").Value))
+Subs.bas:30056: If CDate(TimeIn) > CDate(Tb.fields("Check date").Value & " " & BusinessPeriods(MP).PeriodStart) And CDate(Tb.fields("Check date").Value) + CDate(Tb![Recorded Time]) < CDate(Tb.fields("Check date").Value & " " & BusinessPeriods(MP).PeriodEnd) Then
+Subs.bas:32963: Sql = Sql & " and Cast([Check Date] as datetime) + cast([Recorded Time] as datetime) >= '" & CDate(AuditStart) & "'"
+Subs.bas:32994: Sql = Sql & " and Cast([Check Date] as datetime) + cast([Recorded Time] as datetime) >= '" & CDate(AuditStart) & "'"
+Subs.bas:33419: Sql = Sql & " Where cdate([Date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+Subs.bas:33420: Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+Subs.bas:33441: Sql = Sql & " Where cdate([Date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+Subs.bas:33442: Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+Subs.bas:33467: Sql = Sql & " Where cdate([Date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+Subs.bas:33468: Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+Subs.bas:33701: Sql = Sql & " Where cdate([Date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+Subs.bas:33702: Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+Subs.bas:33716: Sql = Sql & " Where cdate([Date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+Subs.bas:33717: Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+Subs.bas:33763: Sql = Sql & " Where cdate([Date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+Subs.bas:33764: Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+TableLayout.frm:5966: Tables(1, R) = Format(ElapsedMinutes(CDate(RS![Order Date]) & " " & CDate(RS![check Opened]), Now), "00") & " Mins"
+TableLayout.frm:5970: Tables(5, R) = ElapsedMinutes(CDate(RS![Order Date]) & " " & CDate(RS![check Opened]), Now)
+TableLayout.frm:6765: .T_StartTime = Format(ElapsedMinutes(OpenDate & " " & CDate(Tb.fields("Check Opened").Value), Now), "00")
+TableLayout.frm:6770: 'If ElapsedMinutes(OpenDate & " " & CDate(Tb.fields("Check Opened").Value), Now) >= Val(Input_Option(2)) Then
+Time_Reports.frm:3192: EndingDate = CStr(CDate(SearchDates.Item(1).StartDate) + 6)
+Time_Reports.frm:3576: getweek = GetDateToNo(CDate(BeginDate))
+Time_Reports.frm:3580: If CDate(BeginDate) = CDate(Date) Then
+Time_Reports.frm:3617: Sql = Sql & " Where cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
+Time_Reports.frm:3618: Sql = Sql & " and '" & SetEndingDate(CDate(EndDate)) & " " & SetEndingTime & "'"
+Time_Reports.frm:3630: 'If CDate(LaborDate) = CDate(Tb(2)) Then
+Time_Reports.frm:3766: getweek = GetDateToNo(CDate(BeginDate))
+Time_Reports.frm:3777: Sql = Sql & " Where cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
+Time_Reports.frm:3778: Sql = Sql & " and '" & SetEndingDate(CDate(EndDate)) & " " & SetEndingTime & "'"
+Time_Reports.frm:4124: Sql = Sql & " cast([Shift Date] as datetime) Between '" & CDate(BeginDate) & "'"
+Time_Reports.frm:4125: Sql = Sql & " and '" & CDate(EndDate) & "'"
+Time_Reports.frm:4231: Sql = Sql & " Where cast([TimeOut] as datetime)  Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
+Time_Reports.frm:4232: Sql = Sql & " and '" & SetEndingDate(CDate(EndDate)) & " " & SetEndingTime & "'"
+Time_Reports.frm:4253: Sql = Sql & " Where cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
+Time_Reports.frm:4254: Sql = Sql & " and '" & SetEndingDate(CDate(EndDate)) & " " & SetEndingTime & "'"
+Time_Reports.frm:4276: DayInPayroll = DateDiff("d", CDate(BeginDate) & " " & GetStartTime, SetEndingDate(CDate(EndDate)) & " " & SetEndingTime, 3)
+Time_Reports.frm:4279: Sql = Sql & " Where cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
+Time_Reports.frm:4280: Sql = Sql & " and '" & SetEndingDate(CDate(EndDate)) & " " & SetEndingTime & "'"
+Time_Reports.frm:4288: Sql = Sql & " cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
+Time_Reports.frm:4289: Sql = Sql & " and '" & SetEndingDate(CDate(EndDate)) & " " & SetEndingTime & "'"
+Time_Reports.frm:4304: Sql = Sql & " cast([Shift Date] as datetime) Between '" & CDate(BeginDate) & "'"
+Time_Reports.frm:4305: Sql = Sql & " and '" & CDate(EndDate) & "'"
+Time_Reports.frm:4310: CurrentWeek = DatePart("ww", CDate(TRRS![Shift date]), WeekStartsOn, vbFirstFullWeek) 'vbFirstFullWeek
+Time_Reports.frm:4314: WeekS.Item(CStr(CurrentWeek)).ShiftYear = Year(CDate(TRRS![Shift date]))
+Time_Reports.frm:4321: Sql = Sql & " dateDiff(m,cast([shift date] as datetime),'" & CDate(BeginDate) & "') < 2"
+Time_Reports.frm:4326: If DatePart("ww", CDate(TRRS![Shift date]), WeekStartsOn, vbFirstFullWeek) = WeekS.Item(CT).ShiftWeek Then
+Time_Reports.frm:4366: If CDate(TRRS.fields("Shift Date").Value) > CDate(EndDate) Then
+Time_Reports.frm:4399: Sql = Sql & " and cast([Shift Date] as datetime) Between '" & CDate(BeginDate) & "'"
+Time_Reports.frm:4400: Sql = Sql & " and '" & CDate(EndDate) & "'"
+Time_Reports.frm:4415: Sql = Sql & " and cast([Shift Date] as datetime) Between '" & CDate(BeginDate) & "'"
+Time_Reports.frm:4416: Sql = Sql & " and '" & CDate(EndDate) & "'"
+Time_Reports.frm:4421: CurrentWeek = DatePart("ww", CDate(TRRS![Shift date]), WeekStartsOn, vbFirstFullWeek) 'vbFirstFullWeek
+Time_Reports.frm:5180: breaktotal = DateDiff("n", CDate(Tb(4)), CDate(Tb(5)), WeekStartsOn, 1)
+Time_Reports.frm:5230: breaktotal = DateDiff("n", CDate(Tb(4)), CDate(Tb(5)), WeekStartsOn, 1)
+Time_Reports.frm:5299: If CDate(SDate) = CDate(Date) Then
+Time_Reports.frm:5332: Sql = Sql & " cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(SDate) & " " & GetStartTime & "'"
+Time_Reports.frm:5333: Sql = Sql & " and '" & SetEndingDate(CDate(SDate)) & " " & SetEndingTime & "'"
+Time_Reports.frm:5347: BH = Hour(CDate(PRTb![Shift date]) & " " & CDate(PRTb![Time In])) '// begin hour
+Time_Reports.frm:5348: EH = Hour(CDate(PRTb![Punch out Date]) & " " & CDate(EndTime))    '// end hour
+Time_Reports.frm:5349: CH = Hour(CDate(PRTb![Punch out Date]) & " " & CDate(GetHourTime)) '// current hour
+Time_Reports.frm:5351: MinsWorked = Abs((DateDiff("n", CDate(PRTb![Punch out Date] & " " & CDate(EndTime)), CDate(PRTb![Shift date]) & " " & CDate(PRTb![Time In]))))
+Time_Reports.frm:5355: MinsWorked = Abs((DateDiff("n", CDate(PRTb![Punch out Date] & " " & CDate(EndTime)), CDate(PRTb![Punch out Date]) & " " & CDate(GetHourTime))))
+Time_Reports.frm:5359: MinsWorked = Abs((DateDiff("n", CDate(PRTb![Shift date] & " " & CDate(PRTb![Time In])), CDate(PRTb![Punch out Date]) & " " & CDate(Format(CStr(CountHrs + 1) & ":00", "HH:MM ampm")))))
+Time_Reports.frm:5621: Sql = Sql & " and cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(SearchDates.Item(1).StartDate) & " " & GetStartTime & "'"
+Time_Reports.frm:5622: Sql = Sql & " and '" & SetEndingDate(CDate(SearchDates.Item(1).EndDate)) & " " & SetEndingTime & "'"
+Time_Reports.frm:5631: breaktotal = DateDiff("n", CDate(RS(4)), CDate(RS(5)), WeekStartsOn, 1)
+Time_Reports.frm:5639: shiftTotal = DateDiff("n", CDate(RS![Time In]), CDate(RS![Time Out]), WeekStartsOn, 1)
+Time_Reports.frm:5778: getweek = GetDateToNo(CDate(BeginWeek))
+Time_Reports.frm:5785: Sql = Sql & "where cast([Shift Date] as Date) between '" & CDate(BeginWeek) & "' and '" & CDate(EndingDate) & "'"
+Time_Reports.frm:5821: DaysWorked = GetDateToNo(CDate(Date))
+Time_Sheet.frm:4142: Sql = Sql & " and cast([Shift Date] as datetime) between '" & CDate(GetCurrentPayrollWeek) & "' and '" & Date & "'"
+Time_Sheet.frm:4351: Response = RPunch.PunchIn(MyShift.ScheduleId, MyShift.JobRoleId, MyShift.DepartmentId, CDate(sTimeIn))
+Time_Sheet.frm:4870: If CDate(Format(TimeIn, "MM/DD/YYYY")) = CDate(.TextMatrix(LT, 1)) Then
+Time_Sheet.frm:4872: If IsBetween(CDate(TimeIn), CDate(TimeOut), CDate(.TextMatrix(LT, 1) & " " & .TextMatrix(LT, 2)), CDate(.TextMatrix(LT, 7) & " " & .TextMatrix(LT, 5))) Then
+Time_Sheet.frm:5069: Sql = Sql & " and  cast([TimeOut] as date) >= '" & CDate(EditDate) & "'"
+Time_Sheet.frm:5075: Sql = Sql & " and [RecordId] = '" & .TextMatrix(R, 0) & "' and cast([TimeOut] as datetime) = '" & CDate(.TextMatrix(R, 2)) & "'"
+Time_Sheet.frm:5144: If CDate(.TextMatrix(Cr, 3)) > CDate(.TextMatrix(Cr, 4)) And CDate(.TextMatrix(Cr, 2)) = CDate(.TextMatrix(Cr, 7)) Then
+Time_Sheet.frm:5161: If CDate(.TextMatrix(Cr, 2)) > CDate(.TextMatrix(Cr, 5)) Then
+Time_Sheet.frm:5162: 'If CDate(.TextMatrix(Cr, 2) & " " & .TextMatrix(Cr, 1)) >= CDate(.TextMatrix(Cr, 7) & " " & .TextMatrix(Cr, 5)) Then
+Time_Sheet.frm:5163: If DateDiff("h", CDate(.TextMatrix(Cr, 2) & " " & .TextMatrix(Cr, 1)), CDate(.TextMatrix(Cr, 7) & " " & .TextMatrix(Cr, 5))) > 17 Then
+Time_Sheet.frm:5164: See_Msg "Invalid shift time", 0, "Number of Shift Hours " & DateDiff("h", CDate(.TextMatrix(Cr, 2) & " " & .TextMatrix(Cr, 1)), CDate(.TextMatrix(Cr, 7) & " " & .TextMatrix(Cr, 5)))
+Time_Sheet.frm:5168: See_Msg "Setting time out date to " & Str(CDate(.TextMatrix(Cr, 1)) + 1), 5, "Auto correcting date"
+Time_Sheet.frm:5169: .TextMatrix(Cr, 7) = CDate(.TextMatrix(Cr, 1)) + 1
+Time_Sheet.frm:5391: If IsDate(CDate(.TextMatrix(.Row, 5))) Then
+Time_Sheet.frm:5392: If CDate(.TextMatrix(.Row, 2)) > CDate(.TextMatrix(.Row, 5)) Then
+Time_Sheet.frm:5393: .TextMatrix(.Row, 7) = Format(CDate(.TextMatrix(.Row, 1)) + 1, "MM/DD/YYYY")
+Time_Sheet.frm:5395: .TextMatrix(.Row, 7) = Format(CDate(.TextMatrix(.Row, 1)), "MM/DD/YYYY")
+Time_Sheet.frm:5439: Sql = Sql & " and cast([Shift Date] as datetime) = '" & CDate(InDate) & "'"
+Time_Sheet.frm:5639: If DateDiff("n", CDate(BrkOut), CDate(BrkIn), vbMonday) < MealBreakMins Then 'option 7 = Maniditory break
+WaitList.frm:2556: WaitTime = WaitTime + Abs(DateDiff("n", CDate(RS![Time In]), CDate(RS![Time Seated])))
+WaitList.frm:2656: Sql = "Update [Wait List] Set [day] = " & GetDateToNo(CDate(Date))
+WaitList.frm:2680: .TextMatrix(DA, 4) = Val(DateDiff("n", CDate(.TextMatrix(DA, 3)), .TextMatrix(DA, 8)))
+WaitList.frm:2682: .TextMatrix(DA, 4) = Val(DateDiff("n", CDate(.TextMatrix(DA, 3)), Time))
+functions.bas:562: FirstDay = Format(CDate(Date) - Find, "dddd")
+functions.bas:564: GetStartOfWeek = CDate(StartOfWeek) - Find
+functions.bas:611: Sql = Sql & " and cast([recorded time] as datetime) between '" & CDate(STime) & "' and '" & CDate(ETime) & "'"
+functions.bas:3500: If CDate(CurrentTimeIn) >= CDate(StartTime) Then
+functions.bas:3501: If CDate(CurrentTimeIn) < CDate(EndTime) Then
+functions.bas:3506: If CDate(CurrentTimeIn) < CDate(EndTime) Then
+functions.bas:3507: If CDate(CurrentTimeIn) >= CDate(StartTime) Then
+functions.bas:3513: If CDate(CurrentTimeOut) <= CDate(EndTime) Then
+functions.bas:3514: If CDate(CurrentTimeOut) > CDate(StartTime) Then
+functions.bas:3519: If CDate(CurrentTimeOut) > CDate(StartTime) Then
+functions.bas:3520: If CDate(CurrentTimeOut) <= CDate(EndTime) Then
+functions.bas:3616: Sql = Sql & " AND cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(CloseDate) - (DayNo - 1) & " " & GetStartTime & "'"
+functions.bas:3617: Sql = Sql & " and '" & SetEndingDate(CDate(CloseDate)) & " " & SetEndingTime & "'"
+functions.bas:3659: InDate = CDate(Punch_InDate)
+functions.bas:3666: OutDate = CDate(Punch_OutDate)
+functions.bas:3672: InTime = CDate(Time_On) + InDate
+functions.bas:3677: OutTime = OutDate + CDate(Time_Out)
+functions.bas:3679: OutTime = CDate(OutDate) + 1 + CDate(Time_Out)
+functions.bas:3690: If Format(Brk_Out, "MM/DD/YYYY") < CDate(InDate) Then
+functions.bas:3694: OutBrk = CDate(Brk_Out)
+functions.bas:3700: InBrk = CDate(Brk_In)
+functions.bas:3701: If Format(Brk_In, "MM/DD/YYYY") < CDate(InDate) Then
+functions.bas:3742: ValidateDate = CDate(inputDate)
+functions.bas:3746: ValidateDateTime = baseDate + CDate(inputTime)
+functions.bas:4236: GetEndPayRollDate = CDate(SearchDate) + 1
+functions.bas:4241: GetEndPayRollDate = CDate(SearchDate) + 1
+functions.bas:4267: SetEndingDate = CDate(SearchDate) + 1
+functions.bas:4272: SetEndingDate = CDate(SearchDate) + 1
+functions.bas:4336: Sql = "Select * From [Employee Records] Where [Department Name] = '" & JobCode & "' and cast([Shift Date] as date) = '" & CDate(ClosingDate) & "'"
+functions.bas:4892: ItemStrName = ItemIn & " (" & (ReturnTotalMins(CDate(StartTime), CDate(Time & Date))) & ") @ " & Format(CostPerMin, "0.00")
+functions.bas:4893: GetTimePlayCharge = Format(Val(CostPerMin * ReturnTotalMins(CDate(StartTime), CDate(Time & Date))), "0.00")
+functions.bas:5677: If IsValidTime(Time, CDate(ADiscs.Item(CouponName).StartTime), CDate(ADiscs.Item(CouponName).EndTime), -1) Then
+functions.bas:5714: If IsValidTime(Time, CDate(ADiscs.Item(CouponName).StartTime), CDate(ADiscs.Item(CouponName).EndTime), -1) Then
+functions.bas:5742: Sql = Sql & " Where cast([Date] as date) = '" & CDate(ReportDate) & "' Group by [Date]"
+functions.bas:5972: Sql = Sql & " and  cast([Date] as datetime) + cast([time] as datetime) >= '" & CDate(ShiftDate & " " & ShiftTimeOn) & "'"
+functions.bas:5997: Sql = Sql & " and cast([Date] as date) = '" & CDate(ShiftDate) & "'"
+functions.bas:7041: Sql = Sql & " and cast([Date] as datetime) Between '" & CDate(InDate & " " & GetStartTime) & "'"
+functions.bas:7042: Sql = Sql & " and '" & CDate(SetEndingDate(EDate) & " " & SetEndingTime) & "'"
+functions.bas:7050: Sql = Sql & " and cast([Date] as datetime) Between '" & CDate(InDate & " " & GetStartTime) & "'"
+functions.bas:7051: Sql = Sql & " and '" & CDate(SetEndingDate(EDate) & " " & SetEndingTime) & "'"
+functions.bas:7135: Sql = Sql & " Where cast([Date] as datetime) Between '" & CDate(StartDate & " " & GetStartTime) & "'"
+functions.bas:7136: Sql = Sql & " and '" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "'"
+functions.bas:9523: Sql = Sql & " and cast([Check Date] as datetime) between '" & CDate(StartDate) & "' and '" & CDate(EndDate) & "'"
+functions.bas:9535: Sql = Sql & " and cast([Date] as datetime) between '" & CDate(StartDate) & "' and '" & CDate(EndDate) & "'"
+functions.bas:9634: Sql = Sql & " and cast([Date] as date) = '" & CDate(ShiftDate) & "'"
+functions.bas:9736: Sql = Sql & " and cast([Date] as date)  Between '" & CDate(BeginDate) & "'"
+functions.bas:9737: Sql = Sql & " and '" & CDate(EndDate) & "'"
+functions.bas:9770: Sql = Sql & " and Cast([Date] as date)  Between '" & CDate(BeginDate) & "'"
+functions.bas:9771: Sql = Sql & " and '" & CDate(EndDate) & "'"
+functions.bas:9810: Sql = Sql & " and cast([Date] as date)  Between '" & CDate(BeginDate) & "'"
+functions.bas:9811: Sql = Sql & " and '" & CDate(EndDate) & "'"
+functions.bas:9855: Sql = Sql & " and cast([Date] as date)  Between '" & CDate(BeginDate) & "'"
+functions.bas:9856: Sql = Sql & " and '" & CDate(EndDate) & "'"
+functions.bas:9888: Sql = Sql & " and cast([Date] as date)  Between '" & CDate(BeginDate) & "'"
+functions.bas:9889: Sql = Sql & " and '" & CDate(EndDate) & "'"
+functions.bas:13010: dS = CStr(CDate(PeriodStart) + ((DaysInPeriod - 1) * 28))
+functions.bas:13011: P_Days = (DateDiff("d", CDate(dS), CDate(InDate), vbUseSystemDayOfWeek, vbUseSystem) \ 7)
+functions.bas:13012: PeriodStart = DateAdd("ww", P_Days, CDate(dS))
+functions.bas:13014: 'DayNo = DatePart("w", CDate(InDate), WeekStartsOn, 3)
+functions.bas:13015: If CDate(PeriodStart) = CDate(InDate) Then
+functions.bas:13033: dS = CStr(CDate(PeriodStart) + ((DaysInPeriod - 1) * 28))
+functions.bas:13034: If DateAdd("d", CDate(dS), CDate(InDate)) = 0 Then
+functions.bas:13258: Sql = "Delete from [FrequentDinerDetail] where cast([Date] as date) < '" & CDate(Date - DaysToKeep) & "'"
+functions.bas:13260: Sql = "Delete from [Non Reset Data] where cast([Date] as date) < '" & CDate(Date - DaysToKeep) & "'"
+functions.bas:13309: Sql = Sql & " and Cast([Recorded date] as datetime) + cast([Recorded Time] as datetime) between '" & CDate(StartDate) + CDate(StartTime) & "' and '" & EndDateTime & "'"
+functions.bas:13774: dw = DatePart("w", CDate(ClosingDate), vbMonday, 1)
+functions.bas:13863: Mnth% = Month(CDate(SD$))
+functions.bas:13864: Yr% = Year(CDate(SD$))
+functions.bas:13865: Dy% = Day(CDate(SD$))
+functions.bas:13978: Select Case DateDiff("n", CDate(InTime), CDate(OutTime))
+functions.bas:13980: ReturnTotalMins = RoundMinute(DateDiff("n", CDate(InTime), CDate(OutTime)))
+functions.bas:13982: MinRemaining = DateDiff("n", CDate(InTime), CDate(OutTime)) Mod Int((DateDiff("n", CDate(InTime), CDate(OutTime))) / 60) * 60
+functions.bas:13983: ReturnTotalMins = (Int((DateDiff("n", CDate(InTime), CDate(OutTime))) / 60) * 60) + RoundMinute(MinRemaining)
+functions.bas:14055: Sql = Sql & " and cdate([Date]) Between #" & CDate(InDate & " " & GetStartTime) & "#"
+functions.bas:14056: Sql = Sql & " and #" & CDate(SetEndingDate(EDate) & " " & SetEndingTime) & "#"
+functions.bas:14090: TotalTime = TotalTime + DateDiff("n", CDate(ARs![Open Time]), CDate(ARs![Close Time]))
+functions.bas:14218: rTime = rTime + DateDiff("n", CDate(ARs![Open Time]), CDate(ARs![Close Time]), 2, vbFirstFullWeek)
+functions.bas:14590: If DateDiff("d", CDate(Time_Events(EventNo).StartDate), CDate(Time_Events(EventNo).EndDate)) < 0 Then
+functions.bas:14591: TotalDays = DateDiff("d", CDate(Time_Events(EventNo).StartDate), CDate(Time_Events(EventNo).EndDate)) + 365
+functions.bas:14592: If DateDiff("d", Format(MyDate, "MM/DD"), CDate(Time_Events(EventNo).StartDate)) <= 0 Then
+functions.bas:14593: DaysLeft = DateDiff("d", Format(MyDate, "MM/DD"), CDate(Time_Events(EventNo).EndDate)) + 365
+functions.bas:14597: ElseIf DateDiff("d", Format(MyDate, "MM/DD"), CDate(Time_Events(EventNo).EndDate)) >= 0 Then
+functions.bas:14598: DaysLeft = DateDiff("d", Format(MyDate, "MM/DD"), CDate(Time_Events(EventNo).EndDate))
+functions.bas:14604: TotalDays = DateDiff("d", CDate(Time_Events(EventNo).StartDate), CDate(Time_Events(EventNo).EndDate))
+functions.bas:14605: DaysLeft = DateDiff("d", Format(MyDate, "MM/DD"), CDate(Time_Events(EventNo).EndDate))
+functions.bas:15396: If CDate(InDate) <= Date Then
+functions.bas:15494: '  ETime = CDate(ItemTime)
+functions.bas:15661: OpenMinsTotal = RoundMinute(DateDiff("n", CDate(StartingTimeandDate), Time & Date))
+functions.bas:15683: EventMins = EventMinsBetween(CDate(StartingTimeandDate), Time_Events(Cev).StartTime, Time_Events(Cev).EndTime, Cev)
+functions.bas:15698: EventMins = EventMinsBetween(CDate(StartingTimeandDate), Time_Events(Cev).StartTime, Time_Events(Cev).EndTime, Cev)
+functions.bas:15713: EventMins = EventMinsBetween(CDate(StartingTimeandDate), Time_Events(Cev).StartTime, Time_Events(Cev).EndTime, Cev)
+functions.bas:15728: EventMins = EventMinsBetween(CDate(StartingTimeandDate), Time_Events(Cev).StartTime, Time_Events(Cev).EndTime, Cev)
+functions.bas:15743: EventMins = EventMinsBetween(CDate(StartingTimeandDate), Time_Events(Cev).StartTime, Time_Events(Cev).EndTime, Cev)
+functions.bas:15906: IsPastEndOfDay = CDate(PickUpDate & " " & PickUpTime) > CDate(SetEndingDate(GetBusinessDay) & " " & EndTime)
+functions.bas:16617: Tb(0) = "Cert. #" & CardNo
+functions.bas:16618: AccountName = "Cert. #" & CardNo
+order.frm:22206: If CDate(Grid_array(s, R, 28)) <= CDate(CurrentTime) Then
+order.frm:22485: Do Until DateDiff("s", CDate(TimeOut), Time) > 10
+order.frm:37131: If See_Msg("Total Time " & ReturnTotalMins(CDate(Ticket(0).TextMatrix(Ticket(0).Row, 33)), CDate(Time & Date)) & " Min", 4, "End Time Play Stop Timer?") = 6 Then
+order.frm:37133: Ticket(0).TextMatrix(Ticket(0).Row, 1) = "*" & Ticket(0).TextMatrix(Ticket(0).Row, 30) & " End Play " & ReturnTotalMins(CDate(Ticket(0).TextMatrix(Ticket(0).Row, 33)), CDate(Time & Date)) & " Min"

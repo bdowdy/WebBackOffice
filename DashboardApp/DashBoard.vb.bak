@@ -1,0 +1,35 @@
+Imports System.Windows.Forms
+Imports Microsoft.Web.WebView2.WinForms
+Imports Microsoft.Web.WebView2.Core
+
+Public Class DashBoard
+    Inherits Form
+
+    Private WithEvents WV As WebView2
+
+    Private Async Sub DashBoard_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        Try
+            ' Create and dock the WebView2 to fill the form
+            WV = New WebView2()
+            WV.Dock = DockStyle.Fill
+            Me.Controls.Add(WV)
+
+            ' Initialize the WebView2 runtime
+            Await WV.EnsureCoreWebView2Async(Nothing)
+
+            ' Navigate to the dashboard login page
+            WV.Source = New Uri("https://app.microsaledashboard.net/auth/login")
+
+        Catch ex As Exception
+            MessageBox.Show("WebView2 failed to load: " & ex.Message,
+                            "Dashboard Error",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    Private Sub DashBoard_FormClosed(sender As Object, e As FormClosedEventArgs) Handles MyBase.FormClosed
+        WV?.Dispose()
+    End Sub
+
+End Class

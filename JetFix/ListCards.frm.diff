@@ -1,0 +1,20 @@
+--- ListCards.frm
++++ ListCards.frm (fixed)
+@@ -2818,7 +2818,7 @@
+   Dim CHRS As ADODB.Recordset
+   If Not IsDate(BatchDate) Then BatchDate = Format(Date, "MM/DD/YYYY")
+   ConnectADODB SvrPath.TerminalPath & ClosingHistory, CHDB
+-  ConnectADORS "Select * from [Tenders] where Cdate([date]) = #" & BatchDate & "#", CHDB, CHRS
++  ConnectADORS "Select * from [Tenders] where TRY_CAST([date] AS datetime) = '" & Format(CDate(BatchDate), "yyyy-mm-dd hh:nn:ss") & "'", CHDB, CHRS
+        CHRS.AddNew
+        CHRS![Date] = Format(BatchDate, "MM/DD/YYYY")
+        CHRS![Name] = "1-Batch:" & Trim$(Left$(Status, 43))
+@@ -3102,7 +3102,7 @@
+ '*********************************************************************************
+  If IsDate(BatchDate) Then
+   ConnectADODB SvrPath.TerminalPath & ClosingHistory, CHDB
+-  ConnectADORS ("Select * from [Tenders] where Cdate([date]) = #" & BatchDate & "#"), CHDB, CHRS
++  ConnectADORS ("Select * from [Tenders] where TRY_CAST([date] AS datetime) = '" & Format(CDate(BatchDate), "yyyy-mm-dd hh:nn:ss") & "'"), CHDB, CHRS
+   If CHRS.EOF Then
+     Dim Payments As FinancialItems
+     Set Payments = New FinancialItems

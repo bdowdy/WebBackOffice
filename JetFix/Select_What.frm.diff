@@ -1,0 +1,31 @@
+--- Select_What.frm
++++ Select_What.frm (fixed)
+@@ -631,7 +631,7 @@
+ If Load_What = "Reprint Audits" Then
+  ConnectADODB SvrPath.TerminalPath & "MSaleData", Db
+    Sql = "Select * from [AuditReports] "
+-   Sql = Sql & " Where cast([Date] as date) = '" & CDate(SearchDates.Item(1).StartDate) & "'"
++   Sql = Sql & " Where TRY_CAST([Date] AS date) = '" & CDate(SearchDates.Item(1).StartDate) & "'"
+    Sql = Sql & " Order by [Name] asc"
+  ConnectADORS Sql, Db, RS
+   If RS.EOF Then
+@@ -796,7 +796,7 @@
+ End If
+ If Load_What = "Revenue Center" Then
+       ConnectADODB ProductHistory, Db   'CDate(SetEndingDate(SalesDate))
+-        Sql = "Select Distinct [Revenue Center] from [Detail] where cdate([Date]) Between #" & SearchDates.Item(1).StartDate + CDate(GetStartTime) & "# and #" & CDate(SetEndingDate(SearchDates.Item(1).EndDate)) & " " & CDate(SetEndingTime) & "#"
++        Sql = "Select Distinct [Revenue Center] from [Detail] where TRY_CAST([Date] AS datetime) Between '" & Format(CDate(SearchDates.Item(1).StartDate + CDate(GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and #" & CDate(SetEndingDate(SearchDates.Item(1).EndDate)) & " " & CDate(SetEndingTime) & "#"
+         Sql = Sql & " Group by [Revenue Center] "
+         Sql = Sql & " Order by [Revenue Center] asc"
+       ConnectADORS ReturnDateString(Sql), Db, RS
+@@ -889,8 +889,8 @@
+ End If
+ 
+ If Load_What = "FindDate" Then
+-     Sql = "Select Distinct cast([Order Date] as datetime) from [Closed Checks] Where [Close Out Day] = 0"
+-     Sql = Sql & " Group by [Order Date] Order by cast([Order Date] as datetime) asc"
++     Sql = "Select Distinct TRY_CAST([Order Date] AS datetime) from [Closed Checks] Where [Close Out Day] = 0"
++     Sql = Sql & " Group by [Order Date] Order by TRY_CAST([Order Date] AS datetime) asc"
+     FindDate = ""
+     ConnectADODB CheckStatDb, Db
+     ConnectADORS Sql, Db, RS

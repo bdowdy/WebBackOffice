@@ -1,0 +1,13 @@
+--- Server_Report_Menu.frm
++++ Server_Report_Menu.frm (final)
+@@ -3868,8 +3868,8 @@
+ If WhichList = "Sales Mix" Or WhichList = "Department" Or WhichList = "Category" Then
+   ConnectADODB ProductHistory, SL
+             Sql = "Select Distinct [Server Name] from [Detail] "
+-            Sql = Sql & " Where TRY_CAST([Date] AS datetime) Between #" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "#"
+-            Sql = Sql & " and #" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "#"
++            Sql = Sql & " Where TRY_CAST([Date] AS datetime) Between '" & Format(CDate(CDate(SearchDates.Item(1).StartDate & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "'"
++            Sql = Sql & " and '" & Format(CDate(CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+             ConnectADORS ReturnDateString(Sql), SL, SRd
+             SList.Clear
+                 If Not SRd.EOF Then

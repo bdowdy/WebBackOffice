@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>DashboardApp</RootNamespace>
+    <AssemblyName>DashboardApp</AssemblyName>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <StartupObject>DashboardApp.Program</StartupObject>
+  </PropertyGroup>
+
+</Project>

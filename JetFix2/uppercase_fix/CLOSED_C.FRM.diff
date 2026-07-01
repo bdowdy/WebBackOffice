@@ -1,0 +1,322 @@
+--- CLOSED_C.FRM
++++ CLOSED_C.FRM (fixed)
+@@ -3990,7 +3990,7 @@
+ Dim Rcset   As ADODB.Recordset
+   ConnectADODB SvrPath.TerminalPath & FiletoLookat, Db
+      Sql = "Select distinct [Order Date] from [Closed checks]"
+-     Sql = Sql & " Where cast([order date] as date) Between '" & SearchDates.Item(1).StartDate & "' and '" & SearchDates.Item(1).EndDate & "'"
++     Sql = Sql & " Where TRY_CAST([order date] AS date) Between '" & SearchDates.Item(1).StartDate & "' and '" & SearchDates.Item(1).EndDate & "'"
+   ConnectADORS Sql, Db, Rcset
+   SearchDate.Clear
+   Do While Not Rcset.EOF
+@@ -4051,16 +4051,16 @@
+ If FiletoLookat = "Chk StatSql" Or FiletoLookat = "MSaleData" Then
+  ConnectADODB Search_Path & FiletoLookat, Db
+    Sql = "Select * from [Closed Checks]"
+-   Sql = Sql & " Where Cast([Order date] as datetime) + cast([Open Time] as datetime)  Between '" & CDate(StartDate & " " & GetStartTime()) & "'"
++   Sql = Sql & " Where TRY_CAST([Order date] AS datetime) + TRY_CAST([Open Time] AS datetime)  Between '" & CDate(StartDate & " " & GetStartTime()) & "'"
+    Sql = Sql & " and '" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime()) & "'"
+-   Sql = Sql & " Order by [Server Name],cast([Order Date] as datetime),cast([Open Time] as datetime) asc"
++   Sql = Sql & " Order by [Server Name],TRY_CAST([Order Date] AS datetime),TRY_CAST([Open Time] AS datetime) asc"
+  Else
+  TFileName = FiletoLookat
+  ConnectADODB Search_Path & TFileName, Db
+   Sql = "Select * from [Closed Checks] "
+-  Sql = Sql & " Where cdate([Order date]) + Cdate([Open Time]) Between #" & CDate(StartDate & " " & GetStartTime()) & "#"
+-  Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime()) & "#"
+-  Sql = Sql & " Order by [Server Name],Cdate([Order Date]),cdate([Open Time]) asc"
++  Sql = Sql & " Where TRY_CAST([Order date] AS datetime) + TRY_CAST([Open Time] AS datetime) Between '" & Format(CDate(CDate(StartDate & " " & GetStartTime())), "yyyy-mm-dd hh:nn:ss") & "'"
++  Sql = Sql & " and '" & Format(CDate(CDate(SetEndingDate(EndDate) & " " & SetEndingTime())), "yyyy-mm-dd hh:nn:ss") & "'"
++  Sql = Sql & " Order by [Server Name],TRY_CAST([Order Date] AS datetime),TRY_CAST([Open Time] AS datetime) asc"
+ End If
+  ConnectADORS Sql, Db, Tb
+  If Tb.EOF Then
+@@ -4105,9 +4105,9 @@
+         Sql = Sql & " and [Close Out Day] = " & Tb![Close out day]
+         Sql = Sql & " and [Servers Name] = '" & Tb![Server Name] & "'"
+         If FiletoLookat = "Chk StatSql" Or FiletoLookat = "MSaleData" Then
+-          Sql = Sql & " and cast([Check Date] as date) = '" & Orderdate & "'"
++          Sql = Sql & " and TRY_CAST([Check Date] AS date) = '" & Orderdate & "'"
+         Else
+-          Sql = Sql & " and Cdate([Check Date]) = #" & Orderdate & "#"
++          Sql = Sql & " and TRY_CAST([Check Date] AS datetime) = '" & Format(CDate(Orderdate), "yyyy-mm-dd hh:nn:ss") & "'"
+         End If
+         Sql = Sql & " Group By [Servers Name]"
+         
+@@ -4132,9 +4132,9 @@
+             
+             Sql = "Select * From [Payments] where [Check Number] = " & Tb![Check Number]
+             If FiletoLookat = "Chk StatSql" Or FiletoLookat = "MSaleData" Then
+-             Sql = Sql & " and cast([date] as date) = '" & Orderdate & "'"
++             Sql = Sql & " and TRY_CAST([date] AS date) = '" & Orderdate & "'"
+             Else
+-             Sql = Sql & " and Cdate([date]) = #" & Orderdate & "#"
++             Sql = Sql & " and TRY_CAST([date] AS datetime) = '" & Format(CDate(Orderdate), "yyyy-mm-dd hh:nn:ss") & "'"
+             End If
+             Sql = Sql & " and [Close Out Day] = " & Tb![Close out day]
+             ConnectADORS Sql, Db, Records
+@@ -4238,12 +4238,12 @@
+ Dim T_Min       As Long
+ If FiletoLookat = "Chk StatSql" Then
+  ConnectADODB Search_Path & FiletoLookat, Db
+-  Sql = "Select [Server Name] from [Closed Checks] where cast([order date] as datetime) Between '" & StartDate & "' and '" & EndDate & "'"
++  Sql = "Select [Server Name] from [Closed Checks] where TRY_CAST([order date] AS datetime) Between '" & StartDate & "' and '" & EndDate & "'"
+   Sql = Sql & " Order by [Server Name]"
+ Else
+   TFileName = FiletoLookat
+   ConnectADODB Search_Path & TFileName, Db
+-   Sql = "Select [Server Name] from [Closed Checks] where Cdate([order date]) Between #" & StartDate & "# and #" & EndDate & "#"
++   Sql = "Select [Server Name] from [Closed Checks] where TRY_CAST([order date] AS datetime) Between '" & Format(CDate(StartDate), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(EndDate), "yyyy-mm-dd hh:nn:ss") & "'"
+    Sql = Sql & " Group by [Server Name]"
+ End If
+  ConnectADORS Sql, Db, Tb
+@@ -4261,13 +4261,13 @@
+  Do While Not Tb.EOF
+    T_Voids = 0: T_Discount = 0: T_Gross = 0:   LCount = 0: T_Min = 0: T_Net = 0
+    If FiletoLookat = "Chk StatSql" Then
+-     Sql = "Select * from [Closed Checks] where cast([order date] as datetime) Between '" & StartDate & "' and '" & EndDate & "'"
++     Sql = "Select * from [Closed Checks] where TRY_CAST([order date] AS datetime) Between '" & StartDate & "' and '" & EndDate & "'"
+      Sql = Sql & " and [Server Name] = '" & Tb![Server Name] & "'"
+-     Sql = Sql & " Order by cast([Open Time] as datetime) asc"
++     Sql = Sql & " Order by TRY_CAST([Open Time] AS datetime) asc"
+    Else
+-     Sql = "Select * from [Closed Checks] where Cdate([order date]) Between #" & StartDate & "# and #" & EndDate & "#"
++     Sql = "Select * from [Closed Checks] where TRY_CAST([order date] AS datetime) Between '" & Format(CDate(StartDate), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(EndDate), "yyyy-mm-dd hh:nn:ss") & "'"
+      Sql = Sql & " and [Server Name] = '" & Tb![Server Name] & "'"
+-     Sql = Sql & " Order by cdate([Open Time]) asc"
++     Sql = Sql & " Order by TRY_CAST([Open Time] AS datetime) asc"
+    End If
+    ConnectADORS Sql, Db, SvrRs
+      R = 0
+@@ -4396,9 +4396,9 @@
+     Dim Rcset As ADODB.Recordset
+     ConnectADODB SvrPath.TerminalPath & CheckStatDb, Db
+ 
+-    Sql = "Select distinct cast([Order Date] as datetime) as [Order Date] " & _
++    Sql = "Select distinct TRY_CAST([Order Date] AS datetime) as [Order Date] " & _
+           "from [Closed Checks] " & _
+-          "order by cast([Order Date] as datetime) asc"
++          "order by TRY_CAST([Order Date] AS datetime) asc"
+ 
+     ConnectADORS Sql, Db, Rcset
+     Do While Not Rcset.EOF
+@@ -4428,7 +4428,7 @@
+ Dim Db      As ADODB.Connection
+ Dim RS      As ADODB.Recordset
+ ConnectADODB Search_Path & FileName, Db
+-  Sql = "Select cdate([Check date]) from [Check Detail] Order By cdate([Check Date]) asc"
++  Sql = "Select TRY_CAST([Check date] AS datetime) from [Check Detail] Order By TRY_CAST([Check Date] AS datetime) asc"
+ ConnectADORS Sql, Db, RS
+ If Not RS.EOF Then
+ If Not RS.BOF Then RS.MoveFirst
+@@ -4455,12 +4455,12 @@
+  FiletoLookat = List1.List(C)
+   PDate = GetDates(FiletoLookat)
+   If IsDate(PDate.StartDate) And IsDate(PDate.EndDate) Then
+-     Sql = "Delete from [Closed Checks] where cast([Order Date] as date) Between '" & PDate.StartDate & "' and '" & PDate.EndDate & "'"
++     Sql = "Delete from [Closed Checks] where TRY_CAST([Order Date] AS date) Between '" & PDate.StartDate & "' and '" & PDate.EndDate & "'"
+      ConnectADODB SvrPath.TerminalPath & "MSaleData", Db
+      Db.Execute Sql
+-     Sql = "Delete from [Check Detail] where cast([Check Date] as date) Between '" & PDate.StartDate & "' and '" & PDate.EndDate & "'"
++     Sql = "Delete from [Check Detail] where TRY_CAST([Check Date] AS date) Between '" & PDate.StartDate & "' and '" & PDate.EndDate & "'"
+      Db.Execute Sql
+-     Sql = "Delete from [Payments] where cast([Date] as date) Between '" & PDate.StartDate & "' and '" & PDate.EndDate & "'"
++     Sql = "Delete from [Payments] where TRY_CAST([Date] AS date) Between '" & PDate.StartDate & "' and '" & PDate.EndDate & "'"
+      Db.Execute Sql
+      Db.Close
+   End If
+@@ -4661,17 +4661,17 @@
+       Case Is = 0
+           Sql = "Select * from [Closed Checks]"
+           If InStr(UCase(FiletoLookat), ".MDB") = 0 Then
+-             Sql = Sql & " Where Cast([order Date] as datetime) + cast([Open time] as datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
++             Sql = Sql & " Where TRY_CAST([order Date] AS datetime) + TRY_CAST([Open time] AS datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
+           Else
+-             Sql = Sql & " Where cdate([order Date] & ' ' & [Open time]) between #" & CDate(Searchwhen & " " & GetStartTime) & "# and #" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "#"
++             Sql = Sql & " Where cdate([order Date] & ' ' & [Open time]) between '" & Format(CDate(CDate(Searchwhen & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+           End If
+           Sql = Sql & " Order by [Check Number] asc"
+       Case Is = 1
+           Sql = "Select * from [Closed Checks] Where "
+          If IsDate(StartTime) And IsDate(EndTime) Then
+-          Sql = Sql & " Cast([Open Time] as datetime) between '" & CDate(StartTime) & "'"
++          Sql = Sql & " TRY_CAST([Open Time] AS datetime) between '" & CDate(StartTime) & "'"
+           Sql = Sql & " and '" & CDate(EndTime) & "'"
+-          Sql = Sql & " and cast([order date] as datetime) = '" & Searchwhen & "'"
++          Sql = Sql & " and TRY_CAST([order date] AS datetime) = '" & Searchwhen & "'"
+          Else
+            See_Msg "Invalid Time", 5, ""
+            Exit Sub
+@@ -4705,18 +4705,18 @@
+       Case Is = 4
+          Sql = "Select * from [Closed Checks] Where [voided Sales] > 0"
+           If InStr(UCase(FiletoLookat), ".MDB") = 0 Then
+-             Sql = Sql & " and Cast([order Date] as datetime) + cast([Open time] as datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
++             Sql = Sql & " and TRY_CAST([order Date] AS datetime) + TRY_CAST([Open time] AS datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
+           Else
+-             Sql = Sql & " and cdate([order Date] & ' ' & [Open time]) between #" & CDate(Searchwhen & " " & GetStartTime) & "# and #" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "#"
++             Sql = Sql & " and cdate([order Date] & ' ' & [Open time]) between '" & Format(CDate(CDate(Searchwhen & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+           End If
+       Case Is = 5
+           Scheck = ShowNumberPad("Enter Check No.", False, 0, 0)
+           If Val(Scheck) = 0 Then Exit Sub
+           Sql = "Select * from [Closed Checks] Where [Check Number] = " & Scheck
+           If InStr(UCase(FiletoLookat), ".MDB") = 0 Then
+-             Sql = Sql & " and Cast([order Date] as datetime) + cast([Open time] as datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
++             Sql = Sql & " and TRY_CAST([order Date] AS datetime) + TRY_CAST([Open time] AS datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
+           Else
+-             Sql = Sql & " and cdate([order Date] & ' ' & [Open time]) between #" & CDate(Searchwhen & " " & GetStartTime) & "# and #" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "#"
++             Sql = Sql & " and cdate([order Date] & ' ' & [Open time]) between '" & Format(CDate(CDate(Searchwhen & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+           End If
+       Case Is = 6
+         Scheck = ShowKeyBoard("Enter Phone or Name")
+@@ -4738,9 +4738,9 @@
+         Scheck = ShowKeyBoard("Enter Table Or Tab Name")
+         Sql = "Select * from [Closed Checks] Where [Table Number] like '" & Scheck & "%'"
+         If InStr(UCase(FiletoLookat), ".MDB") = 0 Then
+-           Sql = Sql & " and Cast([order Date] as datetime) + cast([Open time] as datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
++           Sql = Sql & " and TRY_CAST([order Date] AS datetime) + TRY_CAST([Open time] AS datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
+         Else
+-           Sql = Sql & " and cdate([order Date] & ' ' & [Open time]) between #" & CDate(Searchwhen & " " & GetStartTime) & "# and #" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "#"
++           Sql = Sql & " and cdate([order Date] & ' ' & [Open time]) between '" & Format(CDate(CDate(Searchwhen & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+         End If
+         PhoneSearch = Scheck
+       Case Is = 8
+@@ -4749,9 +4749,9 @@
+         SearchWhat = "Menu Items"
+         Sql = "Select * from [Check Detail] Where [Menu Item] like '" & Scheck & "%'"
+         If InStr(UCase(FiletoLookat), ".MDB") = 0 Then
+-           Sql = Sql & " and Cast([Check Date] as datetime) + cast([Recorded time] as datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
++           Sql = Sql & " and TRY_CAST([Check Date] AS datetime) + TRY_CAST([Recorded time] AS datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
+         Else
+-           Sql = Sql & " and cdate([Check Date] & ' ' & [Recorded time]) between #" & CDate(Searchwhen & " " & GetStartTime) & "# and #" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "#"
++           Sql = Sql & " and cdate([Check Date] & ' ' & [Recorded time]) between '" & Format(CDate(CDate(Searchwhen & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+         End If
+         ConnectADORS Sql, sDb, SRS
+          If Not SRS.EOF Then
+@@ -4769,16 +4769,16 @@
+         If Val(Scheck) = 0 Then Exit Sub
+         Sql = "Select * from [Closed Checks] Where [Check Number] = " & Scheck
+         If InStr(UCase(FiletoLookat), ".MDB") = 0 Then
+-           Sql = Sql & " and Cast([order Date] as datetime) + cast([Open time] as datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
++           Sql = Sql & " and TRY_CAST([order Date] AS datetime) + TRY_CAST([Open time] AS datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
+         Else
+-           Sql = Sql & " and cdate([order Date] & ' ' & [Open time]) between #" & CDate(Searchwhen & " " & GetStartTime) & "# and #" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "#"
++           Sql = Sql & " and cdate([order Date] & ' ' & [Open time]) between '" & Format(CDate(CDate(Searchwhen & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+         End If
+        Case Is = 10
+           SearchWhat = "Payments"
+           If Right$(UCase(FiletoLookat), 3) = "MDB" Then
+-           Sql = "Select Distinct [Payment Type] from [Payments] where Cdate([date]) + cdate([time]) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
++           Sql = "Select Distinct [Payment Type] from [Payments] where TRY_CAST([date] AS datetime) + TRY_CAST([time] AS datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
+           Else
+-           Sql = "Select Distinct [Payment Type] from [Payments] where Cast([date] as datetime) + cast([time] as datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
++           Sql = "Select Distinct [Payment Type] from [Payments] where TRY_CAST([date] AS datetime) + TRY_CAST([time] AS datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
+           End If
+           ConnectADORS Sql, sDb, SRS
+              If Not SRS.EOF Then
+@@ -4975,10 +4975,10 @@
+  If Left$(FiletoLookat, 3) <> "MDB" Then
+    If FileCheck(Search_Path & FiletoLookat) = False Then
+       FiletoLookat = "MSaleData"
+-      Sql = "Select Distinct [Check Number], sum([Payment Amount]) as [TPayment] from [Payments] where cast([Date] as date) = '" & SearchDate.List(SearchDate.ListIndex) & "'"
++      Sql = "Select Distinct [Check Number], sum([Payment Amount]) as [TPayment] from [Payments] where TRY_CAST([Date] AS date) = '" & SearchDate.List(SearchDate.ListIndex) & "'"
+    End If
+  Else
+-   Sql = "Select Distinct [Check Number], sum([Payment Amount]) as [TPayment] from [Payments] where cdate([Date]) = #" & SearchDate.List(SearchDate.ListIndex) & "#"
++   Sql = "Select Distinct [Check Number], sum([Payment Amount]) as [TPayment] from [Payments] where TRY_CAST([Date] AS datetime) = '" & Format(CDate(SearchDate.List(SearchDate.ListIndex)), "yyyy-mm-dd hh:nn:ss") & "'"
+  End If
+  If ConnectADODB(Search_Path & FiletoLookat, Db) = False Then
+     See_Msg "Error Connection To " & FiletoLookat, 5, ""
+@@ -4991,9 +4991,9 @@
+     PaymentAmt = Tb.fields("TPayment").Value
+     SQL1 = "Select * from [Closed Checks] Where [Check Number] = " & Tb.fields("Check Number").Value
+    If FiletoLookat = "MSaleData" Then
+-    SQL1 = SQL1 & " and cast([Order Date] as date) = '" & SearchDate & "'"
++    SQL1 = SQL1 & " and TRY_CAST([Order Date] AS date) = '" & SearchDate & "'"
+    Else
+-    SQL1 = SQL1 & " and cdate([Order Date]) = #" & SearchDate & "#"
++    SQL1 = SQL1 & " and TRY_CAST([Order Date] AS datetime) = '" & Format(CDate(SearchDate), "yyyy-mm-dd hh:nn:ss") & "'"
+    End If
+    ConnectADORS SQL1, Db, RS
+      If RS.EOF Then
+@@ -5006,9 +5006,9 @@
+    RS.Close
+     SQL1 = "Select * from [Check Detail] Where [Check Number] = " & Tb.fields("Check Number").Value
+     If FiletoLookat = "MSaleData" Then
+-     SQL1 = SQL1 & " and cast([Check Date] as date) = '" & SearchDate & "'"
++     SQL1 = SQL1 & " and TRY_CAST([Check Date] AS date) = '" & SearchDate & "'"
+     Else
+-     SQL1 = SQL1 & " and cdate([Check Date]) = #" & SearchDate & "#"
++     SQL1 = SQL1 & " and TRY_CAST([Check Date] AS datetime) = '" & Format(CDate(SearchDate), "yyyy-mm-dd hh:nn:ss") & "'"
+     End If
+     SQL1 = SQL1 & " and [Close out Day] = " & SearchDay
+    ConnectADORS SQL1, Db, RS
+@@ -5145,21 +5145,21 @@
+ End Sub
+ Private Function GetMDBDateTimeRange(DateIn As String, TableName As dbTableName) As String
+   If TableName = closedchecks Then
+-   GetMDBDateTimeRange = " and cdate([order Date]) + cdate([Open time]) between '" & CDate(DateIn & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(DateIn) & " " & SetEndingTime) & "'"
++   GetMDBDateTimeRange = " and TRY_CAST([order Date] AS datetime) + TRY_CAST([Open time] AS datetime) between '" & CDate(DateIn & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(DateIn) & " " & SetEndingTime) & "'"
+   ElseIf TableName = checkdetail Then
+-    GetMDBDateTimeRange = " and cdate([Check Date]) + cdate([Recorded time]) between '" & CDate(DateIn & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(DateIn) & " " & SetEndingTime) & "'"
++    GetMDBDateTimeRange = " and TRY_CAST([Check Date] AS datetime) + TRY_CAST([Recorded time] AS datetime) between '" & CDate(DateIn & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(DateIn) & " " & SetEndingTime) & "'"
+   Else
+-    GetMDBDateTimeRange = " and cdate([date]) + cdate([time]) between '" & CDate(DateIn & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(DateIn) & " " & SetEndingTime) & "'"
++    GetMDBDateTimeRange = " and TRY_CAST([date] AS datetime) + TRY_CAST([time] AS datetime) between '" & CDate(DateIn & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(DateIn) & " " & SetEndingTime) & "'"
+   End If
+ End Function
+ 
+ Private Function GetDateTimeRange(DateIn As String, TableName As dbTableName) As String
+   If TableName = closedchecks Then
+-   GetDateTimeRange = " and Cast([order Date] as datetime) + cast([Open time] as datetime) between '" & CDate(DateIn & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(DateIn) & " " & SetEndingTime) & "'"
++   GetDateTimeRange = " and TRY_CAST([order Date] AS datetime) + TRY_CAST([Open time] AS datetime) between '" & CDate(DateIn & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(DateIn) & " " & SetEndingTime) & "'"
+   ElseIf TableName = checkdetail Then
+-    GetDateTimeRange = " and Cast([Check Date] as datetime) + cast([Recorded time] as datetime) between '" & CDate(DateIn & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(DateIn) & " " & SetEndingTime) & "'"
++    GetDateTimeRange = " and TRY_CAST([Check Date] AS datetime) + TRY_CAST([Recorded time] AS datetime) between '" & CDate(DateIn & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(DateIn) & " " & SetEndingTime) & "'"
+   Else
+-    GetDateTimeRange = " and Cast([date] as datetime) + cast([time] as datetime) between '" & CDate(DateIn & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(DateIn) & " " & SetEndingTime) & "'"
++    GetDateTimeRange = " and TRY_CAST([date] AS datetime) + TRY_CAST([time] AS datetime) between '" & CDate(DateIn & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(DateIn) & " " & SetEndingTime) & "'"
+   End If
+ End Function
+ Public Sub View_Checks(FindCheckNo As Long)
+@@ -5181,9 +5181,9 @@
+ ConnectADODB Search_Path & FiletoLookat, Db
+ Sql = "Select * from [Closed Checks] where [check number] = " & FindCheckNo    '& " and [order date] = '" & Searchwhen & "'"
+ If InStr(UCase(FiletoLookat), ".MDB") = 0 Then
+-   Sql = Sql & " and Cast([order Date] as datetime) + cast([Open time] as datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
++   Sql = Sql & " and TRY_CAST([order Date] AS datetime) + TRY_CAST([Open time] AS datetime) between '" & CDate(Searchwhen & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "'"
+ Else
+-   Sql = Sql & " and cdate([order Date]) + cdate([Open time]) between #" & CDate(Searchwhen & " " & GetStartTime) & "# and #" & CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime) & "#"
++   Sql = Sql & " and TRY_CAST([order Date] AS datetime) + TRY_CAST([Open time] AS datetime) between '" & Format(CDate(CDate(Searchwhen & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+ End If
+ ConnectADORS Sql, Db, Tb
+ If Tb.EOF Then
+@@ -5269,10 +5269,10 @@
+ ReDim_Array
+         Sql = "Select * From [Check Detail] where [Check Number] = " & Check_no
+         If Right$(UCase(FiletoLookat), 3) = "MDB" Then
+-           Sql = Sql & " and cdate([Check date]) + cdate([Recorded Time]) Between #" & CDate(CheckDate & " " & CheckOpenTime) & "#"
+-           Sql = Sql & " and #" & CDate(SetEndingDate(CheckDate) & " " & SetEndingTime()) & "#"
++           Sql = Sql & " and TRY_CAST([Check date] AS datetime) + TRY_CAST([Recorded Time] AS datetime) Between '" & Format(CDate(CDate(CheckDate & " " & CheckOpenTime)), "yyyy-mm-dd hh:nn:ss") & "'"
++           Sql = Sql & " and '" & Format(CDate(CDate(SetEndingDate(CheckDate) & " " & SetEndingTime())), "yyyy-mm-dd hh:nn:ss") & "'"
+         Else
+-           Sql = Sql & " and Cast([Check date] as datetime) + cast([Recorded Time] as datetime) Between '" & CDate(CheckDate & " " & GetStartTime) & "'"
++           Sql = Sql & " and TRY_CAST([Check date] AS datetime) + TRY_CAST([Recorded Time] AS datetime) Between '" & CDate(CheckDate & " " & GetStartTime) & "'"
+            Sql = Sql & " and '" & CDate(SetEndingDate(CheckDate) & " " & SetEndingTime()) & "'"
+         End If
+         Sql = Sql & " and [Close Out Day] = " & Cod
+@@ -5409,10 +5409,10 @@
+ On Error GoTo skip
+ Sql = "Select * from [Payments] where [check number] = " & FindCheckNo & " and [Close out day] = " & Cod
+ If Right$(UCase(FiletoLookat), 3) = "MDB" Then
+-   Sql = Sql & " and cdate([date]) + cdate([Time]) Between #" & CDate(CheckDate & " " & GetStartTime) & "#"
+-   Sql = Sql & " and #" & CDate(SetEndingDate(CheckDate) & " " & SetEndingTime()) & "#"
++   Sql = Sql & " and TRY_CAST([date] AS datetime) + TRY_CAST([Time] AS datetime) Between '" & Format(CDate(CDate(CheckDate & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "'"
++   Sql = Sql & " and '" & Format(CDate(CDate(SetEndingDate(CheckDate) & " " & SetEndingTime())), "yyyy-mm-dd hh:nn:ss") & "'"
+ Else
+-   Sql = Sql & " and Cast([date] as datetime) + cast([Time] as datetime) Between '" & CDate(CheckDate & " " & GetStartTime) & "'"
++   Sql = Sql & " and TRY_CAST([date] AS datetime) + TRY_CAST([Time] AS datetime) Between '" & CDate(CheckDate & " " & GetStartTime) & "'"
+    Sql = Sql & " and '" & CDate(SetEndingDate(CheckDate) & " " & SetEndingTime()) & "'"
+ End If
+ ConnectADORS Sql, Db, RTB

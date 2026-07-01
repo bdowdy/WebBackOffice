@@ -1,0 +1,18 @@
+CLOSED_C.FRM was missed before (uppercase .FRM). It is now auto-fixed in
+uppercase_fix/fixed/CLOSED_C.FRM -- copy that over your project's M$ copy.
+
+After copying, 6 lines still need a hand-edit: cdate() applied to a CONCATENATED
+column expression (the BETWEEN bounds on these lines are already converted):
+
+  4666, 4710, 4719, 4743, 4774:
+     cdate([order Date] & ' ' & [Open time])
+       ->  TRY_CAST([order Date] + ' ' + [Open time] AS datetime)
+  4754:
+     cdate([Check Date] & ' ' & [Recorded time])
+       ->  TRY_CAST([Check Date] + ' ' + [Recorded time] AS datetime)
+
+(Same pattern as Financal_Reports.frm:11880 in the other manual list. If a column
+is already a real datetime, drop its half; if both are text, the + concat above
+parses fine.)
+
+Amount_Tend.Frm: nothing to change ("Check # " is display text, not SQL).

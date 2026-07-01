@@ -1,0 +1,132 @@
+--- Closing_Report.frm
++++ Closing_Report.frm (fixed)
+@@ -3173,7 +3173,7 @@
+   Exit Function
+ End If
+  
+- Sql = "Select * from [Sales] order by cdate([Date]) desc"
++ Sql = "Select * from [Sales] order by TRY_CAST([Date] AS datetime) desc"
+  If ConnectADORS(Sql, Db, RS) = False Then
+    HotScheduleExport = "Error Connecting to Closing History"
+    Exit Function
+@@ -3190,7 +3190,7 @@
+    Exit Function
+  End If
+  
+- Sql = ReturnDateString("Select * from [Check Header] where cdate([date]) between #" & CDate(SalesDate) + CDate(GetStartTime) & "# and #" & CDate(SetEndingDate(SalesDate)) + CDate(SetEndingTime) & "#")
++ Sql = ReturnDateString("Select * from [Check Header] where TRY_CAST([date] AS datetime) between '" & Format(CDate(CDate(SalesDate) + CDate(GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(SalesDate)) + CDate(SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'")
+  If ConnectADORS(Sql, Db, RS) = False Then
+     HotScheduleExport = "Error Connecting to Employee Records"
+    Exit Function
+@@ -3769,7 +3769,7 @@
+ SetNothing Db
+ ConnectADODB SvrPath.TerminalPath & "MSaleData", Db
+  Sql = "Delete from [Reservations] "
+- Sql = Sql & " Where cast([Date] as datetime) < '" & CDate(Date) & "'"
++ Sql = Sql & " Where TRY_CAST([Date] AS datetime) < '" & CDate(Date) & "'"
+ Db.Execute Sql
+ SetNothing Db
+ 
+@@ -3909,7 +3909,7 @@
+       Cal_LaborDollars PayRate(0).JobCodes, PayRate(0).JobRate, WrkTime, PayRate(0).JobHourly, 1, 0
+     Else
+      Sql = "Select * From [Employee Records] Where [Employee Name] = '" & SearchName & "'"
+-     Sql = Sql & " AND cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(ClosingDate) & " " & GetStartTime & "'"
++     Sql = Sql & " AND TRY_CAST([Shift Date] AS datetime) + TRY_CAST([Time In] AS datetime) Between '" & CDate(ClosingDate) & " " & GetStartTime & "'"
+      Sql = Sql & " and '" & SetEndingDate(CDate(ClosingDate)) & " " & SetEndingTime & "'"
+      ConnectADORS Sql, Db, Tb
+        Do While Not Tb.EOF
+@@ -3941,9 +3941,9 @@
+ DbClose Db, Tb
+ Ttl_L = 0
+ ConnectADODB SvrPath.TerminalPath & ClosingHistory, CHDB
+-  Sql = "delete from [Labor] where Cdate([date]) = #" & ClosingDate & "#"
++  Sql = "delete from [Labor] where TRY_CAST([date] AS datetime) = '" & Format(CDate(ClosingDate), "yyyy-mm-dd hh:nn:ss") & "'"
+ CHDB.Execute (Sql)
+-  Sql = "Select * from [Labor] where Cdate([date]) = #" & ClosingDate & "#"
++  Sql = "Select * from [Labor] where TRY_CAST([date] AS datetime) = '" & Format(CDate(ClosingDate), "yyyy-mm-dd hh:nn:ss") & "'"
+ ConnectADORS (Sql), CHDB, CHRS
+  For Pl = 0 To UBound(Dept_Pay, 1) - 1
+     If Trim(Dept_Pay(Pl).DeptName) > "" And Val(Dept_Pay(Pl).DeptDollars) > 0 And TotalNetSales > 0 Then
+@@ -3971,7 +3971,7 @@
+    End If
+  End If
+  SetNothing CHRS
+- Sql = "Select * from [Sales] where Cdate([date]) = #" & ClosingDate & "#"
++ Sql = "Select * from [Sales] where TRY_CAST([date] AS datetime) = '" & Format(CDate(ClosingDate), "yyyy-mm-dd hh:nn:ss") & "'"
+  ConnectADORS Sql, CHDB, CHRS
+    If CHRS.EOF Then CHRS.AddNew
+    CHRS![Labor Dollars] = Val(Ttl_L)
+@@ -4362,8 +4362,8 @@
+ Dim RS As ADODB.Recordset
+ Dim FS As Integer
+ FindDate = ""
+-  Sql = "Select Distinct cast([Order Date] as datetime) from [Closed Checks] Where [Close Out Day] = 0"
+-  Sql = Sql & " Group by [Order Date] Order by cast([Order Date] as datetime) asc"
++  Sql = "Select Distinct TRY_CAST([Order Date] AS datetime) from [Closed Checks] Where [Close Out Day] = 0"
++  Sql = Sql & " Group by [Order Date] Order by TRY_CAST([Order Date] AS datetime) asc"
+   ConnectADODB SvrPath.TerminalPath & CheckStatDb, Db
+   ConnectADORS Sql, Db, RS
+     If Not RS.EOF Then
+@@ -5427,10 +5427,10 @@
+   Sql = "Delete from [Sales] where Not Isdate([date])"
+   CHDB.Execute Sql
+   If OverWriteSales Then
+-    Sql = "Delete from [Sales] where cdate([date]) = #" & CDate(ClosingDate) & "#"
++    Sql = "Delete from [Sales] where TRY_CAST([date] AS datetime) = '" & Format(CDate(CDate(ClosingDate)), "yyyy-mm-dd hh:nn:ss") & "'"
+     CHDB.Execute (Sql)
+   End If
+-  Sql = "Select * from [Sales] where Cdate([date]) = #" & CDate(ClosingDate) & "#"
++  Sql = "Select * from [Sales] where TRY_CAST([date] AS datetime) = '" & Format(CDate(CDate(ClosingDate)), "yyyy-mm-dd hh:nn:ss") & "'"
+   ConnectADORS (Sql), CHDB, CHRS
+     If CHRS.EOF Then CHRS.AddNew
+     CHRS![Date] = ClosingDate
+@@ -5468,7 +5468,7 @@
+    SetNothing CHRS
+    Sql = "Select * from [Deposits]"
+    ConnectADORS Sql, CHDB, CHRS
+-    If OverWriteSales Then CHDB.Execute ("Delete from [Deposits] where cdate([date]) = #" & ClosingDate & "#")
++    If OverWriteSales Then CHDB.Execute ("Delete from [Deposits] where TRY_CAST([date] AS datetime) = '" & Format(CDate(ClosingDate), "yyyy-mm-dd hh:nn:ss") & "'")
+     For DP = 2 To 7
+       If Val(S_Data(DP)) <> 0 Then
+         CHRS.AddNew
+@@ -5483,7 +5483,7 @@
+     End If
+     Sql = "Select * from [Paid Outs]"
+     ConnectADORS Sql, CHDB, CHRS
+-      If OverWriteSales Then CHDB.Execute ("Delete from [Paid Outs] where Cdate([date]) = #" & ClosingDate & "#")
++      If OverWriteSales Then CHDB.Execute ("Delete from [Paid Outs] where TRY_CAST([date] AS datetime) = '" & Format(CDate(ClosingDate), "yyyy-mm-dd hh:nn:ss") & "'")
+       With POuts
+         For WD = 0 To .rows - 1
+          If .TextMatrix(WD, 0) = "" Then Exit For
+@@ -5502,7 +5502,7 @@
+      Sql = "Select * from [Tenders]"  ''proble Here
+      ConnectADORS Sql, CHDB, CHRS
+      CHDB.Execute ("Update [Tenders] Set [Tip Total] = 0 Where IsNull([Tip Total])")
+-      If OverWriteSales Then CHDB.Execute ("Delete from [Tenders] where Cdate([date]) = #" & ClosingDate & "#")
++      If OverWriteSales Then CHDB.Execute ("Delete from [Tenders] where TRY_CAST([date] AS datetime) = '" & Format(CDate(ClosingDate), "yyyy-mm-dd hh:nn:ss") & "'")
+          With CCards
+            For PC = 0 To .rows - 1
+             If .TextMatrix(PC, 0) = "" Then Exit For
+@@ -5521,7 +5521,7 @@
+        Set OrderDestType = New AllDestinations
+        ReturnOrderDestination OrderDestType, 1
+        If OverWriteSales Then
+-        Sql = "Delete from [Order Destination] Where cdate([date]) = #" & ClosingDate & "#"
++        Sql = "Delete from [Order Destination] Where TRY_CAST([date] AS datetime) = '" & Format(CDate(ClosingDate), "yyyy-mm-dd hh:nn:ss") & "'"
+         CHDB.Execute Sql
+        End If
+        Sql = "Select * from [Order Destination]"
+@@ -5603,10 +5603,10 @@
+     Dim WD As Integer
+     Trans_Log "Closing Flag for Over Write " & OverWriteSales
+     If OverWriteSales Then
+-      Sql = "delete from [Discounts] where cdate([date]) = #" & CDate(ClosingDate) & "#"
++      Sql = "delete from [Discounts] where TRY_CAST([date] AS datetime) = '" & Format(CDate(CDate(ClosingDate)), "yyyy-mm-dd hh:nn:ss") & "'"
+       CHDB.Execute (Sql)
+     End If
+-    Sql = "Select * from [Discounts] where cdate([date]) = #" & CDate(ClosingDate) & "#"
++    Sql = "Select * from [Discounts] where TRY_CAST([date] AS datetime) = '" & Format(CDate(CDate(ClosingDate)), "yyyy-mm-dd hh:nn:ss") & "'"
+     ConnectADORS (Sql), CHDB, CHRS
+     For WD = 1 To DiscountTotals.count
+       CHRS.AddNew

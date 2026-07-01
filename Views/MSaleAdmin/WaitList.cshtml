@@ -1,0 +1,484 @@
+@{
+    ViewData["Title"]    = "Customer Wait List";
+    ViewData["Subtitle"] = "Live wait list — add parties, track elapsed time, and seat guests.";
+}
+
+<style>
+    /* ── stats ── */
+    .wl-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+    .wl-stat  { background: #fff; border-radius: 10px; padding: 14px 18px;
+                box-shadow: 0 1px 3px rgba(0,0,0,.07); border: 1px solid #e2e8f0; }
+    .wl-stat-val   { font-size: 28px; font-weight: 700; color: #1e293b; line-height: 1; }
+    .wl-stat-label { font-size: 11px; color: #94a3b8; margin-top: 4px; letter-spacing: .04em; text-transform: uppercase; }
+
+    /* ── toolbar ── */
+    .wl-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+    .btn { border: none; border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600;
+           cursor: pointer; transition: background .15s; }
+    .btn-green  { background: #059669; color: #fff; } .btn-green:hover  { background: #047857; }
+    .btn-slate  { background: #475569; color: #fff; } .btn-slate:hover  { background: #334155; }
+    .btn-ghost  { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+    .btn-ghost:hover  { background: #e2e8f0; }
+    .btn-active { background: #1e3a5f; color: #fff; }
+    .btn-red    { background: #dc2626; color: #fff; } .btn-red:hover { background: #b91c1c; }
+    .btn-amber  { background: #d97706; color: #fff; } .btn-amber:hover { background: #b45309; }
+    .toolbar-sep { width: 1px; height: 24px; background: #e2e8f0; margin: 0 2px; }
+    .search-wrap { position: relative; margin-left: auto; }
+    .search-wrap input {
+        border: none; border-radius: 8px; padding: 7px 10px 7px 30px; font-size: 12px;
+        box-shadow: 0 0 0 1px #cbd5e1 inset; background: #fff; width: 180px;
+    }
+    .search-wrap input:focus { outline: none; box-shadow: 0 0 0 2px #059669 inset; }
+    .search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+                   width: 13px; height: 13px; color: #94a3b8; pointer-events: none; }
+
+    /* ── layout ── */
+    .wl-layout { display: flex; gap: 14px; align-items: flex-start; }
+    .wl-main   { flex: 1; min-width: 0; }
+    .wl-aside  { width: 270px; flex-shrink: 0; position: sticky; top: 80px; }
+
+    /* ── grid ── */
+    .wl-grid-wrap { background: #fff; border-radius: 10px; border: 1px solid #e2e8f0;
+                    box-shadow: 0 1px 3px rgba(0,0,0,.07); overflow: hidden; }
+    .wl-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .wl-table th {
+        background: #f8fafc; padding: 8px 10px; text-align: left; white-space: nowrap;
+        border-bottom: 2px solid #e2e8f0; color: #64748b;
+        font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+    }
+    .wl-table td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .wl-table tr:last-child td { border-bottom: none; }
+    .wl-table tr.wl-seated td { color: #94a3b8; text-decoration: line-through; background: #fafafa; }
+    .wl-table tr.wl-overdue td { color: #991b1b; background: #fff5f5; }
+    .wl-table tr.wl-overdue td:first-child { border-left: 3px solid #dc2626; }
+    .wl-table tr:not(.wl-seated):not(.wl-overdue) td:first-child { border-left: 3px solid #059669; }
+    .wl-table tbody tr { transition: background .1s; }
+    .wl-table tbody tr:hover td { filter: brightness(.97); }
+    .wl-empty { padding: 32px; text-align: center; color: #94a3b8; font-size: 13px; }
+
+    /* ── seated checkbox ── */
+    .seat-btn {
+        width: 24px; height: 24px; border-radius: 6px; border: 2px solid #cbd5e1;
+        background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        transition: all .15s;
+    }
+    .seat-btn.checked { background: #059669; border-color: #059669; }
+    .seat-btn svg { width: 13px; height: 13px; stroke: #fff; display: none; }
+    .seat-btn.checked svg { display: block; }
+
+    /* ── text-sent badge ── */
+    .text-btn {
+        padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;
+        border: none; cursor: pointer; white-space: nowrap;
+        background: #fef9c3; color: #854d0e;
+    }
+    .text-btn.sent { background: #dcfce7; color: #166534; cursor: default; }
+
+    /* ── add form ── */
+    .add-card { background: #fff; border-radius: 10px; border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 3px rgba(0,0,0,.07); padding: 16px; }
+    .add-card h4 { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 12px; }
+    .add-field { margin-bottom: 10px; }
+    .add-field label { display: block; font-size: 10px; font-weight: 600; color: #64748b;
+                       letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+    .add-field input, .add-field select {
+        width: 100%; border: none; border-radius: 7px; padding: 7px 10px; font-size: 13px;
+        box-shadow: 0 0 0 1px #cbd5e1 inset; background: #fff; color: #1e293b; box-sizing: border-box;
+    }
+    .add-field input:focus, .add-field select:focus { outline: none; box-shadow: 0 0 0 2px #059669 inset; }
+    .add-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* ── reservation pull notice ── */
+    .pull-notice {
+        display: none; margin-bottom: 10px; padding: 10px 14px;
+        background: #ecfdf5; border: 1px solid #6ee7b7; border-radius: 8px;
+        font-size: 12px; color: #065f46;
+    }
+
+    @@media (max-width: 860px) {
+        .wl-layout { flex-direction: column; }
+        .wl-aside  { width: 100%; position: static; }
+        .wl-stats  { grid-template-columns: repeat(3, 1fr); }
+    }
+</style>
+
+<!-- ── reservation pull notice ── -->
+<div class="pull-notice" id="pullNotice"></div>
+
+<!-- ── stats ── -->
+<div class="wl-stats">
+    <div class="wl-stat">
+        <div class="wl-stat-val" id="statParties">—</div>
+        <div class="wl-stat-label">Parties Waiting</div>
+    </div>
+    <div class="wl-stat">
+        <div class="wl-stat-val" id="statGuests">—</div>
+        <div class="wl-stat-label">Guests Waiting</div>
+    </div>
+    <div class="wl-stat">
+        <div class="wl-stat-val" id="statAvg">—</div>
+        <div class="wl-stat-label">Average Wait</div>
+    </div>
+</div>
+
+<!-- ── toolbar ── -->
+<div class="wl-toolbar">
+    <button class="btn btn-green" onclick="showAddForm()">+ Add Party</button>
+    <div class="toolbar-sep"></div>
+    <button class="btn btn-active" id="btnWaiting"    onclick="setFilter('waiting')">Waiting Only</button>
+    <button class="btn btn-ghost"  id="btnAll"         onclick="setFilter('all')">Show All</button>
+    <div class="toolbar-sep"></div>
+    <button class="btn btn-ghost"  id="btnSortTime"   onclick="setSort('timein')">By Time In</button>
+    <button class="btn btn-ghost"  id="btnSortParty"  onclick="setSort('party')">By Party Size</button>
+    <button class="btn btn-ghost"  id="btnSortPref"   onclick="setSort('preference')">By Preference</button>
+    <div class="toolbar-sep"></div>
+    <button class="btn btn-red"    onclick="clearList()">Clear Seated</button>
+    <button class="btn btn-ghost"  onclick="refresh()" title="Refresh now">&#8635; Refresh</button>
+    <div class="search-wrap">
+        <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input id="searchInput" placeholder="Search by name…" oninput="debounceRefresh()" />
+    </div>
+</div>
+
+<!-- ── main layout ── -->
+<div class="wl-layout">
+
+    <!-- grid -->
+    <div class="wl-main">
+        <div class="wl-grid-wrap">
+            <table class="wl-table">
+                <thead>
+                    <tr>
+                        <th style="width:38px;">Seated</th>
+                        <th style="width:46px;">#</th>
+                        <th>Name</th>
+                        <th style="width:70px;">Time In</th>
+                        <th style="width:72px;">Waiting</th>
+                        <th>Preference</th>
+                        <th style="width:66px;">Quoted</th>
+                        <th style="width:110px;">Cell</th>
+                        <th style="width:70px;">Area</th>
+                        <th style="width:90px;">Notify</th>
+                    </tr>
+                </thead>
+                <tbody id="wlBody">
+                    <tr><td colspan="10" class="wl-empty">Loading…</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- add-party panel -->
+    <div class="wl-aside" id="addPanel" style="display:none;">
+        <div class="add-card">
+            <h4>Add Party to Wait List</h4>
+
+            <div class="add-field">
+                <label>Customer Name *</label>
+                <input id="addName" placeholder="Smith" />
+            </div>
+
+            <div class="add-field-row">
+                <div class="add-field">
+                    <label>Party Size</label>
+                    <select id="addSize">
+                        <option value="1">1</option>
+                        <option value="2" selected>2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
+                <div class="add-field">
+                    <label>Time In</label>
+                    <input type="time" id="addTimeIn" />
+                </div>
+            </div>
+
+            <div class="add-field">
+                <label>Seating Preference</label>
+                <select id="addPref">
+                    <option value="Any">Any</option>
+                    <option value="Booth">Booth</option>
+                    <option value="Table">Table</option>
+                    <option value="Bar">Bar</option>
+                    <option value="High Top">High Top</option>
+                    <option value="Patio">Patio</option>
+                    <option value="Outside">Outside</option>
+                </select>
+            </div>
+
+            <div class="add-field-row">
+                <div class="add-field">
+                    <label>Quoted Wait (min)</label>
+                    <input type="number" id="addQuoted" min="0" max="999" value="20" />
+                </div>
+                <div class="add-field">
+                    <label>Cell Phone</label>
+                    <input id="addCell" placeholder="555-1234" type="tel" />
+                </div>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:6px;">
+                <button class="btn btn-green" style="flex:1;" onclick="addParty()">Add to List</button>
+                <button class="btn btn-ghost" onclick="hideAddForm()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let currentFilter = 'waiting';
+    let currentSort   = 'timein';
+    let refreshTimer  = null;
+    let debounceTimer = null;
+
+    // ── Init ──────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+        setNowTime();
+        pullReservations();          // pull pending reservations on load
+        refresh();
+        startAutoRefresh();
+    });
+
+    function setNowTime() {
+        const now = new Date();
+        const hh  = String(now.getHours()).padStart(2, '0');
+        const mm  = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('addTimeIn').value = `${hh}:${mm}`;
+    }
+
+    // ── Auto-refresh every 15 s ───────────────────────────────────
+    function startAutoRefresh() {
+        clearInterval(refreshTimer);
+        refreshTimer = setInterval(refresh, 15000);
+    }
+
+    function refresh() {
+        loadStats();
+        loadList();
+    }
+
+    function debounceRefresh() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(refresh, 400);
+    }
+
+    // ── Pull reservations due soon ────────────────────────────────
+    function pullReservations() {
+        fetch('/WaitList/PullReservations', { method: 'POST' })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success && result.added > 0) {
+                    const notice = document.getElementById('pullNotice');
+                    notice.textContent = `${result.added} reservation${result.added === 1 ? '' : 's'} moved from Reservations to the Wait List.`;
+                    notice.style.display = 'block';
+                    setTimeout(() => notice.style.display = 'none', 8000);
+                }
+            })
+            .catch(() => {});
+    }
+
+    // ── Stats ─────────────────────────────────────────────────────
+    function loadStats() {
+        fetch('/WaitList/GetStats')
+            .then(r => r.json())
+            .then(s => {
+                if (s.error) return;
+                document.getElementById('statParties').textContent = s.parties;
+                document.getElementById('statGuests').textContent  = s.guests;
+                document.getElementById('statAvg').textContent     = s.avgWait;
+            })
+            .catch(() => {});
+    }
+
+    // ── List ──────────────────────────────────────────────────────
+    function loadList() {
+        const search = document.getElementById('searchInput').value.trim();
+        const params = new URLSearchParams({ filter: currentFilter, sort: currentSort });
+        if (search) params.set('search', search);
+
+        fetch('/WaitList/GetAll?' + params.toString())
+            .then(r => r.json())
+            .then(data => {
+                const body = document.getElementById('wlBody');
+                if (data.error) {
+                    body.innerHTML = `<tr><td colspan="10" class="wl-empty" style="color:#dc2626;">Error: ${esc(data.error)}</td></tr>`;
+                    return;
+                }
+                if (!data.length) {
+                    body.innerHTML = `<tr><td colspan="10" class="wl-empty">No parties on the wait list.</td></tr>`;
+                    return;
+                }
+
+                body.innerHTML = '';
+                data.forEach(r => {
+                    const tr = document.createElement('tr');
+                    if (r.seated)  tr.classList.add('wl-seated');
+                    if (r.overdue) tr.classList.add('wl-overdue');
+
+                    const elapsedStr = r.elapsed > 0 ? `${r.elapsed} min` : '< 1 min';
+                    const quotedStr  = r.quoted  > 0 ? `${r.quoted} min`  : '—';
+                    const textLabel  = r.textTime
+                        ? `Sent ${r.textTime}`
+                        : 'Notify';
+                    const textClass  = r.textTime ? 'text-btn sent' : 'text-btn';
+                    const textDisabled = r.textTime ? 'disabled' : '';
+
+                    tr.innerHTML = `
+                        <td>
+                            <button class="seat-btn ${r.seated ? 'checked' : ''}"
+                                    onclick="toggleSeated(${r.id}, ${r.seated}, this)"
+                                    title="${r.seated ? 'Mark waiting' : 'Mark seated'}">
+                                <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                                </svg>
+                            </button>
+                        </td>
+                        <td style="font-weight:600;text-align:center;">${r.partySize}</td>
+                        <td style="font-weight:600;">${esc(r.name)}</td>
+                        <td>${esc(r.timeIn)}</td>
+                        <td style="font-variant-numeric:tabular-nums;">${r.seated ? (r.timeSeated ? `Out ${esc(r.timeSeated)}` : '—') : elapsedStr}</td>
+                        <td>${esc(r.preference)}</td>
+                        <td style="text-align:center;">${quotedStr}</td>
+                        <td style="font-size:11px;">${esc(r.cell)}</td>
+                        <td style="font-size:11px;">${esc(r.area)}</td>
+                        <td>
+                            <button class="${textClass}" ${textDisabled}
+                                    onclick="sendText(${r.id}, this)">
+                                ${esc(textLabel)}
+                            </button>
+                        </td>`;
+
+                    body.appendChild(tr);
+                });
+            })
+            .catch(() => {});
+    }
+
+    // ── Filter / sort toggles ─────────────────────────────────────
+    function setFilter(f) {
+        currentFilter = f;
+        document.getElementById('btnWaiting').className = f === 'waiting' ? 'btn btn-active' : 'btn btn-ghost';
+        document.getElementById('btnAll').className     = f === 'all'     ? 'btn btn-active' : 'btn btn-ghost';
+        loadList();
+    }
+
+    function setSort(s) {
+        currentSort = s;
+        ['btnSortTime','btnSortParty','btnSortPref'].forEach(id =>
+            document.getElementById(id).className = 'btn btn-ghost');
+        const map = { timein: 'btnSortTime', party: 'btnSortParty', preference: 'btnSortPref' };
+        document.getElementById(map[s]).className = 'btn btn-active';
+        loadList();
+    }
+
+    // ── Toggle seated ─────────────────────────────────────────────
+    function toggleSeated(id, currentlySeated, btn) {
+        const newSeated = !currentlySeated;
+        fetch('/WaitList/SetSeated', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, seated: newSeated })
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) { refresh(); }
+            else alert(result.message || 'Failed to update.');
+        });
+    }
+
+    // ── Send text notification (stamps TextTime) ──────────────────
+    function sendText(id, btn) {
+        if (!confirm('Mark table-ready notification as sent for this party?')) return;
+        fetch('/WaitList/SendText', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                btn.textContent = `Sent ${result.textTime}`;
+                btn.classList.add('sent');
+                btn.disabled = true;
+            } else {
+                alert(result.message || 'Failed.');
+            }
+        });
+    }
+
+    // ── Add party ─────────────────────────────────────────────────
+    function addParty() {
+        const dto = {
+            name:       document.getElementById('addName').value.trim(),
+            partySize:  parseInt(document.getElementById('addSize').value),
+            timeIn:     document.getElementById('addTimeIn').value,
+            preference: document.getElementById('addPref').value,
+            quoted:     parseInt(document.getElementById('addQuoted').value) || 0,
+            cell:       document.getElementById('addCell').value.trim(),
+            area:       'ALL'
+        };
+        if (!dto.name) { alert('Enter a customer name.'); return; }
+
+        fetch('/WaitList/Add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dto)
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                resetAddForm();
+                hideAddForm();
+                refresh();
+            } else {
+                alert(result.message || 'Failed to add party.');
+            }
+        });
+    }
+
+    // ── Clear seated ──────────────────────────────────────────────
+    function clearList() {
+        if (!confirm('Archive all seated parties and clear them from the list?')) return;
+        fetch('/WaitList/ClearList', { method: 'POST' })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) refresh();
+                else alert(result.message || 'Failed.');
+            });
+    }
+
+    // ── Add form show/hide ────────────────────────────────────────
+    function showAddForm() {
+        setNowTime();
+        document.getElementById('addPanel').style.display = '';
+        document.getElementById('addName').focus();
+    }
+
+    function hideAddForm() {
+        document.getElementById('addPanel').style.display = 'none';
+    }
+
+    function resetAddForm() {
+        document.getElementById('addName').value   = '';
+        document.getElementById('addSize').value   = '2';
+        document.getElementById('addPref').value   = 'Any';
+        document.getElementById('addQuoted').value = '20';
+        document.getElementById('addCell').value   = '';
+        setNowTime();
+    }
+
+    // ── Helper ────────────────────────────────────────────────────
+    function esc(s) {
+        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+</script>

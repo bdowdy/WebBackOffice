@@ -1,0 +1,676 @@
+@{
+    ViewData["Title"] = "Printer Setup";
+}
+
+<div class="space-y-4">
+
+    <!-- Toolbar -->
+    <div class="flex flex-wrap items-center gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+        <h2 class="text-base font-semibold text-slate-900">Printer Setup</h2>
+        <div class="flex-1"></div>
+        <button onclick="location.href='/MSaleAdmin'" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">Dashboard</button>
+        <button onclick="location.href='/'" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">Exit</button>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="flex flex-wrap gap-1 rounded-xl bg-white p-2 shadow-sm ring-1 ring-slate-200" id="tabBar">
+        <button onclick="psTab(this,'receipt')"  class="ps-tab ps-tab-on  rounded-lg px-4 py-2 text-sm font-semibold">Receipt Printer</button>
+        <button onclick="psTab(this,'remote')"   class="ps-tab rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Remote Printers</button>
+        <button onclick="psTab(this,'drawer')"   class="ps-tab rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Cash Drawer</button>
+        <button onclick="psTab(this,'logo')"     class="ps-tab rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Printer Logo</button>
+        <button onclick="psTab(this,'routing')"  class="ps-tab rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Receipt Routing</button>
+        <button onclick="psTab(this,'move')"     class="ps-tab rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Move Printer</button>
+        <button onclick="psTab(this,'hibachi')"  class="ps-tab rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Hibachi Grill</button>
+    </div>
+
+    <!-- ── RECEIPT PRINTER ────────────────────────────────────────────── -->
+    <div id="ps-receipt" class="ps-panel space-y-4">
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="mb-4 text-sm font-semibold text-slate-800">Receipt Printer</h3>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Name</label>
+                    <input type="text" id="rctName" value="Receipt" readonly
+                           class="mt-1 block w-full rounded-lg border-0 bg-slate-50 px-3 py-2 text-sm text-slate-500 shadow-sm ring-1 ring-inset ring-slate-300" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Port / Printer</label>
+                    <select id="rctPort" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Device Name</label>
+                    <select id="rctDevice" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Failed Fallback</label>
+                    <select id="rctFailed" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+            </div>
+
+            <div class="my-5 border-t border-slate-200"></div>
+            <h4 class="mb-4 text-sm font-semibold text-slate-700">Slip / Report Printer</h4>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Port / Printer</label>
+                    <select id="slipPort" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Device Name</label>
+                    <select id="slipDevice" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700">Report Logo Path</label>
+                    <p class="mt-0.5 text-xs text-slate-500">80-column report call-display customer logo file path.</p>
+                    <div class="mt-1 flex gap-2">
+                        <input type="text" id="reportLogo" placeholder="Path to logo file…"
+                               class="flex-1 rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                        <button onclick="alert('Wire up server-side file picker')"
+                                class="inline-flex items-center rounded-lg bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">Browse</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 flex gap-2">
+                <button onclick="saveReceiptPrinter()"
+                        class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── REMOTE PRINTERS ────────────────────────────────────────────── -->
+    <div id="ps-remote" class="ps-panel hidden space-y-4">
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="mb-1 text-sm font-semibold text-slate-800">Remote Printer Setup</h3>
+            <p class="mb-4 text-xs text-slate-500">Select an existing printer or type a new name, configure its port and options, then save.</p>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700">Printer Name</label>
+                    <div class="mt-1 flex gap-2">
+                        <input type="text" id="rmtName" placeholder="Type a name or pick below…"
+                               class="flex-1 rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                        <select id="rmtNamePicker" onchange="pickExistingPrinter(this.value)"
+                                class="w-44 rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300">
+                            <option value="">— existing —</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Port / Printer</label>
+                    <select id="rmtPort" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Device Name</label>
+                    <select id="rmtDevice" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Failed Fallback</label>
+                    <select id="rmtFailed" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Go Order Printer</label>
+                    <select id="rmtGo" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Delivery Printer</label>
+                    <select id="rmtDelivery" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+            </div>
+
+            <label class="mt-4 flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="firePrinter" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                <span class="text-sm font-medium text-slate-700">Fire printer — send orders immediately</span>
+            </label>
+
+            <div class="mt-5 flex flex-wrap gap-2">
+                <button onclick="savePrinter()"
+                        class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500">Save</button>
+                <button onclick="deletePrinter()"
+                        class="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500">Delete</button>
+                <button onclick="addDefaultPrinters()"
+                        class="inline-flex items-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">Add Default Printers</button>
+            </div>
+        </div>
+
+        <!-- Configured printers list -->
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="mb-4 text-sm font-semibold text-slate-800">Configured Remote Printers</h3>
+            <div id="rmtList"><p class="text-sm italic text-slate-400">No printers loaded yet.</p></div>
+        </div>
+    </div>
+
+    <!-- ── CASH DRAWER ─────────────────────────────────────────────────── -->
+    <div id="ps-drawer" class="ps-panel hidden">
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="mb-1 text-sm font-semibold text-slate-800">Cash Drawer Setup</h3>
+            <p class="mb-4 text-xs text-slate-500">Set the port, baud rate, and ESC open-drawer command bytes for each drawer.</p>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200">
+                            <th class="pb-2 pr-3 text-left font-semibold text-slate-600">Drawer</th>
+                            <th class="pb-2 pr-3 text-left font-semibold text-slate-600">Port</th>
+                            <th class="pb-2 pr-3 text-left font-semibold text-slate-600">Rate</th>
+                            <th class="pb-2 pr-1 text-center font-semibold text-slate-600">ESC 1</th>
+                            <th class="pb-2 pr-1 text-center font-semibold text-slate-600">ESC 2</th>
+                            <th class="pb-2 pr-1 text-center font-semibold text-slate-600">ESC 3</th>
+                            <th class="pb-2 pr-1 text-center font-semibold text-slate-600">ESC 4</th>
+                            <th class="pb-2 pr-3 text-center font-semibold text-slate-600">ESC 5</th>
+                            <th class="pb-2 text-left font-semibold text-slate-600">Test</th>
+                        </tr>
+                    </thead>
+                    <tbody id="drawerBody"></tbody>
+                </table>
+            </div>
+            <div class="mt-5 flex gap-2">
+                <button onclick="saveDrawer()"
+                        class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500">Save Drawer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── PRINTER LOGO ────────────────────────────────────────────────── -->
+    <div id="ps-logo" class="ps-panel hidden">
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="mb-1 text-sm font-semibold text-slate-800">Printer Logo Setup</h3>
+            <p class="mb-4 text-xs text-slate-500">Select a BMP logo file and configure the ESC/POS NV bit-image escape codes.</p>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700">Logo BMP File</label>
+                <div class="mt-1 flex gap-2">
+                    <input type="text" id="logoFile" placeholder="No file selected…" readonly
+                           class="flex-1 rounded-lg border-0 bg-slate-50 px-3 py-2 text-sm text-slate-500 shadow-sm ring-1 ring-inset ring-slate-300" />
+                    <button onclick="document.getElementById('logoPicker').click()"
+                            class="inline-flex items-center rounded-lg bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">Browse</button>
+                    <input type="file" id="logoPicker" accept=".bmp" class="hidden" onchange="setLogoFile(this)" />
+                </div>
+            </div>
+
+            <div class="mb-2 text-sm font-medium text-slate-700">ESC Codes</div>
+            <div class="flex flex-wrap items-center gap-3">
+                <label class="text-xs text-slate-500">1:</label><input type="number" id="escC0" value="0" min="0" max="255" class="w-16 rounded-lg border-0 bg-white px-2 py-1.5 text-center text-sm shadow-sm ring-1 ring-inset ring-slate-300" />
+                <label class="text-xs text-slate-500">2:</label><input type="number" id="escC1" value="0" min="0" max="255" class="w-16 rounded-lg border-0 bg-white px-2 py-1.5 text-center text-sm shadow-sm ring-1 ring-inset ring-slate-300" />
+                <label class="text-xs text-slate-500">3:</label><input type="number" id="escC2" value="0" min="0" max="255" class="w-16 rounded-lg border-0 bg-white px-2 py-1.5 text-center text-sm shadow-sm ring-1 ring-inset ring-slate-300" />
+                <label class="text-xs text-slate-500">4:</label><input type="number" id="escC3" value="0" min="0" max="255" class="w-16 rounded-lg border-0 bg-white px-2 py-1.5 text-center text-sm shadow-sm ring-1 ring-inset ring-slate-300" />
+                <label class="text-xs text-slate-500">5:</label><input type="number" id="escC4" value="0" min="0" max="255" class="w-16 rounded-lg border-0 bg-white px-2 py-1.5 text-center text-sm shadow-sm ring-1 ring-inset ring-slate-300" />
+            </div>
+
+            <div class="mt-5 flex flex-wrap gap-2">
+                <button onclick="saveLogo()"
+                        class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500">Save</button>
+                <button onclick="deleteLogo()"
+                        class="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500">Delete</button>
+                <button onclick="alert('Wire up Load Logo to Printer via your printer API')"
+                        class="inline-flex items-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">Load Logo to Printer</button>
+                <button onclick="alert('Opens ESC codes reference')"
+                        class="inline-flex items-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">Printer ESC Codes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── RECEIPT ROUTING ─────────────────────────────────────────────── -->
+    <div id="ps-routing" class="ps-panel hidden">
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="mb-1 text-sm font-semibold text-slate-800">Receipt Printer Routing</h3>
+            <p class="mb-4 text-xs text-slate-500">Route receipts for different order types to a different printer port.</p>
+
+            <h4 class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Delivery / Pick-Up Receipt</h4>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Port / Printer</label>
+                    <select id="rtPort" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Device Name</label>
+                    <select id="rtDevice" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+            </div>
+
+            <div class="my-5 border-t border-slate-200"></div>
+            <h4 class="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Go Order / Drive-Thru Receipt</h4>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Port / Printer</label>
+                    <select id="goPort" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Device Name</label>
+                    <select id="goDevice" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                </div>
+            </div>
+
+            <div class="mt-5 flex gap-2">
+                <button onclick="saveRouting()"
+                        class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── MOVE REMOTE PRINTER ─────────────────────────────────────────── -->
+    <div id="ps-move" class="ps-panel hidden">
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="mb-1 text-sm font-semibold text-slate-800">Move Remote Printer</h3>
+            <p class="mb-4 text-xs text-slate-500">Reassigns all menu items (Remote 1–6) from one printer to another.</p>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">From Printer</label>
+                    <select id="mvFrom" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                        <option value="">— select source —</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">To Printer</label>
+                    <select id="mvTo" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                        <option value="">— select destination —</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-5 flex gap-2">
+                <button onclick="moveRemotePrinter()"
+                        class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500">Move Remote Printer</button>
+            </div>
+            <p id="mvResult" class="mt-3 text-sm font-medium text-emerald-700"></p>
+        </div>
+    </div>
+
+    <!-- ── HIBACHI GRILL ───────────────────────────────────────────────── -->
+    <div id="ps-hibachi" class="ps-panel hidden">
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h3 class="mb-1 text-sm font-semibold text-slate-800">Hibachi Grill Setup</h3>
+            <p class="mb-4 text-xs text-slate-500">Assign a printer and define which table numbers it serves.</p>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-700">Printer Assignment</label>
+                <select id="hibPrinter" class="mt-1 block w-64 rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                    <option value="">— select printer —</option>
+                </select>
+            </div>
+            <div class="mb-2 text-sm font-medium text-slate-700">Table Assignments</div>
+            <div class="max-h-64 overflow-y-auto rounded-lg ring-1 ring-slate-200">
+                <table class="w-full border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-50">
+                            <th class="w-12 py-2 pl-3 text-left text-xs font-semibold text-slate-500">#</th>
+                            <th class="py-2 pl-2 text-left text-xs font-semibold text-slate-500">Table Number</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hibRows"></tbody>
+                </table>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-2">
+                <button onclick="addHibRow()"
+                        class="inline-flex items-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">+ Add Row</button>
+                <button onclick="saveHibachi()"
+                        class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500">Save</button>
+                <button onclick="deleteHibachi()"
+                        class="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500">Delete</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Toast -->
+<div id="psToast"
+     class="pointer-events-none fixed bottom-5 right-5 z-50 rounded-xl bg-slate-900 px-5 py-3 text-sm font-medium text-white opacity-0 shadow-lg transition-opacity duration-300">
+</div>
+
+<style>
+    .ps-tab-on { background-color: #059669; color: #fff; }
+    .ps-tab-on:hover { background-color: #047857; }
+</style>
+
+<script>
+    const PORTS = ['None','COM1','COM2','COM3','COM4','LPT1','LPT2','USB001','USB002','USB003'];
+    const RATES = ['None','9600','19200','38400','57600','115200'];
+
+    let printers = [];
+    const local = {
+        receipt: { port:'None', device:'None', failed:'None', reportLogo:'', slipPort:'None', slipDevice:'None' },
+        drawers: [
+            { port:'None', rate:'None', d:[0,0,0,0,0] },
+            { port:'None', rate:'None', d:[0,0,0,0,0] }
+        ],
+        logo: { file:'', esc:[0,0,0,0,0] },
+        routing: { rtPort:'None', rtDevice:'None', goPort:'None', goDevice:'None' },
+        hibachi: { printer:'', tables:[] }
+    };
+
+    // ── Tabs ────────────────────────────────────────────────────────────
+    function psTab(btn, id) {
+        document.querySelectorAll('.ps-tab').forEach(b => {
+            b.classList.remove('ps-tab-on');
+            b.classList.add('text-slate-600');
+        });
+        document.querySelectorAll('.ps-panel').forEach(p => p.classList.add('hidden'));
+        btn.classList.add('ps-tab-on');
+        btn.classList.remove('text-slate-600');
+        document.getElementById('ps-' + id).classList.remove('hidden');
+    }
+
+    // ── Toast ────────────────────────────────────────────────────────────
+    function psToast(msg) {
+        const t = document.getElementById('psToast');
+        t.textContent = msg;
+        t.style.opacity = '1';
+        setTimeout(() => { t.style.opacity = '0'; }, 2400);
+    }
+
+    // ── Select helpers ────────────────────────────────────────────────────
+    function fillSel(id, opts, val) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = opts.map(o => `<option${o === val ? ' selected' : ''}>${o}</option>`).join('');
+    }
+    function printerNames() { return ['None', ...printers.map(p => p.printerName)]; }
+
+    function refreshSelects() {
+        const names = printerNames();
+        fillSel('rctFailed',    names, local.receipt.failed);
+        fillSel('rmtFailed',    names, 'None');
+        fillSel('rmtGo',        names, 'None');
+        fillSel('rmtDelivery',  names, 'None');
+        fillSel('rtPort',       names, local.routing.rtPort);
+        fillSel('goPort',       names, local.routing.goPort);
+
+        document.getElementById('rmtNamePicker').innerHTML =
+            '<option value="">— existing —</option>' +
+            printers.map(p => `<option>${p.printerName}</option>`).join('');
+
+        ['mvFrom','mvTo'].forEach(id => {
+            document.getElementById(id).innerHTML =
+                '<option value="">— select —</option>' +
+                printers.map(p => `<option>${p.printerName}</option>`).join('');
+        });
+
+        document.getElementById('hibPrinter').innerHTML =
+            '<option value="">— select printer —</option>' +
+            printers.map(p =>
+                `<option${p.printerName === local.hibachi.printer ? ' selected' : ''}>${p.printerName}</option>`
+            ).join('');
+
+        renderRemoteList();
+    }
+
+    function initStaticSelects() {
+        fillSel('rctPort',    PORTS, local.receipt.port);
+        fillSel('rctDevice',  PORTS, local.receipt.device);
+        fillSel('slipPort',   PORTS, local.receipt.slipPort);
+        fillSel('slipDevice', PORTS, local.receipt.slipDevice);
+        fillSel('rmtPort',    PORTS, 'None');
+        fillSel('rmtDevice',  PORTS, 'None');
+        fillSel('rtDevice',   PORTS, local.routing.rtDevice);
+        fillSel('goDevice',   PORTS, local.routing.goDevice);
+        document.getElementById('reportLogo').value = local.receipt.reportLogo || '';
+    }
+
+    // ── Load printers ─────────────────────────────────────────────────────
+    function loadPrinters() {
+        fetch('/PrinterSetup/GetSystemPrinters')
+            .then(r => r.json())
+            .then(data => { printers = data; refreshSelects(); })
+            .catch(err => console.warn('Could not load printers:', err.message));
+    }
+
+    // ── Remote printer list ───────────────────────────────────────────────
+    function renderRemoteList() {
+        const div = document.getElementById('rmtList');
+        if (!printers.length) {
+            div.innerHTML = '<p class="text-sm italic text-slate-400">No printers configured yet.</p>';
+            return;
+        }
+        div.innerHTML = `
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200">
+                            <th class="pb-2 pr-4 text-left text-xs font-semibold text-slate-500">Name</th>
+                            <th class="pb-2 pr-4 text-left text-xs font-semibold text-slate-500">Port</th>
+                            <th class="pb-2 pr-4 text-left text-xs font-semibold text-slate-500">Data Rate</th>
+                            <th class="pb-2 pr-4 text-left text-xs font-semibold text-slate-500">Failed</th>
+                            <th class="pb-2 pr-4 text-left text-xs font-semibold text-slate-500">Go Order</th>
+                            <th class="pb-2 pr-4 text-left text-xs font-semibold text-slate-500">Delivery</th>
+                            <th class="pb-2 text-center text-xs font-semibold text-slate-500">Fire</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${printers.map(p => `
+                            <tr class="cursor-pointer border-b border-slate-100 hover:bg-slate-50" onclick="loadRemotePrinter('${p.printerName}')">
+                                <td class="py-2 pr-4 font-semibold text-slate-800">${p.printerName}</td>
+                                <td class="py-2 pr-4 text-slate-600">${p.portName  || ''}</td>
+                                <td class="py-2 pr-4 text-slate-600">${p.dataRate  || ''}</td>
+                                <td class="py-2 pr-4 text-slate-600">${p.failed    || ''}</td>
+                                <td class="py-2 pr-4 text-slate-600">${p.goOrder   || ''}</td>
+                                <td class="py-2 pr-4 text-slate-600">${p.delivery  || ''}</td>
+                                <td class="py-2 text-center text-emerald-600">${p.fireOrder ? '✓' : ''}</td>
+                            </tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+    }
+
+    function loadRemotePrinter(name) {
+        const p = printers.find(x => x.printerName === name);
+        if (!p) return;
+        document.getElementById('rmtName').value     = p.printerName;
+        document.getElementById('rmtPort').value     = p.portName  || 'None';
+        document.getElementById('rmtDevice').value   = p.dataRate  || 'None';
+        document.getElementById('rmtFailed').value   = p.failed    || 'None';
+        document.getElementById('rmtGo').value       = p.goOrder   || 'None';
+        document.getElementById('rmtDelivery').value = p.delivery  || 'None';
+        document.getElementById('firePrinter').checked = !!p.fireOrder;
+    }
+
+    function pickExistingPrinter(name) {
+        if (!name) return;
+        loadRemotePrinter(name);
+        document.getElementById('rmtNamePicker').value = '';
+    }
+
+    // ── Save / Delete printer ─────────────────────────────────────────────
+    function savePrinter() {
+        const name = document.getElementById('rmtName').value.trim();
+        if (!name) { alert('Enter a printer name.'); return; }
+        fetch('/PrinterSetup/SaveSystemPrinter', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                printerName: name,
+                portName:    document.getElementById('rmtPort').value,
+                dataRate:    document.getElementById('rmtDevice').value,
+                failed:      document.getElementById('rmtFailed').value,
+                goOrder:     document.getElementById('rmtGo').value,
+                delivery:    document.getElementById('rmtDelivery').value,
+                fireOrder:   document.getElementById('firePrinter').checked,
+                printerGroup: ''
+            })
+        })
+        .then(r => r.json())
+        .then(() => { loadPrinters(); psToast(`"${name}" saved.`); })
+        .catch(err => alert('Could not save printer: ' + err.message));
+    }
+
+    function deletePrinter() {
+        const name = document.getElementById('rmtName').value.trim();
+        if (!name) { alert('Enter or select a printer name first.'); return; }
+        if (!confirm('Delete printer ' + name + '?')) return;
+        fetch('/PrinterSetup/DeleteSystemPrinter', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ printerName: name })
+        })
+        .then(r => r.json())
+        .then(() => {
+            document.getElementById('rmtName').value = '';
+            document.getElementById('firePrinter').checked = false;
+            loadPrinters(); psToast(`"${name}" deleted.`);
+        })
+        .catch(err => alert('Could not delete printer: ' + err.message));
+    }
+
+    function addDefaultPrinters() {
+        const defaults = ['Kitchen','Hot','Cold','Expo','Bar'];
+        const existing = printers.map(p => p.printerName);
+        const toAdd = defaults.filter(n => !existing.includes(n));
+        if (!toAdd.length) { psToast('Default printers already exist.'); return; }
+        Promise.all(toAdd.map(n =>
+            fetch('/PrinterSetup/SaveSystemPrinter', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ printerName: n, portName:'None', dataRate:'None',
+                    failed:'None', goOrder:'None', delivery:'None', fireOrder:false })
+            }).then(r => r.json())
+        ))
+        .then(() => { loadPrinters(); psToast('Default printers added.'); })
+        .catch(err => alert('Error: ' + err.message));
+    }
+
+    // ── Receipt printer ───────────────────────────────────────────────────
+    function saveReceiptPrinter() {
+        local.receipt = {
+            port:       document.getElementById('rctPort').value,
+            device:     document.getElementById('rctDevice').value,
+            failed:     document.getElementById('rctFailed').value,
+            reportLogo: document.getElementById('reportLogo').value,
+            slipPort:   document.getElementById('slipPort').value,
+            slipDevice: document.getElementById('slipDevice').value
+        };
+        persistLocal(); psToast('Receipt printer saved.');
+    }
+
+    // ── Cash drawer ───────────────────────────────────────────────────────
+    function buildDrawerTable() {
+        const tb = document.getElementById('drawerBody');
+        tb.innerHTML = '';
+        local.drawers.forEach((d, i) => {
+            const portOpts = PORTS.map(o => `<option${o===d.port?' selected':''}>${o}</option>`).join('');
+            const rateOpts = RATES.map(o => `<option${o===d.rate?' selected':''}>${o}</option>`).join('');
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-slate-100';
+            tr.innerHTML = `
+                <td class="py-2 pr-3 text-sm font-semibold text-slate-700 whitespace-nowrap">Cash Drawer #${i+1}</td>
+                <td class="py-2 pr-3"><select id="dp${i}" class="rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300 min-w-[100px]">${portOpts}</select></td>
+                <td class="py-2 pr-3"><select id="dr${i}" class="rounded-lg border-0 bg-white px-2 py-1.5 text-sm shadow-sm ring-1 ring-inset ring-slate-300 min-w-[90px]">${rateOpts}</select></td>
+                ${d.d.map((v,j) => `<td class="py-2 pr-1"><input type="number" id="dc${i}${j}" value="${v}" min="0" max="255" class="w-14 rounded-lg border-0 bg-white px-2 py-1.5 text-center text-sm shadow-sm ring-1 ring-inset ring-slate-300"></td>`).join('')}
+                <td class="py-2">
+                    <button onclick="testDrawer(${i})" class="inline-flex items-center rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50">Test</button>
+                </td>`;
+            tb.appendChild(tr);
+        });
+    }
+
+    function testDrawer(i) {
+        const codes = [0,1,2,3,4].map(j => document.getElementById('dc'+i+j).value).join(', ');
+        alert(`Test drawer #${i+1}\nPort: ${document.getElementById('dp'+i).value}\nESC codes: ${codes}`);
+    }
+
+    function saveDrawer() {
+        local.drawers = [0,1].map(i => ({
+            port: document.getElementById('dp'+i).value,
+            rate: document.getElementById('dr'+i).value,
+            d: [0,1,2,3,4].map(j => +document.getElementById('dc'+i+j).value)
+        }));
+        persistLocal(); psToast('Cash drawer settings saved.');
+    }
+
+    // ── Logo ──────────────────────────────────────────────────────────────
+    function setLogoFile(input) {
+        if (input.files[0]) document.getElementById('logoFile').value = input.files[0].name;
+    }
+    function saveLogo() {
+        local.logo = { file: document.getElementById('logoFile').value,
+            esc: [0,1,2,3,4].map(i => +document.getElementById('escC'+i).value) };
+        persistLocal(); psToast('Logo settings saved.');
+    }
+    function deleteLogo() {
+        if (!confirm('Delete logo settings?')) return;
+        local.logo = { file:'', esc:[0,0,0,0,0] };
+        document.getElementById('logoFile').value = '';
+        [0,1,2,3,4].forEach(i => document.getElementById('escC'+i).value = 0);
+        persistLocal(); psToast('Logo settings deleted.');
+    }
+
+    // ── Routing ───────────────────────────────────────────────────────────
+    function saveRouting() {
+        local.routing = {
+            rtPort:   document.getElementById('rtPort').value,
+            rtDevice: document.getElementById('rtDevice').value,
+            goPort:   document.getElementById('goPort').value,
+            goDevice: document.getElementById('goDevice').value
+        };
+        persistLocal(); psToast('Receipt routing saved.');
+    }
+
+    // ── Move printer ──────────────────────────────────────────────────────
+    function moveRemotePrinter() {
+        const from = document.getElementById('mvFrom').value;
+        const to   = document.getElementById('mvTo').value;
+        if (!from || !to) { alert('Select both source and destination printers.'); return; }
+        if (from === to)  { alert('Source and destination cannot be the same.'); return; }
+        fetch('/MSaleAdmin/MoveRemotePrinter', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fromPrinter: from, toPrinter: to })
+        })
+        .then(r => r.json())
+        .then(() => {
+            document.getElementById('mvResult').textContent =
+                `All menu items reassigned from "${from}" to "${to}".`;
+            psToast('Remote printer moved.');
+        })
+        .catch(() => {
+            document.getElementById('mvResult').textContent =
+                `Ready to reassign "${from}" → "${to}". Wire up /MSaleAdmin/MoveRemotePrinter to complete.`;
+        });
+    }
+
+    // ── Hibachi ───────────────────────────────────────────────────────────
+    function buildHibachiGrid() {
+        if (!local.hibachi.tables.length) local.hibachi.tables = Array(10).fill('');
+        const tb = document.getElementById('hibRows');
+        tb.innerHTML = '';
+        local.hibachi.tables.forEach((v, i) => {
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-slate-100';
+            tr.innerHTML = `
+                <td class="py-1 pl-3 text-center text-xs text-slate-400">${i+1}</td>
+                <td class="py-1 pl-2 pr-2">
+                    <input type="text" id="ht${i}" value="${v}" placeholder="Table number…"
+                           class="w-full rounded border-0 bg-transparent px-2 py-1 text-sm focus:bg-slate-50 focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+                </td>`;
+            tb.appendChild(tr);
+        });
+    }
+    function addHibRow() { local.hibachi.tables.push(''); buildHibachiGrid(); }
+    function saveHibachi() {
+        local.hibachi.printer = document.getElementById('hibPrinter').value;
+        local.hibachi.tables  = local.hibachi.tables.map((_,i) => document.getElementById('ht'+i)?.value||'');
+        persistLocal(); psToast('Hibachi Grill setup saved.');
+    }
+    function deleteHibachi() {
+        if (!confirm('Delete Hibachi Grill setup?')) return;
+        local.hibachi = { printer:'', tables:[] };
+        document.getElementById('hibPrinter').value = '';
+        buildHibachiGrid();
+        persistLocal(); psToast('Hibachi setup deleted.');
+    }
+
+    // ── Persist ───────────────────────────────────────────────────────────
+    function persistLocal() {
+        try { sessionStorage.setItem('printerSetupLocal', JSON.stringify(local)); } catch(e) {}
+    }
+
+    function restoreLocalValues() {
+        try {
+            const s = sessionStorage.getItem('printerSetupLocal');
+            if (s) Object.assign(local, JSON.parse(s));
+        } catch(e) {}
+        document.getElementById('logoFile').value = local.logo.file || '';
+        (local.logo.esc || [0,0,0,0,0]).forEach((v,i) => {
+            const el = document.getElementById('escC'+i);
+            if (el) el.value = v;
+        });
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────
+    restoreLocalValues();
+    initStaticSelects();
+    buildDrawerTable();
+    buildHibachiGrid();
+    loadPrinters();
+</script>

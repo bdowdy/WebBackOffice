@@ -1,0 +1,11 @@
+--- Cashier_Audit.frm
++++ Cashier_Audit.frm (fixed)
+@@ -2257,7 +2257,7 @@
+ Dim Db As ADODB.Connection
+ Dim Id As ADODB.Recordset
+ OpenDb MyRegisters(0).RegLoc & "Employee.mdb", Db
+- Sql = "Select * from [General Data] Where Val([Terminated] & '') = 0 order by [Last Name] asc"
++ Sql = "Select * from [General Data] Where ISNULL(TRY_CONVERT(int,[Terminated]),0) = 0 order by [Last Name] asc"
+ ConnectADORS Sql, Db, Id
+  Do While Not Id.EOF
+     ServersName = Id(0) & " " & Id(2)

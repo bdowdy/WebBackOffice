@@ -1,0 +1,20 @@
+--- RemoteVideo.frm
++++ RemoteVideo.frm (fixed)
+@@ -654,14 +654,14 @@
+ Dim R  As Integer
+ GetCurrentDirectory = "OCD Image\"
+ If ConnectADODB(SvrPath.LocalTerminalPath & RegisterOptionsDB, Db) = False Then Exit Function
+- Sql = "Select * from [Rear Display] Where #" & Time & "# Between cdate([Starts]) and cdate([Ends])"
+- Sql = Sql & " and #" & Date & "# Between cdate([Start Date]) and cdate([End date])"
++ Sql = "Select * from [Rear Display] Where '" & Format(CDate(Time), "yyyy-mm-dd hh:nn:ss") & "' Between TRY_CAST([Starts] AS datetime) and TRY_CAST([Ends] AS datetime)"
++ Sql = Sql & " and '" & Format(CDate(Date), "yyyy-mm-dd hh:nn:ss") & "' Between TRY_CAST([Start Date] AS datetime) and TRY_CAST([End date] AS datetime)"
+ If ConnectADORS(Sql, Db, RS) = False Then Exit Function
+ If Not RS.EOF Then
+   GetCurrentDirectory = "OCD Image\" & RS.fields("Name").Value & "\"
+ Else
+   SetNothing RS
+-  Sql = "Select * from [Rear Display] Where #" & Time & "# Between cdate([Starts]) and cdate([Ends])"
++  Sql = "Select * from [Rear Display] Where '" & Format(CDate(Time), "yyyy-mm-dd hh:nn:ss") & "' Between TRY_CAST([Starts] AS datetime) and TRY_CAST([Ends] AS datetime)"
+   If ConnectADORS(Sql, Db, RS) = False Then Exit Function
+    If Not RS.EOF Then
+       Select Case UCase(RS.fields("Name").Value)

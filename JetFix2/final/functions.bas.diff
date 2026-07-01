@@ -1,0 +1,22 @@
+--- functions.bas
++++ functions.bas (final)
+@@ -14052,8 +14052,8 @@
+     ConnectADODB SvrPath.TerminalPath & ProductHistory, Db
+         Sql = "Select Distinct [Category Name], sum([Item Price]) as TExempt from [Detail] "
+         Sql = Sql & " Where [Category Name] = 'Processing Fee'"
+-        Sql = Sql & " and TRY_CAST([Date] AS datetime) Between #" & CDate(InDate & " " & GetStartTime) & "#"
+-        Sql = Sql & " and #" & CDate(SetEndingDate(EDate) & " " & SetEndingTime) & "#"
++        Sql = Sql & " and TRY_CAST([Date] AS datetime) Between '" & Format(CDate(CDate(InDate & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "'"
++        Sql = Sql & " and '" & Format(CDate(CDate(SetEndingDate(EDate) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+         Sql = Sql & " Group by [Category Name] "
+     ConnectADORS ReturnDateString(Sql), Db, RS
+     If Not RS.EOF Then
+@@ -16419,7 +16419,7 @@
+ ReturnServerAudit = RegisterNo
+ ConnectADODB SvrPath.TerminalPath & "MSaleData", getnewCknum
+ tryagain:
+-    Sql = "Select * from [Check Numbers] where cast(([Check No] / 1000) as int) = " & RegisterNo / 1000
++    Sql = "Select * from [Check Numbers] where TRY_CONVERT(int, ([Check No] / 1000)) = " & RegisterNo / 1000
+   ConnectADORS Sql, getnewCknum, Records
+       If Records.EOF Then
+        Records.AddNew

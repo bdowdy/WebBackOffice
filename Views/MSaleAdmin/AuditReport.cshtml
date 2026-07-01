@@ -1,0 +1,130 @@
+@{
+    ViewData["Title"] = "Audit Report";
+    ViewData["Subtitle"] = "Register and operator close-out audit by date range — sales, discounts, voids, cash, deposits, and tips.";
+}
+
+<div class="space-y-6">
+
+    <!-- Date range bar -->
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div class="grid gap-4 md:grid-cols-12">
+            <div class="md:col-span-3">
+                <label class="block text-sm font-medium text-slate-700">Begin Date</label>
+                <input id="beginDate" type="date" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
+            <div class="md:col-span-3">
+                <label class="block text-sm font-medium text-slate-700">End Date</label>
+                <input id="endDate" type="date" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
+            <div class="flex items-end gap-2 md:col-span-6">
+                <button onclick="loadAudits()" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500">Run Report</button>
+                <button onclick="window.print()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Print</button>
+                <span id="rangeLabel" class="ml-auto self-center text-sm text-slate-500"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+        <table class="min-w-full divide-y divide-slate-200 text-sm text-slate-700">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Register</th>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Manager</th>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Date</th>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Start</th>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">End</th>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Name</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Sales</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Discounts</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Voids</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Cash In Drwr</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Cash Dep.</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">+/-</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Tips</th>
+                </tr>
+            </thead>
+            <tbody id="auditBody" class="divide-y divide-slate-100">
+                <tr><td colspan="13" class="px-3 py-4 text-sm text-slate-500">Choose a date range and run the report.</td></tr>
+            </tbody>
+            <tfoot id="auditFoot" class="border-t-2 border-slate-300 bg-slate-50 font-semibold text-slate-900"></tfoot>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    function money(v) {
+        const n = Number(v || 0);
+        const s = Math.abs(n).toFixed(2);
+        return n < 0 ? "(" + s + ")" : s;
+    }
+    function osClass(v) { return Number(v || 0) < 0 ? "px-3 py-2 text-right text-rose-600" : "px-3 py-2 text-right"; }
+
+    function isoDaysAgo(days) {
+        const d = new Date();
+        d.setDate(d.getDate() - days);
+        return d.toISOString().substring(0, 10);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        endDate.value = new Date().toISOString().substring(0, 10);
+        beginDate.value = isoDaysAgo(6);
+        loadAudits();
+    });
+
+    function loadAudits() {
+        const params = new URLSearchParams({ beginDate: beginDate.value, endDate: endDate.value });
+        rangeLabel.innerText = "";
+
+        fetch(`/AuditReport/GetAuditSales?${params.toString()}`)
+            .then(r => r.json())
+            .then(result => {
+                if (!result.success) { alert(result.message); return; }
+                render(result.data || [], result.totals || {});
+            })
+            .catch(err => alert("Load failed: " + err.message));
+    }
+
+    function render(rows, totals) {
+        const body = document.getElementById("auditBody");
+        const foot = document.getElementById("auditFoot");
+
+        rangeLabel.innerText = rows.length + (rows.length === 1 ? " close-out" : " close-outs");
+
+        if (rows.length === 0) {
+            body.innerHTML = `<tr><td colspan="13" class="px-3 py-4 text-sm text-slate-500">No audit records in this date range.</td></tr>`;
+            foot.innerHTML = "";
+            return;
+        }
+
+        body.innerHTML = rows.map(r => `
+            <tr class="hover:bg-slate-50">
+                <td class="px-3 py-2">${r.registerName || ''}</td>
+                <td class="px-3 py-2">${r.manager || ''}</td>
+                <td class="px-3 py-2">${r.auditDate || ''}</td>
+                <td class="px-3 py-2">${r.startTime || ''}</td>
+                <td class="px-3 py-2">${r.endTime || ''}</td>
+                <td class="px-3 py-2">${r.operatorName || ''}</td>
+                <td class="px-3 py-2 text-right">${money(r.sales)}</td>
+                <td class="px-3 py-2 text-right">${money(r.discounts)}</td>
+                <td class="px-3 py-2 text-right">${money(r.voids)}</td>
+                <td class="px-3 py-2 text-right">${money(r.cashInDrawer)}</td>
+                <td class="px-3 py-2 text-right">${money(r.cashDeposit)}</td>
+                <td class="${osClass(r.overShort)}">${money(r.overShort)}</td>
+                <td class="px-3 py-2 text-right">${money(r.tips)}</td>
+            </tr>`).join('');
+
+        foot.innerHTML = `
+            <tr>
+                <td class="px-3 py-2.5" colspan="6">Total</td>
+                <td class="px-3 py-2.5 text-right">${money(totals.sales)}</td>
+                <td class="px-3 py-2.5 text-right">${money(totals.discounts)}</td>
+                <td class="px-3 py-2.5 text-right">${money(totals.voids)}</td>
+                <td class="px-3 py-2.5 text-right">${money(totals.cashInDrawer)}</td>
+                <td class="px-3 py-2.5 text-right">${money(totals.cashDeposit)}</td>
+                <td class="${osClass(totals.overShort)} py-2.5">${money(totals.overShort)}</td>
+                <td class="px-3 py-2.5 text-right">${money(totals.tips)}</td>
+            </tr>`;
+    }
+</script>

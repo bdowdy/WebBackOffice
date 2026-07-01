@@ -1,0 +1,123 @@
+--- Server_Report_Menu.frm
++++ Server_Report_Menu.frm (fixed)
+@@ -2944,7 +2944,7 @@
+         Sql = Sql & " Sum([Charge Sales]) as CSales,"
+         Sql = Sql & " Sum([Tip Share]) as TShare"
+         Sql = Sql & " from [Tip Income] "
+-        Sql = Sql & " Where cast([Date] as date)  Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
++        Sql = Sql & " Where TRY_CAST([Date] AS date)  Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
+         Sql = Sql & " and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+         Sql = Sql & " Group By [Server Name]"
+       ConnectADORS Sql, SL, SRd
+@@ -3096,14 +3096,14 @@
+    'Sql = "Select * from MSaleData.dbo.[Closed Checks] as DB1 Inner Join [Table LayoutSQL].dbo.[Layout] as DB2"
+    'Sql = Sql & " On DB1.[Table Number] = DB2.[Table Name];"
+    'Sql = "Select * from [Closed Checks] "
+-   'Sql = Sql & " Where cast([Order Date] as date) + cast([Open Time] as datetime)  Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
++   'Sql = Sql & " Where TRY_CAST([Order Date] AS date) + TRY_CAST([Open Time] AS datetime)  Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
+    'Sql = Sql & " and '" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "'"
+    'Sql = Sql & " and [Table Number] In( Select [Table Name] from [Table LayoutSQL].dbo.[Layout]) "
+    'Sql = Sql & " Order by [Server Name] asc"
+  
+   ConnectADODB "MSaleData", Db
+    Sql = "Select * from [Closed Checks] "
+-   Sql = Sql & " Where cast([Order Date] as date) + cast([Open Time] as datetime)  Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
++   Sql = Sql & " Where TRY_CAST([Order Date] AS date) + TRY_CAST([Open Time] AS datetime)  Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
+    Sql = Sql & " and '" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "'"
+    Sql = Sql & " and [Table Number] In( Select [Table Name] from [MSaleData].dbo.[Layout]) "
+    Sql = Sql & " Order by [Server Name] asc"
+@@ -3307,7 +3307,7 @@
+ Dim TCash       As Currency
+ OpenDb "MSaleData", SL
+     Sql = "Select * from [Server Payments] "
+-    Sql = Sql & " Where [Server Name] = '" & WhichServer & "' and  cast([Date] as date)  Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
++    Sql = Sql & " Where [Server Name] = '" & WhichServer & "' and  TRY_CAST([Date] AS date)  Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
+     Sql = Sql & " and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+ ConnectADORS Sql, SL, SRd
+   If SRd.EOF Then
+@@ -3379,7 +3379,7 @@
+ Dim FP          As Boolean
+ OpenDb "MSaleData", SL
+     Sql = "Select Distinct [Server Name] from [Server Payments] "
+-    Sql = Sql & " Where cast([Date] as date)  Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
++    Sql = Sql & " Where TRY_CAST([Date] AS date)  Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
+     Sql = Sql & " and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+     Sql = Sql & " Group by [Server Name]"
+ ConnectADORS Sql, SL, SRd
+@@ -3395,7 +3395,7 @@
+  F = "+<3000|+<2000|+>1500|+>1000|+>1000;"
+  Do While Not SRd.EOF
+    Sql = "Select Distinct [Payment Type], Sum([Payment Amount]) as [PAmount], Sum([Tip Amount]) as [TAmount] from [Server Payments] "
+-   Sql = Sql & " Where [Server Name] = '" & SRd.fields("Server Name").Value & "' and  cast([Date] as date)  Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
++   Sql = Sql & " Where [Server Name] = '" & SRd.fields("Server Name").Value & "' and  TRY_CAST([Date] AS date)  Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
+    Sql = Sql & " and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+    Sql = Sql & " Group by [Payment Type]"
+    ConnectADORS Sql, SL, Prs
+@@ -3544,8 +3544,8 @@
+       If Trim$(ServerName) = "" Then
+         Sql = "Select * from [Debit] Where [Tender] = 'EMV' and [Close Out day] = 0 or [Tender] = 'QRPayment' and [Close out day] = 0"
+       Else
+-       Sql = "Select * from [Debit] Where [Tender] = 'EMV' and [Close Out day] = 0 and [Server Name] = '" & ServerName & "' and cast([Check Number] as int) >= " & BegCheck
+-       Sql = Sql & " or [Tender] = 'QRPayment' and [Close Out day] = 0 and [Server Name] = '" & ServerName & "' and cast([Check Number] as int) >= " & BegCheck
++       Sql = "Select * from [Debit] Where [Tender] = 'EMV' and [Close Out day] = 0 and [Server Name] = '" & ServerName & "' and TRY_CONVERT(int, [Check Number]) >= " & BegCheck
++       Sql = Sql & " or [Tender] = 'QRPayment' and [Close Out day] = 0 and [Server Name] = '" & ServerName & "' and TRY_CONVERT(int, [Check Number]) >= " & BegCheck
+       End If
+     Sql = Sql & " Order by [Check Number],[Server Name] asc"
+     ConnectADORS Sql, PDB, Prs
+@@ -3703,21 +3703,21 @@
+         If ReportType = "Sales Mix" Then
+            SetPage ReportView.View, "Mix Report " & SearchDates.Item(1).StartDate & " to " & SearchDates.Item(1).EndDate
+            Sql = "Select Distinct [Menu Item],[server Name],sum([Quantity]) as QSold, Sum([Item Price]) as TSold  from [Detail] "
+-           Sql = Sql & " Where [Department Name] <> 'Gratuity' and cast([Date] as datetime) Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
++           Sql = Sql & " Where [Department Name] <> 'Gratuity' and TRY_CAST([Date] AS datetime) Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
+            Sql = Sql & " and '" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "'"
+            If ServerName > "" Then Sql = Sql & " and [Server Name] = '" & ServerName & "'"
+            Sql = Sql & " Group By  [Menu Item],[server Name]"
+         ElseIf ReportType = "Category" Then
+            SetPage ReportView.View, "Category Report " & SearchDates.Item(1).StartDate & " to " & SearchDates.Item(1).EndDate
+            Sql = "Select Distinct [Category Name],[server Name],sum([Quantity]) as QSold, Sum([Item Price]) as TSold from [Detail] "
+-           Sql = Sql & " Where [Department Name] <> 'Gratuity' and cast([Date] as datetime) Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
++           Sql = Sql & " Where [Department Name] <> 'Gratuity' and TRY_CAST([Date] AS datetime) Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
+            Sql = Sql & " and '" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "'"
+            If ServerName > "" Then Sql = Sql & " and [Server Name] = '" & ServerName & "'"
+            Sql = Sql & " Group By  [Category Name],[server Name]"
+         Else
+            SetPage ReportView.View, "Department Report " & SearchDates.Item(1).StartDate & " to " & SearchDates.Item(1).EndDate
+            Sql = "Select Distinct [Department Name],[server Name],sum([Quantity]) as QSold, Sum([Item Price]) as TSold  from [Detail] "
+-           Sql = Sql & " Where [Department Name] <> 'Gratuity' and cast([Date] as datetime) Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
++           Sql = Sql & " Where [Department Name] <> 'Gratuity' and TRY_CAST([Date] AS datetime) Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
+            Sql = Sql & " and '" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "'"
+            If ServerName > "" Then Sql = Sql & " and [Server Name] = '" & ServerName & "'"
+            Sql = Sql & " Group By [Department Name],[server Name]"
+@@ -3868,7 +3868,7 @@
+ If WhichList = "Sales Mix" Or WhichList = "Department" Or WhichList = "Category" Then
+   ConnectADODB ProductHistory, SL
+             Sql = "Select Distinct [Server Name] from [Detail] "
+-            Sql = Sql & " Where cdate([Date]) Between #" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "#"
++            Sql = Sql & " Where TRY_CAST([Date] AS datetime) Between #" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "#"
+             Sql = Sql & " and #" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "#"
+             ConnectADORS ReturnDateString(Sql), SL, SRd
+             SList.Clear
+@@ -3892,11 +3892,11 @@
+   ConnectADODB "MSaleData", SL
+   If WhichList = "Payments" Then
+       Sql = "Select Distinct [Server Name] from [Server Payments] "
+-      Sql = Sql & " Where cast([Date] as date) Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
++      Sql = Sql & " Where TRY_CAST([Date] AS date) Between '" & CDate(SearchDates.Item(1).StartDate) & "'"
+       Sql = Sql & " and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+   Else
+       Sql = "Select Distinct [Server Name] from [Tip Income] "
+-      Sql = Sql & " Where cast([Date] as date) Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
++      Sql = Sql & " Where TRY_CAST([Date] AS date) Between '" & CDate(SearchDates.Item(1).StartDate & " " & GetStartTime) & "'"
+       Sql = Sql & " and '" & CDate(SetEndingDate(SearchDates.Item(1).EndDate) & " " & SetEndingTime) & "'"
+   End If
+ ConnectADORS (Sql), SL, SRd
+@@ -4008,7 +4008,7 @@
+ Dim Tb As ADODB.Recordset
+ ConnectADODB "MSaleData", Db
+  Sql = "Select * From [Check Numbers] where [Servers Name] = '" & server_t & "'"
+- Sql = Sql & " Order by cast([start date] as datetime) + cast([Time] as datetime) desc"
++ Sql = Sql & " Order by TRY_CAST([start date] AS datetime) + TRY_CAST([Time] AS datetime) desc"
+ ConnectADORS Sql, Db, Tb
+ If Not Tb.EOF Then
+   If Tb.fields("Audit Status").Value = 0 Then

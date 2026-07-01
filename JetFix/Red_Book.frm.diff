@@ -1,0 +1,20 @@
+--- Red_Book.frm
++++ Red_Book.frm (fixed)
+@@ -3773,7 +3773,7 @@
+ End If
+ If BusinessDay = "" Then Exit Sub
+ OpenDb SvrPath.LocalTerminalPath & "Employee.mdb", EDb
+-  Sql = "Select * from [General Data] Where Val([Terminated] & '') = 0 order by [Last Name] asc"
++  Sql = "Select * from [General Data] Where ISNULL(TRY_CONVERT(int,[Terminated]),0) = 0 order by [Last Name] asc"
+ ConnectADORS Sql, EDb, Id
+ OpenDb SvrPath.TerminalPath & TimeRecordsDb, Db
+ Do While Not Id.EOF
+@@ -3793,7 +3793,7 @@
+     Loop
+ SetNothing PRTb
+     Sql = "Select * From [Employee Records] Where [Employee Name] = '" & SearchName & "'"
+-    Sql = Sql & " AND Cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(BusinessDay) & " " & GetStartTime & "'"
++    Sql = Sql & " AND TRY_CAST([Shift Date] AS datetime) + TRY_CAST([Time In] AS datetime) Between '" & CDate(BusinessDay) & " " & GetStartTime & "'"
+     Sql = Sql & " and '" & SetEndingDate(CDate(BusinessDay)) & " " & SetEndingTime & "'"
+     
+     ConnectADORS Sql, Db, Tb

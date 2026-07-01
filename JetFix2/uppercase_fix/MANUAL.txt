@@ -1,0 +1,64 @@
+Genuine residual in the previously-MISSED uppercase-extension files.
+
+Amount_Tend.Frm:7176: TickNo.Caption = "Check # " & Format(CheckInUse, "#####")
+CLOSED_C.FRM:4666: Sql = Sql & " Where cdate([order Date] & ' ' & [Open time]) between '" & Format(CDate(CDate(Searchwhen & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+CLOSED_C.FRM:4710: Sql = Sql & " and cdate([order Date] & ' ' & [Open time]) between '" & Format(CDate(CDate(Searchwhen & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+CLOSED_C.FRM:4719: Sql = Sql & " and cdate([order Date] & ' ' & [Open time]) between '" & Format(CDate(CDate(Searchwhen & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+CLOSED_C.FRM:4743: Sql = Sql & " and cdate([order Date] & ' ' & [Open time]) between '" & Format(CDate(CDate(Searchwhen & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+CLOSED_C.FRM:4754: Sql = Sql & " and cdate([Check Date] & ' ' & [Recorded time]) between '" & Format(CDate(CDate(Searchwhen & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+CLOSED_C.FRM:4774: Sql = Sql & " and cdate([order Date] & ' ' & [Open time]) between '" & Format(CDate(CDate(Searchwhen & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(Searchwhen) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+C_Receipt.frm:544: Data = Data & "Paid By Credit Auth #  " & "|" & AuthCode & ";"
+Call_In_Order.frm:8059: 'Answer(Val(PhoneRing(showlines).Line) - 1).TextDescrLM.Text = "Line #" & showlines
+Display.frm:4350: .TextMatrix(WhatRow, 1) = "Tran # " & Format(TCT, "###")
+Display.frm:4689: Sql = Sql & " and datepart('ww', cdate([date]),2,2) = " & DatePart("ww", InDate, vbMonday, vbFirstFourDays)
+Display.frm:4690: Sql = Sql & " and datepart('w',cdate([date]),2,2) = " & DatePart("w", InDate, vbMonday, vbFirstFourDays)
+Display.frm:4721: Sql = Sql & " and datepart('ww', cdate([date]),2,2) = " & DatePart("ww", InDate, vbMonday, vbFirstFourDays)
+Display.frm:4722: Sql = Sql & " and datepart('w',cdate([date]),2,2) = " & DatePart("w", InDate, vbMonday, vbFirstFourDays)
+Display.frm:6764: Sql = "Select * from [Sales] Where datepart('ww',cdate([date])," & WeekStartsOn & ", 3) = " & Scroll & " and year([date]) = " & wYear & " order by cdate([date]) desc"
+Display.frm:6818: LocName.Caption = "No Data Found For Week # " & Scroll
+Display.frm:6981: Sql = "Select * from [Sales] Where datepart('ww',cdate([date])," & WeekStartsOn & ",3) = " & DatePart("ww", CDate(Compare.TextMatrix(0, 1)) + SearchSpan, WeekStartsOn, 3) & " and year([date]) = '" & wYear & "'"
+Display.frm:6989: Sql = "Select * from [Sales] Where datepart('ww',cdate([date])," & WeekStartsOn & ",1) = " & DatePart("ww", CDate(Compare.TextMatrix(0, 2)), WeekStartsOn, 3) & " and year([date]) = '" & wYear & "'"
+Financal_Reports.frm:11880: Sql = Sql & " and cdate([Check Date] & ' ' & [recorded time]) between '" & Format(CDate(CDate(StartDate & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(EndDate) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+KioskOrder.frm:8428: If Table_Number = "" Then Table_Number = "Check # " & CStr(Check_no)
+RegAudit.frm:1411: .TextMatrix(.Row, 1) = "Drw # " & Tb![pos] + 1
+Subs.bas:190: AllData$ = AllData$ & EC(1) & EC(3) & "Issued On Check # " & Check_no & EC(2) & EC(7)
+Subs.bas:2396: "#" & Format$(dtClose, "mm\/dd\/yyyy") & "#, '" & SqlQ(taxName) & "', " & _
+Subs.bas:2425: '   Sql = "Delete from [Item Refund] where TRY_CAST([Date] AS datetime) < #" & Date - DaysToKeep & " 12:00 am #"
+Subs.bas:3586: 'Sold_To = "Your Order # " & YourCheckNumberIs
+Subs.bas:4423: Sql = "Delete from [Sales Tax] where TRY_CAST([Date] AS datetime) < #" & Date - DaysToKeep & " 12:00 am #"
+Subs.bas:4425: Sql = "Delete from [Item Refund] where TRY_CAST([Date] AS datetime) < #" & Date - DaysToKeep & " 12:00 am #"
+Subs.bas:6942: If Gross_Sales = 0 Then RemoteVideoSendItem "No Sale for Drawer #" & DrawerNo
+Subs.bas:7287: Trans_Log "Starting Audit check # " & AssignedCheckNo
+Subs.bas:7386: Sql = "Select datepart('h',[Time]),[Payment Type],Sum([Payment Amount]) as sales, Count([Payment Type]) as Sold "
+Subs.bas:7391: Sql = Sql & " Group by datepart('h',[Time]),[Payment Type]"
+Subs.bas:7392: Sql = Sql & " order by datepart('h',[Time]) asc "
+Subs.bas:12054: PData$ = PData$ & "# Of Hand Keyed Charges ( " & Format(Val(HandKey), "#") & " )" & EC(7)
+Subs.bas:14640: Sold_To = "Your Order # " & YourCheckNumberIs
+Subs.bas:22252: DisplayVideoState "Monitor # " & s + 1
+Subs.bas:22269: DisplayVideoState "Monitor # " & s + 1
+Subs.bas:22286: DisplayVideoState "Monitor # " & s + 1
+Subs.bas:22308: DisplayVideoState "Monitor # " & s + 1
+Subs.bas:22325: DisplayVideoState "Monitor # " & s + 1
+Subs.bas:23057: Dstr = Dstr & EC(8) & "Chk # " & Str(Check_no) & " Name " & Sold_To & vbCrLf
+Subs.bas:23152: Dstr = Dstr & EC(8) & "# " & Str(Check_no) & ReturnLabel(" Total ") & Format(Chk_Sales_data(5), "0.00") & vbCrLf
+Subs.bas:23154: Dstr = Dstr & EC(8) & "# " & Str(Check_no) & " Name " & Sold_To & ReturnLabel(" Total ") & Format(Chk_Sales_data(5), "0.00") & vbCrLf
+Subs.bas:23198: Dstr = Dstr & EC(2) & EC(8) & "Check # " & Str(Check_no) & vbCrLf
+Subs.bas:23200: Dstr = Dstr & EC(2) & EC(8) & "Chk # " & Str(Check_no) & " Name " & Sold_To & vbCrLf
+Subs.bas:23244: Dstr = Dstr & EC(2) & EC(8) & "Chk # " & Str(Check_no) & " Name " & Sold_To & vbCrLf
+Subs.bas:23292: LabelTxt "# " & Str(Check_no) & ReturnLabel(" Total ") & Format(Chk_Sales_data(5), "0.00"), -1
+Subs.bas:23294: LabelTxt "# " & Str(Check_no) & " Name " & Sold_To & ReturnLabel(" Total ") & Format(Chk_Sales_data(5), "0.00"), -1
+Subs.bas:23321: LabelTxt "Check # " & Str(Check_no), -1
+Subs.bas:23323: LabelTxt "Chk # " & Str(Check_no) & " Name " & Sold_To, -1
+Subs.bas:23344: LabelTxt "Chk # " & Str(Check_no) & " Name " & Sold_To, -1
+Subs.bas:26502: AllData$ = AllData$ & EC(9) & EC(3) & "Account # " & AccountNo & EC(2) & EC(7)
+Subs.bas:26884: Trans_Log "Update Card " & CStr(RR.CStatus) & "  Count # " & CStr(dw) & " Total Cards " & CStr(DebitCharges.count) & " Acct " & DebitCharges.Item(dw).AccountNo
+Subs.bas:26913: 'Trans_Log "Chg Card " & CStr) & "  Count # " & CStr(Dw) & " Total Cards " & CStr(DebitCharges.count) & " Acct " & DebitCharges.Item(Dw).AccountNo
+Subs.bas:27802: PrintLine "# " & Format(Printall, "##"), 2000
+functions.bas:16617: Tb(0) = "Cert. #" & CardNo
+functions.bas:16618: AccountName = "Cert. #" & CardNo
+order.frm:25701: If See_Msg("Pay By Credit ? Order # " & R + 1, 4, "Amount " & Format(Seat_Sales_Data(R, 5), "0.00")) = 6 Then
+order.frm:26129: AllOrders.Item(1).Instruction = "Call In # " & CStr(CallInOrderNo) & vbCrLf & AllOrders.Item(1).Instruction
+order.frm:26182: AllOrders.Item(1).Instruction = "Reservation # " & CStr(CallInOrderNo) & vbCrLf & "Tranfered To Dining Room"
+order.frm:26184: AllOrders.Item(1).Instruction = "Call In # " & CStr(CallInOrderNo) & vbCrLf & "Tranfered To Dining Room"
+order.frm:32038: If See_Msg("Pay Bag # " & CStr(SeatNumber + 1), 4, "") = 6 Then
+order.frm:38543: VidConnect.Caption = "Video Not Receiving # " & CStr(Index + 1)

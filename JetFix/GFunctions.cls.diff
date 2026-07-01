@@ -1,0 +1,11 @@
+--- GFunctions.cls
++++ GFunctions.cls (fixed)
+@@ -23,7 +23,7 @@
+          Sql = "Select * from [No Sale]"
+        Else
+          Sql = "Select * from [No Sale] Where "
+-         Sql = Sql & " cast([time] as datetime) between '" & CDate(StartTime) & "' and '" & CDate(EndTime) & "'"
++         Sql = Sql & " TRY_CAST([time] AS datetime) between '" & CDate(StartTime) & "' and '" & CDate(EndTime) & "'"
+          If CashierName = "" Then
+             Sql = Sql & " and [Register Name] = '" & MyRegisterName & "'"
+          Else

@@ -1,0 +1,43 @@
+--- AuditDeposit.frm
++++ AuditDeposit.frm (fixed)
+@@ -431,7 +431,7 @@
+ Dim Adate As String
+ ConnectADODB CPath.TerminalPath & "Audits.mdb", "Audits.mdb", DB
+ If System_config = "Express" Then
+-        Sql = "Select * from [Audits] where [Close Out Day] < 1 order by cdate([Start time]) asc"
++        Sql = "Select * from [Audits] where [Close Out Day] < 1 order by TRY_CAST([Start time] AS datetime) asc"
+     ConnectADORS Sql, DB, Tb
+     With RegList
+       .Rows = RecordsCount(Tb) + 1
+@@ -459,7 +459,7 @@
+      Dim FA As Integer
+      For FA = 0 To NetWork_Data
+         ConnectADODB Server_Path(2, FA) & FinancialDb, FinancialDb, DB
+-              Sql = "Select * from [Audits]" 'Where cdate([Start Date]) + Cdate([start time]) Between #" & CDate(Adate) & " " & GetStartTime & "#"
++              Sql = "Select * from [Audits]" 'Where TRY_CAST([Start Date] AS datetime) + TRY_CAST([start time] AS datetime) Between #" & CDate(Adate) & " " & GetStartTime & "#"
+         ConnectADORS Sql, DB, Tb
+         With RegList
+         .Rows = .Rows + RecordsCount(Tb)
+@@ -478,9 +478,9 @@
+      Next FA
+ Else
+   If Check_System_Access("Show Only Your Audit") >= LoggedOnAs(0).EmpAccessLevel Then
+-     Sql = "Select * from [Audits] where [Operator] = '" & LoggedOnAs(0).EMPName & "' and [Close Out Day] = 0 order by cdate([Start time]) asc"
++     Sql = "Select * from [Audits] where [Operator] = '" & LoggedOnAs(0).EMPName & "' and [Close Out Day] = 0 order by TRY_CAST([Start time] AS datetime) asc"
+   Else
+-     Sql = "Select * from [Audits] where [Close Out Day] = 0 order by cdate([Start time]) asc"
++     Sql = "Select * from [Audits] where [Close Out Day] = 0 order by TRY_CAST([Start time] AS datetime) asc"
+   End If
+   ConnectADORS Sql, DB, Tb
+     With RegList
+@@ -557,8 +557,8 @@
+     For R = 1 To .Rows - 1
+         If .TextMatrix(R, 7) = "Open" Then Exit For
+         If Not IsDate(.TextMatrix(R, 0)) Then Exit For
+-        Sql = "Select * from [Audits] where cdate([Date]) = #" & CDate(.TextMatrix(R, 0)) & "#"
+-        Sql = Sql & " and cdate([Start Time]) = # " & CDate(.TextMatrix(R, 1)) & "#"
++        Sql = "Select * from [Audits] where TRY_CAST([Date] AS datetime) = '" & Format(CDate(CDate(.TextMatrix(R, 0))), "yyyy-mm-dd hh:nn:ss") & "'"
++        Sql = Sql & " and TRY_CAST([Start Time] AS datetime) = # " & CDate(.TextMatrix(R, 1)) & "#"
+         Sql = Sql & " and [Operator] = '" & .TextMatrix(R, 2) & "'"
+         Sql = Sql & " and [Register Name] = '" & .TextMatrix(R, 8) & "'"
+        ConnectADORS Sql, DB, Tb

@@ -1,0 +1,143 @@
+--- Time_Sheet.frm
++++ Time_Sheet.frm (fixed)
+@@ -3679,8 +3679,8 @@
+            If See_Msg("Remove Break?", 4, "") = 6 Then
+              ConnectADODB SvrPath.TerminalPath & TimeRecordsDb, Db
+                Sql = "delete From [Breaks] where Name = '" & Employees.Text & "'"
+-               Sql = Sql & " and [RecordId] = '" & .TextMatrix(.Row, 0) & "' and cast([TimeOut] as datetime) = '" & .TextMatrix(.Row, 2) & "'"
+-               Sql = Sql & " and cast([TimeIn] as datetime) = '" & .TextMatrix(.Row, 3) & "'"
++               Sql = Sql & " and [RecordId] = '" & .TextMatrix(.Row, 0) & "' and TRY_CAST([TimeOut] AS datetime) = '" & .TextMatrix(.Row, 2) & "'"
++               Sql = Sql & " and TRY_CAST([TimeIn] AS datetime) = '" & .TextMatrix(.Row, 3) & "'"
+              Db.Execute Sql
+              Db.Close
+              BtnEnh5_Click
+@@ -3800,7 +3800,7 @@
+ For T = 1 To TimeSheet.rows
+    If TimeSheet.TextMatrix(T, 1) = "" Then Exit For
+    Sql = "Select * From [Breaks] where [Name] = '" & Employees.Text & "' and [RecordId] = '" & TimeSheet.TextMatrix(T, 24) & "'"
+-   Sql = Sql & " Order By cast([TimeOut] as datetime) desc"
++   Sql = Sql & " Order By TRY_CAST([TimeOut] AS datetime) desc"
+   ConnectADORS Sql, Db, Tb
+    With BreakEdit
+     
+@@ -3918,7 +3918,7 @@
+    
+   If Check_Option(9) = 0 Then  '// option to disable breaks
+     Sql = "Select * from [Employee Records] where [employee Name] = '" & currentEmployee & "' and [Time in] > '' and [Break Out] > '' and [Break In] = ''"
+-    Sql = Sql & " and cast([Shift Date] as date) >= '" & GetStartOfWeek & "'"
++    Sql = Sql & " and TRY_CAST([Shift Date] AS date) >= '" & GetStartOfWeek & "'"
+     ConnectADORS Sql, Db, OTB
+     If Not OTB.EOF Then
+       See_Msg "Please finish your break", 5, "cannot punch out until your break is complete."
+@@ -4139,7 +4139,7 @@
+          SetNothing OTB
+          
+          Sql = "Select * from [Employee Records] where [employee Name] = '" & Punch_Name & "'"
+-         Sql = Sql & " and cast([Shift Date] as datetime) between '" & CDate(GetCurrentPayrollWeek) & "' and '" & Date & "'"
++         Sql = Sql & " and TRY_CAST([Shift Date] AS datetime) between '" & CDate(GetCurrentPayrollWeek) & "' and '" & Date & "'"
+          ConnectADORS Sql, Db, OTB
+          
+          TTLWorked = 0
+@@ -4315,7 +4315,7 @@
+           If Trim(.TextMatrix(NxR, 0)) = "" Then Exit For
+           If Trim(.TextMatrix(NxR, 0)) > "" And Trim(.TextMatrix(NxR, 1)) > "" And Trim(.TextMatrix(NxR, 2)) > "" Then
+              Sql = "Select * From [Employee Records] where [Employee Name] = '" & currentEmployee & "'"
+-             Sql = Sql & " and cast([Shift Date] as datetime) = '" & Format(.TextMatrix(NxR, 1) & "", "MM/DD/YYYY") & "'"
++             Sql = Sql & " and TRY_CAST([Shift Date] AS datetime) = '" & Format(.TextMatrix(NxR, 1) & "", "MM/DD/YYYY") & "'"
+              Sql = Sql & " and [Department Name] = '" & .TextMatrix(NxR, 0) & "'"
+              Sql = Sql & " and [Time In] = '" & .TextMatrix(NxR, 23) & "'"
+              
+@@ -4427,7 +4427,7 @@
+    End With
+     'Tb.Save "C:\time.xml", adPersistXML
+     Sql = "Delete From [Employee Records] where [Employee Name] = '" & currentEmployee & "'"
+-    Sql = Sql & " and cast([Shift Date] as datetime) Between '" & GetBeginPayrollWeek(GetStartOfWeek) & "' and '" & Date & "'"
++    Sql = Sql & " and TRY_CAST([Shift Date] AS datetime) Between '" & GetBeginPayrollWeek(GetStartOfWeek) & "' and '" & Date & "'"
+     Sql = Sql & " and [Time In] = '12:00 AM' and [Time Out] = '12:00 AM'"
+     Db.Execute Sql  '// remove all cancelled time records
+    DbClose Db, Tb
+@@ -4514,13 +4514,13 @@
+     EMPName.Caption = Punch_Name & "  ** Week Starting " & Format(EditDate, "MM/DD/YYYY")
+     OpenDb SvrPath.TerminalPath & TimeRecordsDb, Db
+     Sql = "Select * from [Employee Records] where [Employee Name] = '" & Punch_Name & "'"
+-    Sql = Sql & " and cast([Shift Date] as datetime) >= '" & EditDate & "'"
++    Sql = Sql & " and TRY_CAST([Shift Date] AS datetime) >= '" & EditDate & "'"
+     
+     Sql = Sql & " Or [Employee Name] = '" & Punch_Name & "' and [Shift Date] > '' and [Time In] > '' and [Time Out] = ''"
+     If LoadOldToNew.Value = 1 Then
+-     Sql = Sql & " Order By cast([Shift Date] as datetime), cast([Time In] as datetime) desc"
++     Sql = Sql & " Order By TRY_CAST([Shift Date] AS datetime), TRY_CAST([Time In] AS datetime) desc"
+     Else
+-     Sql = Sql & " Order By cast([Shift Date] as datetime), cast([Time In] as datetime) asc"
++     Sql = Sql & " Order By TRY_CAST([Shift Date] AS datetime), TRY_CAST([Time In] AS datetime) asc"
+     End If
+     ConnectADORS Sql, Db, OTB
+     Button_1.Caption = "Punch In"
+@@ -4613,12 +4613,12 @@
+ If Punch_Name = "" Then Exit Sub
+ OpenDb SvrPath.TerminalPath & TimeRecordsDb, Db
+  Sql = "Select * From [Employee Records] where [Employee Name] = '" & Punch_Name & "'"
+- Sql = Sql & " and cast([Shift Date] as datetime) >= '" & EditDate & "'"
++ Sql = Sql & " and TRY_CAST([Shift Date] AS datetime) >= '" & EditDate & "'"
+  Sql = Sql & " Or [Employee Name] = '" & Punch_Name & "' and [Shift Date] > '' and [Time In] > '' and [Time Out] = ''"
+  If LoadOldToNew.Value = 1 Then
+-  ' Sql = Sql & " Order By cast([Shift Date] as datetime), cast([Time In] as datetime) desc"
++  ' Sql = Sql & " Order By TRY_CAST([Shift Date] AS datetime), TRY_CAST([Time In] AS datetime) desc"
+  Else
+-   Sql = Sql & " Order By cast([Shift Date] as datetime), cast([Time In] as datetime) asc"
++   Sql = Sql & " Order By TRY_CAST([Shift Date] AS datetime), TRY_CAST([Time In] AS datetime) asc"
+  End If
+ ConnectADORS Sql, Db, Tb
+      With TimeSheet
+@@ -4892,7 +4892,7 @@
+ ConnectADODB SvrPath.TerminalPath & TimeRecordsDb, Db
+   If BreakType = "Meal Break" Then
+      Sql = "Select * from [Breaks] where [RecordId] = '" & RecordId & "'"
+-     Sql = Sql & " Order by cast([TimeOut] as datetime) asc"
++     Sql = Sql & " Order by TRY_CAST([TimeOut] AS datetime) asc"
+      ConnectADORS Sql, Db, Br
+      If Not Br.EOF Then
+        If Br.fields("TimeOut").Value & "" > "" And Br.fields("TimeIn").Value & "" = "" Then
+@@ -4925,7 +4925,7 @@
+  '// end meal break
+  
+   Sql = "Select * from [Breaks] where [RecordId] = '" & RecordId & "'"
+-  Sql = Sql & " Order by cast([TimeOut] as datetime) asc"
++  Sql = Sql & " Order by TRY_CAST([TimeOut] AS datetime) asc"
+ ConnectADORS Sql, Db, Tb
+    If Tb.EOF Then
+        Tb.AddNew
+@@ -5017,7 +5017,7 @@
+ If RecordId = "" Then Exit Sub
+    ConnectADODB SvrPath.TerminalPath & TimeRecordsDb, Db
+    Sql = "Select * From [Breaks] where [RecordId] = '" & RecordId & "'"
+-   Sql = Sql & " Order By cast([TimeOut] as datetime) desc"
++   Sql = Sql & " Order By TRY_CAST([TimeOut] AS datetime) desc"
+    ConnectADORS Sql, Db, Tb
+    With BreakView
+     Do While Not Tb.EOF
+@@ -5066,13 +5066,13 @@
+ Dim Tb As ADODB.Recordset
+    ConnectADODB SvrPath.TerminalPath & TimeRecordsDb, Db
+     Sql = "Delete From [Breaks] where [Name] = '" & Employees.Text & "'"
+-    Sql = Sql & " and  cast([TimeOut] as date) >= '" & CDate(EditDate) & "'"
++    Sql = Sql & " and  TRY_CAST([TimeOut] AS date) >= '" & CDate(EditDate) & "'"
+     Db.Execute Sql
+    With BreakEdit
+     For R = 1 To .rows - 1
+     If .TextMatrix(R, 1) = "" Then Exit For
+     Sql = "Select * From [Breaks] where [Name] = '" & Employees.Text & "'"
+-    Sql = Sql & " and [RecordId] = '" & .TextMatrix(R, 0) & "' and cast([TimeOut] as datetime) = '" & CDate(.TextMatrix(R, 2)) & "'"
++    Sql = Sql & " and [RecordId] = '" & .TextMatrix(R, 0) & "' and TRY_CAST([TimeOut] AS datetime) = '" & CDate(.TextMatrix(R, 2)) & "'"
+    ConnectADORS Sql, Db, Tb
+      If Tb.EOF Then
+       Tb.AddNew
+@@ -5436,7 +5436,7 @@
+     Dim Tb As ADODB.Recordset
+     ConnectADODB SvrPath.TerminalPath & TimeRecordsDb, Db
+     Sql = "Select * From [Employee Records] where [Employee Name] = '" & EName & "'"
+-    Sql = Sql & " and cast([Shift Date] as datetime) = '" & CDate(InDate) & "'"
++    Sql = Sql & " and TRY_CAST([Shift Date] AS datetime) = '" & CDate(InDate) & "'"
+     ConnectADORS Sql, Db, Tb
+     If Not Tb.EOF Then
+        See_Msg "Shift Found For This Date", 0, "Please Check Shift for Over Lap"

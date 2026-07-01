@@ -34,7 +34,11 @@ namespace MSaleWebServer.Controllers
             return View("~/Views/MSaleAdmin/CouponAssignments.cshtml");
         }
 
-        
+        [HttpGet]
+        public IActionResult PrinterSetup()
+        {
+            return View("~/Views/MSaleAdmin/PrinterSetup.cshtml");
+        }
         public IActionResult Edit(string id)
         {
             var model = new DiscountEditModel();
@@ -2014,8 +2018,8 @@ END";
                 [TaxTable] AS TaxTable,
                 [Tax Name] AS TaxName,
                 [Special Tax] AS SpecialTax,
-                [Min Amount] AS MinTax,
-                [Max Amount] AS MaxTax,
+                [Min Amount] AS MinAmount,
+                [Max Amount] AS MaxAmount,
                 [Exemption] AS Exception
             FROM [Special Tax Info]
             ORDER BY [TaxTable]
@@ -3976,11 +3980,6 @@ ORDER BY [POS]";
             }
 
             return Content("Deleted Successfully");
-        }
-        [HttpGet]
-        public IActionResult Dashboard()
-        {
-            return View("~/Views/MSaleAdmin/Dashboard.cshtml");
         }
         [HttpGet]
         public IActionResult Employees()

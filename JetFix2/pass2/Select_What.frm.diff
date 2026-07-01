@@ -1,0 +1,11 @@
+--- Select_What.frm
++++ Select_What.frm (pass2)
+@@ -796,7 +796,7 @@
+ End If
+ If Load_What = "Revenue Center" Then
+       ConnectADODB ProductHistory, Db   'CDate(SetEndingDate(SalesDate))
+-        Sql = "Select Distinct [Revenue Center] from [Detail] where TRY_CAST([Date] AS datetime) Between '" & Format(CDate(SearchDates.Item(1).StartDate + CDate(GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and #" & CDate(SetEndingDate(SearchDates.Item(1).EndDate)) & " " & CDate(SetEndingTime) & "#"
++        Sql = "Select Distinct [Revenue Center] from [Detail] where TRY_CAST([Date] AS datetime) Between '" & Format(CDate(SearchDates.Item(1).StartDate + CDate(GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(SearchDates.Item(1).EndDate)) & " " & CDate(SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+         Sql = Sql & " Group by [Revenue Center] "
+         Sql = Sql & " Order by [Revenue Center] asc"
+       ConnectADORS ReturnDateString(Sql), Db, RS

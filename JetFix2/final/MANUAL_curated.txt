@@ -1,0 +1,31 @@
+GENUINE remaining Jet-SQL after all automated passes (~14 lines).
+Everything else flagged earlier was display text ("Check # " & n), format
+masks ("###"), or Print #file — NOT SQL, leave alone.
+
+A) datepart() — Jet quoted interval + extra args; YEAR()/year([date]) is fine in T-SQL.
+
+  Display.frm:4689, 4721   datepart('ww', cdate([date]),2,2)
+     -> DATEPART(ISO_WEEK, TRY_CAST([date] AS date))
+  Display.frm:4690, 4722   datepart('w', cdate([date]),2,2)
+     -> DATEPART(weekday,  TRY_CAST([date] AS date))
+  Display.frm:6764, 6981, 6989   datepart('ww', cdate([date]), <WeekStartsOn>, 3)
+     -> DATEPART(ISO_WEEK, TRY_CAST([date] AS date))
+     NOTE: ISO_WEEK is fixed Monday-start. If WeekStartsOn must stay configurable,
+     that's a logic change (compute the week boundary in VB and compare a date range),
+     not a 1:1 swap. Also change the trailing  order by cdate([date])  ->  order by TRY_CAST([date] AS date).
+  Subs.bas:7386, 7391, 7392   datepart('h',[Time])   (SELECT, GROUP BY, ORDER BY - all three)
+     -> DATEPART(hour, TRY_CAST([Time] AS time))
+
+B) Edge date literals the regex left alone:
+
+  Financal_Reports.frm:11880   cdate([Check Date] & ' ' & [recorded time])
+     -> TRY_CAST([Check Date] + ' ' + [recorded time] AS datetime)
+        (the BETWEEN bounds on that line are already converted)
+
+  Subs.bas:2396   "#" & Format$(dtClose, "mm\/dd\/yyyy") & "#"
+     -> "'" & Format$(dtClose, "yyyy-mm-dd") & "'"
+
+  Subs.bas:4423, 4425   < #" & Date - DaysToKeep & " 12:00 am #"
+     -> < '" & Format(CDate(Date - DaysToKeep), "yyyy-mm-dd") & " 00:00:00'"
+
+(Subs.bas:2425 is a commented-out line - ignore.)

@@ -1,0 +1,73 @@
+--- Assign_Name.frm
++++ Assign_Name.frm (fixed)
+@@ -7806,7 +7806,7 @@
+ End If
+     Sql = "Select Distinct [Payment Type], sum([Amount]) as BalanceDue "
+     Sql = Sql & "From [HousePayments] where "
+-    Sql = Sql & " cast([Date] as datetime) between '" & CDate(SearchDates.Item(1).StartDate) & "' and '" & CDate(SearchDates.Item(1).EndDate) & "'"
++    Sql = Sql & " TRY_CAST([Date] AS datetime) between '" & CDate(SearchDates.Item(1).StartDate) & "' and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+     Sql = Sql & " Group By [Payment Type] Order by [Payment Type] asc"
+ If ConnectADORS(Sql, vDb, vRc) = False Then Exit Sub
+ If vRc.EOF Then
+@@ -7924,7 +7924,7 @@
+ End If
+     Sql = "Select Distinct [Account Type], sum([Adj total]) as BalanceDue "
+     Sql = Sql & "From [HouseCharges] where [Voided] = 0"
+-    Sql = Sql & " and cast([Check Date] as datetime) between '" & CDate(SearchDates.Item(1).StartDate) & "' and '" & CDate(SearchDates.Item(1).EndDate) & "'"
++    Sql = Sql & " and TRY_CAST([Check Date] AS datetime) between '" & CDate(SearchDates.Item(1).StartDate) & "' and '" & CDate(SearchDates.Item(1).EndDate) & "'"
+     Sql = Sql & " Group By [Account Type] Order by [Account Type] asc"
+ If ConnectADORS(Sql, vDb, vRc) = False Then Exit Sub
+ If vRc.EOF Then
+@@ -8176,7 +8176,7 @@
+      ConnectADORS Sql, vDb, RS
+       Do While Not RS.EOF
+         Sql = "Delete from [Starting Balance] where [Account Name] = '" & RS![scan Name] & "'"
+-        Sql = Sql & " and Cast([date] as datetime) Between '01/01/2000' and '" & CDate(SearchDates.Item(1).StartDate) & "'"
++        Sql = Sql & " and TRY_CAST([date] AS datetime) Between '01/01/2000' and '" & CDate(SearchDates.Item(1).StartDate) & "'"
+        vDb.Execute Sql
+       RS.MoveNext
+      Loop
+@@ -9659,16 +9659,16 @@
+     Sql = "Delete from [HouseCharges]"
+     If UCase(AcctType.Text) <> "ALL" Then
+       Sql = Sql & " Where [Account Type] = '" & AcctType.Text & "'"
+-        Sql = Sql & " and Cast([Check date] as datetime) Between '01/01/2000' and '" & CDate(SearchDates.Item(1).StartDate) & "'"
++        Sql = Sql & " and TRY_CAST([Check date] AS datetime) Between '01/01/2000' and '" & CDate(SearchDates.Item(1).StartDate) & "'"
+     Else
+-        Sql = Sql & " Where Cast([Check date] as datetime) Between '01/01/2000' and '" & CDate(SearchDates.Item(1).StartDate) & "'"
++        Sql = Sql & " Where TRY_CAST([Check date] AS datetime) Between '01/01/2000' and '" & CDate(SearchDates.Item(1).StartDate) & "'"
+     End If
+     vDb.Execute Sql
+     '**********************
+      If Check_Option(227) = 1 Then
+       Sql = "Delete from HouseChargeDetail"
+       Sql = Sql & " Where [Account Type] = '" & AcctType.Text & "'"
+-      Sql = Sql & " and Cast([Check date] as datetime) Between '01/01/2000' and '" & CDate(SearchDates.Item(1).StartDate) & "'"
++      Sql = Sql & " and TRY_CAST([Check date] AS datetime) Between '01/01/2000' and '" & CDate(SearchDates.Item(1).StartDate) & "'"
+       vDb.Execute Sql
+       
+      End If
+@@ -10379,19 +10379,19 @@
+     End If
+     Sql = "Delete from [HouseCharges]"
+     Sql = Sql & " Where [Charged To] = '" & AccountName & "'"
+-    Sql = Sql & " and Cast([Check date] as datetime) Between '01/01/2000' and '" & CDate(DDate) & "'"
++    Sql = Sql & " and TRY_CAST([Check date] AS datetime) Between '01/01/2000' and '" & CDate(DDate) & "'"
+     vDb.Execute Sql
+     '**********************
+       Sql = "Delete from HouseChargeDetail"
+       Sql = Sql & " Where [Account Name] = '" & AccountName & "'"
+-      Sql = Sql & " and Cast([Check date] as datetime) Between '01/01/2000' and '" & CDate(DDate) & "'"
++      Sql = Sql & " and TRY_CAST([Check date] AS datetime) Between '01/01/2000' and '" & CDate(DDate) & "'"
+       vDb.Execute Sql
+     '**********************
+       Sql = "Delete from [HousePayments] where [Account Name] = '" & AccountName & "'"
+-      Sql = Sql & " and Cast([date] as datetime) Between '01/01/2000' and '" & CDate(DDate) & "'"
++      Sql = Sql & " and TRY_CAST([date] AS datetime) Between '01/01/2000' and '" & CDate(DDate) & "'"
+       vDb.Execute Sql
+       Sql = "Delete from [Starting Balance] where [Account Name] = '" & AccountName & "'"
+-      Sql = Sql & " and Cast([date] as datetime) Between '01/01/2000' and '" & CDate(DDate) & "'"
++      Sql = Sql & " and TRY_CAST([date] AS datetime) Between '01/01/2000' and '" & CDate(DDate) & "'"
+       vDb.Execute Sql
+       See_Msg "Completed....", 5, "File Purge Completed."
+       DbClose vDb, Nothing

@@ -1,0 +1,468 @@
+@{
+    ViewData["Title"] = "Account Maintenance";
+    ViewData["Subtitle"] = "Look up an account, then edit information, balances, and limits.";
+}
+
+<div class="space-y-6">
+
+    <!-- Toolbar -->
+    <div class="flex flex-wrap items-center gap-2">
+        <button type="button" onclick="loadAccount()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Load</button>
+        <button type="button" onclick="saveAccount()" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500">Save</button>
+        <button type="button" onclick="clearData()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">New / Clear</button>
+        <button type="button" onclick="deleteAccount()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50">Remove Account</button>
+        <button type="button" onclick="printActivity()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Print Activity</button>
+        <button type="button" onclick="location.href='/'" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Exit</button>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-[1fr_360px]">
+
+        <!-- LEFT COLUMN -->
+        <div class="space-y-6">
+
+            <!-- Lookup + Identity -->
+            <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+                <h2 class="text-base font-semibold text-slate-900">Account</h2>
+                <p class="mt-1 text-sm text-slate-500">Pick an existing account name, or type a new name and number to create one.</p>
+
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Account Name</label>
+                        <input id="scanName" list="accountNameList" autocomplete="off"
+                               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                        <datalist id="accountNameList"></datalist>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Account Number</label>
+                        <input id="acctNumber" autocomplete="off"
+                               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Account Type</label>
+                        <select id="accountType"
+                                class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                            <option value="House Account">House Account</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Attach Discount</label>
+                        <select id="discount"
+                                class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                            <option value="None">None</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Information -->
+            <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+                <h2 class="text-base font-semibold text-slate-900">Account Information</h2>
+
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700">Address</label>
+                        <input id="address"
+                               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">City</label>
+                        <input id="city"
+                               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">State</label>
+                            <input id="state"
+                                   class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Zip</label>
+                            <input id="zip"
+                                   class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Phone</label>
+                        <input id="phone"
+                               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Cell</label>
+                        <input id="cell"
+                               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Email</label>
+                        <input id="email" type="email"
+                               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Fax</label>
+                        <input id="fax"
+                               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Birthday</label>
+                        <input id="birthday" type="date"
+                               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Anniversary</label>
+                        <input id="anniversary" type="date"
+                               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Account Expires On</label>
+                        <input id="accountExpiresOn" type="date"
+                               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-medium text-slate-700">Memo / Notes</label>
+                        <textarea id="memo" rows="3"
+                                  class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Special Interests -->
+            <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+                <h2 class="text-base font-semibold text-slate-900">Special Interests</h2>
+                <p class="mt-1 text-sm text-slate-500">Up to four custom notes. Check "Suspend" to flag an entry.</p>
+
+                <div class="mt-4 space-y-3">
+                    @for (int i = 1; i <= 4; i++)
+                    {
+                        <div class="flex items-center gap-3">
+                            <input id="spcInterest@(i)" placeholder="Alternate #@(i)"
+                                   class="block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                            <label class="inline-flex shrink-0 items-center gap-2 text-sm text-slate-600">
+                                <input id="spcSuspend@(i)" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                                Suspend
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="space-y-6">
+
+            <!-- Balances -->
+            <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+                <h2 class="text-base font-semibold text-slate-900">Balances</h2>
+                <p class="mt-1 text-sm text-slate-500">Calculated from charges and payments.</p>
+
+                <dl class="mt-4 space-y-2 text-sm">
+                    <div class="flex items-center justify-between">
+                        <dt class="text-slate-600">Beginning Balance</dt>
+                        <dd id="beginningBalance" class="font-semibold text-slate-900">0.00</dd>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <dt class="text-slate-600">Current Charges</dt>
+                        <dd id="currentCharges" class="font-semibold text-slate-900">0.00</dd>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <dt class="text-slate-600">Payments</dt>
+                        <dd id="payments" class="font-semibold text-slate-900">0.00</dd>
+                    </div>
+                    <div class="flex items-center justify-between border-t border-slate-200 pt-2">
+                        <dt id="balanceLabel" class="font-medium text-slate-700">Current Balance</dt>
+                        <dd id="currentBalance" class="text-base font-bold text-slate-900">0.00</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Spending Restrictions -->
+            <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+                <h2 class="text-base font-semibold text-slate-900">Spending Restrictions</h2>
+
+                <div class="mt-4 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Daily Limit</label>
+                        <input id="maxDailyAmount" type="number" step="0.01" value="0.00"
+                               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                        <p class="mt-1 text-xs text-slate-500">Maximum spending amount for the day.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Period Limit</label>
+                        <input id="maxWeeklyAmount" type="number" step="0.01" value="0.00"
+                               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                        <p class="mt-1 text-xs text-slate-500">Maximum spending for the open period (e.g. 30 days).</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Meals Per Day</label>
+                        <input id="mealLimit" type="number" step="1" value="0"
+                               class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                        <p class="mt-1 text-xs text-slate-500">Maximum number of transactions for the day.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+                <h2 class="text-base font-semibold text-slate-900">Status</h2>
+
+                <div class="mt-4 space-y-3 text-sm text-slate-700">
+                    <label class="flex items-center gap-2">
+                        <input id="creditBalance" type="checkbox" checked class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                        Prepaid balance only
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input id="suspend" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                        Suspend account
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input id="deleteRecord" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500" />
+                        Close account
+                    </label>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        loadAccountNames();
+        loadAccountTypes();
+        loadDiscounts();
+        clearData();
+    });
+
+    function val(id) { return document.getElementById(id).value; }
+    function setVal(id, v) { document.getElementById(id).value = (v ?? ""); }
+    function chk(id) { return document.getElementById(id).checked ? 1 : 0; }
+    function setChk(id, v) { document.getElementById(id).checked = !!Number(v); }
+    function money(v) { return (Number(v) || 0).toFixed(2); }
+
+    // Normalize a date value into yyyy-MM-dd for <input type="date">, or "" if not a real date.
+    function toDateInput(v) {
+        if (!v) return "";
+        if (typeof v === "string" && (v === "None" || v === "Never")) return "";
+        let d = new Date(v);
+        if (isNaN(d.getTime())) return "";
+        let m = String(d.getMonth() + 1).padStart(2, "0");
+        let day = String(d.getDate()).padStart(2, "0");
+        return d.getFullYear() + "-" + m + "-" + day;
+    }
+
+    function loadAccountNames() {
+        fetch('/MSaleAdmin/GetAccountNames')
+            .then(r => r.json())
+            .then(data => {
+                let list = document.getElementById("accountNameList");
+                list.innerHTML = "";
+                (data || []).forEach(x => {
+                    let opt = document.createElement("option");
+                    opt.value = x.scanName;
+                    if (x.acctNumber) opt.label = x.acctNumber;
+                    list.appendChild(opt);
+                });
+            })
+            .catch(err => console.warn("Could not load account names:", err.message));
+    }
+
+    function loadAccountTypes() {
+        fetch('/MSaleAdmin/GetAccountTypes')
+            .then(r => r.json())
+            .then(data => {
+                let sel = document.getElementById("accountType");
+                let current = sel.value;
+                sel.innerHTML = "";
+                let items = (data && data.length) ? data : [{ name: "House Account" }];
+                items.forEach(x => {
+                    let name = x.name ?? x.accountType ?? x;
+                    sel.add(new Option(name, name));
+                });
+                if (current) sel.value = current;
+            })
+            .catch(err => console.warn("Could not load account types:", err.message));
+    }
+
+    function loadDiscounts() {
+        fetch('/MSaleAdmin/GetDiscounts')
+            .then(r => r.json())
+            .then(data => {
+                let sel = document.getElementById("discount");
+                sel.innerHTML = '<option value="None">None</option>';
+                (data || []).forEach(x => {
+                    let name = x.name ?? x.discount ?? x;
+                    sel.add(new Option(name, name));
+                });
+            })
+            .catch(err => console.warn("Could not load discounts:", err.message));
+    }
+
+    function loadAccount() {
+        let name = val("scanName").trim();
+        let acct = val("acctNumber").trim();
+        if (!name && !acct) {
+            alert("Enter an account name or number to load.");
+            return;
+        }
+
+        let qs = name
+            ? "scanName=" + encodeURIComponent(name)
+            : "acctNumber=" + encodeURIComponent(acct);
+
+        fetch('/MSaleAdmin/GetAccount?' + qs)
+            .then(r => r.json())
+            .then(d => {
+                if (!d || (!d.scanName && !d.acctNumber)) {
+                    alert("Information not found.");
+                    return;
+                }
+                setVal("scanName", d.scanName);
+                setVal("acctNumber", d.acctNumber);
+                setVal("accountType", d.accountType || "House Account");
+                setVal("discount", d.discount || "None");
+                setVal("address", d.address);
+                setVal("city", d.city);
+                setVal("state", d.state);
+                setVal("zip", d.zip);
+                setVal("phone", d.phone);
+                setVal("cell", d.cell);
+                setVal("email", d.email);
+                setVal("fax", d.fax);
+                setVal("birthday", toDateInput(d.birthday));
+                setVal("anniversary", toDateInput(d.anniversary));
+                setVal("accountExpiresOn", toDateInput(d.accountExpiresOn));
+                setVal("memo", d.memo);
+                setVal("maxDailyAmount", money(d.maxDailyAmount));
+                setVal("maxWeeklyAmount", money(d.maxWeeklyAmount));
+                setVal("mealLimit", d.mealLimit || 0);
+
+                setSpc(1, d.spcInterest1);
+                setSpc(2, d.spcInterest2);
+                setSpc(3, d.spcInterest3);
+                setSpc(4, d.spcInterest4);
+
+                setChk("suspend", d.suspend);
+                setChk("deleteRecord", d.deleteRecord);
+                setChk("creditBalance", d.creditBalance);
+
+                renderBalances(d);
+            })
+            .catch(err => alert("Could not load account: " + err.message));
+    }
+
+    // Special-interest fields use a leading "*" to mark "suspend" (per the original form).
+    function setSpc(i, raw) {
+        raw = raw || "";
+        let suspended = raw.charAt(0) === "*";
+        document.getElementById("spcInterest" + i).value = suspended ? raw.substring(1) : raw;
+        document.getElementById("spcSuspend" + i).checked = suspended;
+    }
+    function getSpc(i) {
+        let text = document.getElementById("spcInterest" + i).value || "";
+        let suspended = document.getElementById("spcSuspend" + i).checked;
+        return (suspended ? "*" : "") + text;
+    }
+
+    function renderBalances(d) {
+        let beg = Number(d.beginningBalance) || 0;
+        let charges = Number(d.currentCharges) || 0;
+        let pay = Number(d.payments) || 0;
+        let bal = (d.currentBalance != null) ? Number(d.currentBalance) : (beg + charges - pay);
+
+        document.getElementById("beginningBalance").innerText = money(beg);
+        document.getElementById("currentCharges").innerText = money(charges);
+        document.getElementById("payments").innerText = money(pay);
+        document.getElementById("currentBalance").innerText = money(Math.abs(bal));
+        document.getElementById("balanceLabel").innerText = bal < 0 ? "Credit Balance" : "Balance Owed";
+    }
+
+    function saveAccount() {
+        let name = val("scanName").trim();
+        let acct = val("acctNumber").trim();
+        if (!name) { alert("Enter an account name."); return; }
+        if (!acct) { alert("Must have an account number."); return; }
+
+        let data = {
+            scanName: name,
+            acctNumber: acct,
+            accountType: val("accountType") || "House Account",
+            discount: val("discount") || "None",
+            address: val("address"),
+            city: val("city"),
+            state: val("state"),
+            zip: val("zip"),
+            phone: val("phone"),
+            cell: val("cell"),
+            email: val("email"),
+            fax: val("fax"),
+            birthday: val("birthday"),
+            anniversary: val("anniversary"),
+            accountExpiresOn: val("accountExpiresOn"),
+            memo: val("memo"),
+            maxDailyAmount: parseFloat(val("maxDailyAmount")) || 0,
+            maxWeeklyAmount: parseFloat(val("maxWeeklyAmount")) || 0,
+            mealLimit: parseInt(val("mealLimit")) || 0,
+            spcInterest1: getSpc(1),
+            spcInterest2: getSpc(2),
+            spcInterest3: getSpc(3),
+            spcInterest4: getSpc(4),
+            suspend: chk("suspend"),
+            deleteRecord: chk("deleteRecord"),
+            creditBalance: chk("creditBalance")
+        };
+
+        fetch('/MSaleAdmin/SaveAccount', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(x => {
+            alert(x.message || "Saved.....");
+            loadAccountNames();
+            clearData();
+        })
+        .catch(err => alert("Save failed: " + err.message));
+    }
+
+    function deleteAccount() {
+        let acct = val("acctNumber").trim();
+        let name = val("scanName").trim();
+        if (!acct && !name) return;
+        if (!confirm("Remove account " + (name || acct) + "?")) return;
+
+        fetch('/MSaleAdmin/DeleteAccount?acctNumber=' + encodeURIComponent(acct) +
+              '&scanName=' + encodeURIComponent(name), { method: 'POST' })
+            .then(r => r.json())
+            .then(x => {
+                alert(x.message || "Removed");
+                loadAccountNames();
+                clearData();
+            })
+            .catch(err => alert("Remove failed: " + err.message));
+    }
+
+    function printActivity() {
+        let name = val("scanName").trim();
+        if (!name) { alert("Load an account first."); return; }
+        window.open('/MSaleAdmin/AccountActivity?scanName=' + encodeURIComponent(name), '_blank');
+    }
+
+    function clearData() {
+        ["scanName","acctNumber","address","city","state","zip","phone","cell",
+         "email","fax","memo"].forEach(id => setVal(id, ""));
+        ["birthday","anniversary","accountExpiresOn"].forEach(id => setVal(id, ""));
+        setVal("accountType", "House Account");
+        setVal("discount", "None");
+        setVal("maxDailyAmount", "0.00");
+        setVal("maxWeeklyAmount", "0.00");
+        setVal("mealLimit", "0");
+        for (let i = 1; i <= 4; i++) { setVal("spcInterest" + i, ""); setChk("spcSuspend" + i, 0); }
+        setChk("creditBalance", 1);
+        setChk("suspend", 0);
+        setChk("deleteRecord", 0);
+        renderBalances({ beginningBalance: 0, currentCharges: 0, payments: 0, currentBalance: 0 });
+        document.getElementById("balanceLabel").innerText = "Current Balance";
+    }
+</script>

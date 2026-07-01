@@ -1,0 +1,47 @@
+--- Mix.frm
++++ Mix.frm (fixed)
+@@ -5855,7 +5855,7 @@
+ End Sub
+ 
+ Private Sub BtnEnh22_Click()
+-LoadDates ("Select Distinct cdate([Date]) from [Sales]"), SvrPath.TerminalPath & "Closing History.MDB", "Date"
++LoadDates ("Select Distinct TRY_CAST([Date] AS datetime) from [Sales]"), SvrPath.TerminalPath & "Closing History.MDB", "Date"
+ If SearchDates Is Nothing Then
+ 
+ Else
+@@ -6102,7 +6102,7 @@
+ BtnEnh9.Caption = "Loading Periods"
+ Me.Refresh
+ ConnectADODB SvrPath.TerminalPath & ProductHistory, Db
+-  Sql = "Select [Department Name] From [Detail] where [Department name] > '' and cdate([Date]) Between #" & CDate(SDate) + CDate(GetStartTime) & "# and #" & CDate(SetEndingDate(EDate)) + CDate(SetEndingTime) & "#"
++  Sql = "Select [Department Name] From [Detail] where [Department name] > '' and TRY_CAST([Date] AS datetime) Between '" & Format(CDate(CDate(SDate) + CDate(GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(EDate)) + CDate(SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+   Sql = Sql & " Group by [Department Name] Order by [Department Name] asc"
+   ConnectADORS ReturnDateString(Sql), Db, Tb
+     If Not Tb.EOF Then
+@@ -6124,7 +6124,7 @@
+        Tb.MoveNext
+     Loop
+   SetNothing Tb
+-  Sql = "Select  [Department Name], [Category Name] From [Detail] where [Category name] > '' and cdate([Date]) Between #" & CDate(SDate) + CDate(GetStartTime) & "# and #" & CDate(SetEndingDate(EDate)) + CDate(SetEndingTime) & "#"
++  Sql = "Select  [Department Name], [Category Name] From [Detail] where [Category name] > '' and TRY_CAST([Date] AS datetime) Between '" & Format(CDate(CDate(SDate) + CDate(GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(EDate)) + CDate(SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+   Sql = Sql & " Group by [Department Name],[Category Name] Order by [Department Name], [Category Name] asc"
+   ConnectADORS ReturnDateString(Sql), Db, Tb
+     If Not Tb.EOF Then
+@@ -6148,7 +6148,7 @@
+     Loop
+     SetNothing Tb
+ POnly = False
+-Sql = "Select Distinct [Department Name], [Category Name], [Menu Item] From [Detail] where cdate([Date]) Between #" & CDate(SDate) + CDate(GetStartTime) & "# and #" & CDate(SetEndingDate(EDate)) + CDate(SetEndingTime) & "#"
++Sql = "Select Distinct [Department Name], [Category Name], [Menu Item] From [Detail] where TRY_CAST([Date] AS datetime) Between '" & Format(CDate(CDate(SDate) + CDate(GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(EDate)) + CDate(SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+ If See_Msg("Filter Mix", 4, "Items with Prices Only ?") = 6 Then
+   Sql = Sql & " and [Item Price] > 0"
+   POnly = True
+@@ -6176,7 +6176,7 @@
+    Tb.MoveNext
+ Loop
+ SetNothing Tb
+-Sql = "Select * From [Detail] where cdate([Date]) Between #" & CDate(SDate) + CDate(GetStartTime) & "# and #" & CDate(SetEndingDate(EDate)) + CDate(SetEndingTime) & "#"
++Sql = "Select * From [Detail] where TRY_CAST([Date] AS datetime) Between '" & Format(CDate(CDate(SDate) + CDate(GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(EDate)) + CDate(SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+ If POnly Then
+   Sql = Sql & " and [Item Price] > 0"
+ End If

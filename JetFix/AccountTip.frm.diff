@@ -1,0 +1,11 @@
+--- AccountTip.frm
++++ AccountTip.frm (fixed)
+@@ -758,7 +758,7 @@
+     ' BUG #4 FIX: Added ORDER BY so TOP 1 is deterministic
+     Sql = "Select Top 1 [Beginning Balance] from [Starting Balance]"
+     Sql = Sql & " Where [Account Name] = '" & HTip(0).Text & "'"
+-    Sql = Sql & " Order By cast([Date] as date) DESC"   ' adjust to your actual date column name
++    Sql = Sql & " Order By TRY_CAST([Date] AS date) DESC"   ' adjust to your actual date column name
+     If ConnectADORS(Sql, Db, Tb) = False Then Exit Sub
+     If Tb.EOF Then
+         BeginBal = 0

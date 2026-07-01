@@ -1,0 +1,121 @@
+@{
+    ViewData["Title"] = "Server Tip / Sales Income";
+    ViewData["Subtitle"] = "Tip and charge-sales income by server over a date range.";
+}
+
+<div class="space-y-6">
+
+    <!-- Date range bar -->
+    <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div class="grid gap-4 md:grid-cols-12">
+            <div class="md:col-span-3">
+                <label class="block text-sm font-medium text-slate-700">Begin Date</label>
+                <input id="beginDate" type="date" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
+            <div class="md:col-span-3">
+                <label class="block text-sm font-medium text-slate-700">End Date</label>
+                <input id="endDate" type="date" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            </div>
+            <div class="flex items-end gap-2 md:col-span-6">
+                <button onclick="loadIncome()" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500">Run Report</button>
+                <button onclick="window.print()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Print</button>
+                <span id="rangeLabel" class="ml-auto self-center text-sm text-slate-500"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+        <table class="min-w-full divide-y divide-slate-200 text-sm text-slate-700">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Server</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Tip Sales</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Chg Sales</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Cash Tips</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Chg Tips</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Tip Pd Out</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Tip Share</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Total Tips</th>
+                    <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Chg Tip %</th>
+                </tr>
+            </thead>
+            <tbody id="incomeBody" class="divide-y divide-slate-100">
+                <tr><td colspan="9" class="px-3 py-4 text-sm text-slate-500">Choose a date range and run the report.</td></tr>
+            </tbody>
+            <tfoot id="incomeFoot" class="border-t-2 border-slate-300 bg-slate-50 font-semibold text-slate-900"></tfoot>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    function money(v) {
+        const n = Number(v || 0);
+        const s = Math.abs(n).toFixed(2);
+        return n < 0 ? "(" + s + ")" : s;
+    }
+    function pct(v) { return (v === null || v === undefined) ? "" : Number(v).toFixed(2) + "%"; }
+
+    function isoDaysAgo(days) {
+        const d = new Date();
+        d.setDate(d.getDate() - days);
+        return d.toISOString().substring(0, 10);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        endDate.value = new Date().toISOString().substring(0, 10);
+        beginDate.value = isoDaysAgo(6);
+        loadIncome();
+    });
+
+    function loadIncome() {
+        const params = new URLSearchParams({ beginDate: beginDate.value, endDate: endDate.value });
+        fetch(`/ServerIncomeReport/GetServerIncome?${params.toString()}`)
+            .then(r => r.json())
+            .then(result => {
+                if (!result.success) { alert(result.message); return; }
+                render(result.data || [], result.totals || {});
+            })
+            .catch(err => alert("Load failed: " + err.message));
+    }
+
+    function render(rows, totals) {
+        const body = document.getElementById("incomeBody");
+        const foot = document.getElementById("incomeFoot");
+
+        rangeLabel.innerText = rows.length + (rows.length === 1 ? " server" : " servers");
+
+        if (rows.length === 0) {
+            body.innerHTML = `<tr><td colspan="9" class="px-3 py-4 text-sm text-slate-500">No tip income in this date range.</td></tr>`;
+            foot.innerHTML = "";
+            return;
+        }
+
+        body.innerHTML = rows.map(r => `
+            <tr class="hover:bg-slate-50">
+                <td class="px-3 py-2 font-medium text-slate-900">${r.serverName || ''}</td>
+                <td class="px-3 py-2 text-right">${money(r.tipSales)}</td>
+                <td class="px-3 py-2 text-right">${money(r.chgSales)}</td>
+                <td class="px-3 py-2 text-right">${money(r.cashTips)}</td>
+                <td class="px-3 py-2 text-right">${money(r.chgTips)}</td>
+                <td class="px-3 py-2 text-right">${money(r.tipsPaidOut)}</td>
+                <td class="px-3 py-2 text-right">${money(r.tipShare)}</td>
+                <td class="px-3 py-2 text-right">${money(r.totalTips)}</td>
+                <td class="px-3 py-2 text-right">${pct(r.chgTipPct)}</td>
+            </tr>`).join('');
+
+        foot.innerHTML = `
+            <tr>
+                <td class="px-3 py-2.5">Totals</td>
+                <td class="px-3 py-2.5 text-right">${money(totals.tipSales)}</td>
+                <td class="px-3 py-2.5 text-right">${money(totals.chgSales)}</td>
+                <td class="px-3 py-2.5 text-right">${money(totals.cashTips)}</td>
+                <td class="px-3 py-2.5 text-right">${money(totals.chgTips)}</td>
+                <td class="px-3 py-2.5 text-right">${money(totals.tipsPaidOut)}</td>
+                <td class="px-3 py-2.5 text-right">${money(totals.tipShare)}</td>
+                <td class="px-3 py-2.5 text-right">${money(totals.totalTips)}</td>
+                <td class="px-3 py-2.5 text-right">${pct(totals.chgTipPct)}</td>
+            </tr>`;
+    }
+</script>

@@ -1,0 +1,167 @@
+@{
+    ViewData["Title"] = "Account Activity";
+    ViewData["Subtitle"] = "Charges and payments for a house account over a date range.";
+}
+
+<div class="space-y-6">
+
+    <!-- Controls (hidden when printing) -->
+    <div class="flex flex-wrap items-end gap-3 print:hidden">
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Account</label>
+            <input id="scanName" list="accountNameList" autocomplete="off"
+                   class="mt-1 block w-64 rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+            <datalist id="accountNameList"></datalist>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-700">Start Date</label>
+            <input id="startDate" type="date"
+                   class="mt-1 block rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-700">End Date</label>
+            <input id="endDate" type="date"
+                   class="mt-1 block rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+        </div>
+        <button type="button" onclick="runReport()" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500">Run</button>
+        <button type="button" onclick="window.print()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Print</button>
+        <button type="button" onclick="location.href='/MSaleAdmin/AssignName'" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Back</button>
+    </div>
+
+    <!-- Report -->
+    <div id="report" class="hidden rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+
+        <div class="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-4">
+            <div>
+                <h2 class="text-lg font-semibold text-slate-900">Account Activity</h2>
+                <p id="reportAccount" class="text-sm text-slate-600"></p>
+                <p id="reportRange" class="text-sm text-slate-500"></p>
+            </div>
+            <dl class="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+                <dt class="text-slate-600">Opening Balance</dt>
+                <dd id="openingBalance" class="text-right font-semibold text-slate-900">0.00</dd>
+                <dt class="text-slate-600">Total Charges</dt>
+                <dd id="totalCharges" class="text-right font-semibold text-slate-900">0.00</dd>
+                <dt class="text-slate-600">Total Payments</dt>
+                <dd id="totalPayments" class="text-right font-semibold text-slate-900">0.00</dd>
+                <dt class="font-medium text-slate-700">Ending Balance</dt>
+                <dd id="endingBalance" class="text-right text-base font-bold text-slate-900">0.00</dd>
+            </dl>
+        </div>
+
+        <table class="mt-4 w-full text-sm">
+            <thead>
+                <tr class="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+                    <th class="py-2 pr-3">Date</th>
+                    <th class="py-2 pr-3">Type</th>
+                    <th class="py-2 pr-3">Check #</th>
+                    <th class="py-2 pr-3">Detail</th>
+                    <th class="py-2 pr-3 text-right">Charge</th>
+                    <th class="py-2 pr-3 text-right">Payment</th>
+                    <th class="py-2 text-right">Balance</th>
+                </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+        </table>
+
+        <p id="noRows" class="hidden py-10 text-center text-sm text-slate-500">No activity in this date range.</p>
+    </div>
+
+    <p id="prompt" class="py-10 text-center text-sm text-slate-500 print:hidden">Choose an account and date range, then click Run.</p>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Default range: Jan 1 this year → today.
+        let today = new Date();
+        document.getElementById("endDate").value = isoDate(today);
+        document.getElementById("startDate").value = isoDate(new Date(today.getFullYear(), 0, 1));
+
+        loadAccountNames().then(() => {
+            // Preselect + auto-run when arriving from the Assign Name form.
+            let q = new URLSearchParams(window.location.search);
+            let acct = q.get("scanName");
+            if (acct) {
+                document.getElementById("scanName").value = acct;
+                runReport();
+            }
+        });
+    });
+
+    function isoDate(d) {
+        return d.getFullYear() + "-" +
+            String(d.getMonth() + 1).padStart(2, "0") + "-" +
+            String(d.getDate()).padStart(2, "0");
+    }
+    function money(v) { return (Number(v) || 0).toFixed(2); }
+
+    function loadAccountNames() {
+        return fetch('/MSaleAdmin/GetAccountNames')
+            .then(r => r.json())
+            .then(data => {
+                let list = document.getElementById("accountNameList");
+                list.innerHTML = "";
+                (data || []).forEach(x => {
+                    let opt = document.createElement("option");
+                    opt.value = x.scanName;
+                    if (x.acctNumber) opt.label = x.acctNumber;
+                    list.appendChild(opt);
+                });
+            })
+            .catch(err => console.warn("Could not load account names:", err.message));
+    }
+
+    function runReport() {
+        let name = document.getElementById("scanName").value.trim();
+        let start = document.getElementById("startDate").value;
+        let end = document.getElementById("endDate").value;
+        if (!name) { alert("Select an account."); return; }
+
+        let qs = "scanName=" + encodeURIComponent(name) +
+                 "&startDate=" + encodeURIComponent(start) +
+                 "&endDate=" + encodeURIComponent(end);
+
+        fetch('/MSaleAdmin/GetAccountActivity?' + qs)
+            .then(r => r.json())
+            .then(d => {
+                if (d.error) { alert(d.error); return; }
+                render(d);
+            })
+            .catch(err => alert("Could not load activity: " + err.message));
+    }
+
+    function render(d) {
+        document.getElementById("prompt").classList.add("hidden");
+        document.getElementById("report").classList.remove("hidden");
+
+        document.getElementById("reportAccount").innerText = "Account: " + d.scanName;
+        document.getElementById("reportRange").innerText =
+            "Period: " + d.startDate + " to " + d.endDate;
+
+        document.getElementById("openingBalance").innerText = money(d.openingBalance);
+        document.getElementById("totalCharges").innerText = money(d.totalCharges);
+        document.getElementById("totalPayments").innerText = money(d.totalPayments);
+        document.getElementById("endingBalance").innerText = money(d.endingBalance);
+
+        let tbody = document.getElementById("rows");
+        tbody.innerHTML = "";
+
+        let rows = d.rows || [];
+        document.getElementById("noRows").classList.toggle("hidden", rows.length > 0);
+
+        rows.forEach(r => {
+            let tr = document.createElement("tr");
+            tr.className = "border-b border-slate-100";
+            tr.innerHTML =
+                '<td class="py-1.5 pr-3 whitespace-nowrap">' + r.date + '</td>' +
+                '<td class="py-1.5 pr-3">' + r.kind + '</td>' +
+                '<td class="py-1.5 pr-3">' + (r.reference || "") + '</td>' +
+                '<td class="py-1.5 pr-3 text-slate-500">' + (r.info || "") + '</td>' +
+                '<td class="py-1.5 pr-3 text-right">' + (r.charge ? money(r.charge) : "") + '</td>' +
+                '<td class="py-1.5 pr-3 text-right">' + (r.payment ? money(r.payment) : "") + '</td>' +
+                '<td class="py-1.5 text-right font-medium">' + money(r.balance) + '</td>';
+            tbody.appendChild(tr);
+        });
+    }
+</script>

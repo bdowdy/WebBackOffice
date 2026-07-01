@@ -1,0 +1,11 @@
+--- DealwithCheckNumbers.bas
++++ DealwithCheckNumbers.bas (fixed)
+@@ -841,7 +841,7 @@
+             'sql = "Select top 1 [check number] from [check detail] where [close out day] = 0 "
+             'sql = sql & " and [Servers Name] = '" & AssignServer & "'"
+             'sql = sql & " and [Check Number] > 999"
+-            ' sql = sql & " and cast([Check Number] / 1000 as int) = " & Int(Val(Records.fields("Check No").Value & "") / 1000)
++            ' sql = sql & " and TRY_CONVERT(int, [Check Number] / 1000) = " & Int(Val(Records.fields("Check No").Value & "") / 1000)
+             'sql = sql & " order by [check number] desc"
+             Dim MyBaseNo As Long
+             Dim BlockStart As Long

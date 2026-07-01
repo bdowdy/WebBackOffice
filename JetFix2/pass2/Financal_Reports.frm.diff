@@ -1,0 +1,45 @@
+--- Financal_Reports.frm
++++ Financal_Reports.frm (pass2)
+@@ -9715,11 +9715,11 @@
+      End If
+      If ByTransaction Then
+       Sql = "Select datepart(hh,[date]) as HR, Sum((([Check Total]-[Tax Total])-[Non Sales Total])) as DollarsSold, count([Check Total]) as QtySold From [Check Header] "
+-      Sql = Sql & " Where TRY_CAST([date] AS date) Between #" & CDate(StartDate) & " " & GetStartTime & "# and #" & SetEndingDate(EndDate) & " " & SetEndingTime & "#"
++      Sql = Sql & " Where TRY_CAST([date] AS date) Between '" & Format(CDate(CDate(StartDate) & " " & GetStartTime), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(SetEndingDate(EndDate) & " " & SetEndingTime), "yyyy-mm-dd hh:nn:ss") & "'"
+       Sql = Sql & " group by datepart(hh,[Date]) order by Hr asc"
+     Else
+      Sql = "Select datepart(hh,[Time]) as HR, Sum([Item Price]) as DollarsSold, sum([Quantity]) as QtySold From [Detail] "
+-     Sql = Sql & " Where TRY_CAST([date] AS datetime) Between #" & CDate(StartDate) & " " & GetStartTime & "# and #" & SetEndingDate(EndDate) & " " & SetEndingTime & "#"
++     Sql = Sql & " Where TRY_CAST([date] AS datetime) Between '" & Format(CDate(CDate(StartDate) & " " & GetStartTime), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(SetEndingDate(EndDate) & " " & SetEndingTime), "yyyy-mm-dd hh:nn:ss") & "'"
+      Sql = Sql & " and [Department Name] Not In ('Gift Certificate','Gratuity','Service Charge','Paid In','Gift EPay New Issue','Gift EPay ReLoad','Account Payment','Account Deposit','Non Sales Discount','OnLine Tip','Donation','Online Fee','Online Delivery')"
+      Sql = Sql & " group by datepart(hh,[time]) order by Hr asc"
+     End If
+@@ -9727,7 +9727,7 @@
+      F = "+<1000|+<3500|+>1500|<+1500;"
+      H = "Hour|Department Name|Amount|Quantity;"
+      Sql = "Select datepart(hh,[time]) as HR, [Department Name], Sum([Item Price]) as DollarsSold, sum([Quantity]) as QtySold From [Detail] "
+-     Sql = Sql & " Where TRY_CAST([date] AS datetime) Between #" & CDate(StartDate) & " " & GetStartTime & "# and #" & SetEndingDate(EndDate) & " " & SetEndingTime & "#"
++     Sql = Sql & " Where TRY_CAST([date] AS datetime) Between '" & Format(CDate(CDate(StartDate) & " " & GetStartTime), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(SetEndingDate(EndDate) & " " & SetEndingTime), "yyyy-mm-dd hh:nn:ss") & "'"
+      Sql = Sql & " group by datepart(hh,[time]),[Department Name] order by Hr,[Department Name] asc"
+ End Select
+ ConnectADORS ReturnDateString(Sql), Db, RS
+@@ -11877,7 +11877,7 @@
+     If SvrPath.sServerIsOn = 1 Then
+       Sql = Sql & " and TRY_CAST([Check Date] AS datetime) + TRY_CAST([recorded time] AS datetime) between '" & CDate(StartDate & " " & GetStartTime) & "' and '" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "'"
+     Else
+-      Sql = Sql & " and cdate([Check Date] & ' ' & [recorded time]) between #" & CDate(StartDate & " " & GetStartTime) & "# and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
++      Sql = Sql & " and cdate([Check Date] & ' ' & [recorded time]) between '" & Format(CDate(CDate(StartDate & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(EndDate) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+     End If
+     Sql = Sql & " Order by [Servers Name],[menu item] asc"
+   ConnectADORS Sql, Db, CC
+@@ -12311,8 +12311,8 @@
+   ConnectADODB MyRegisters(0).Svr & ProductHistory, ProductHistory, Db
+     Sql = "Select * From [Detail]"
+     Sql = Sql & " Where [Item Price] < 0"
+-    Sql = Sql & " and TRY_CAST([Date] AS datetime) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+-    Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
++    Sql = Sql & " and TRY_CAST([Date] AS datetime) Between '" & Format(CDate(CDate(StartDate & " " & GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "'"
++    Sql = Sql & " and '" & Format(CDate(CDate(SetEndingDate(EndDate) & " " & SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+     If SvrPath.sServerIsOn = 1 And SvrPath.sTerminalAddress > "" Then
+       Sql = Sql & " Order by [Server Name],[menu item],[Date] asc"
+     Else

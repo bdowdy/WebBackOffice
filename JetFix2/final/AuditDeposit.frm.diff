@@ -1,0 +1,20 @@
+--- AuditDeposit.frm
++++ AuditDeposit.frm (final)
+@@ -459,7 +459,7 @@
+      Dim FA As Integer
+      For FA = 0 To NetWork_Data
+         ConnectADODB Server_Path(2, FA) & FinancialDb, FinancialDb, DB
+-              Sql = "Select * from [Audits]" 'Where TRY_CAST([Start Date] AS datetime) + TRY_CAST([start time] AS datetime) Between #" & CDate(Adate) & " " & GetStartTime & "#"
++              Sql = "Select * from [Audits]" 'Where TRY_CAST([Start Date] AS datetime) + TRY_CAST([start time] AS datetime) Between '" & Format(CDate(CDate(Adate) & " " & GetStartTime), "yyyy-mm-dd hh:nn:ss") & "'"
+         ConnectADORS Sql, DB, Tb
+         With RegList
+         .Rows = .Rows + RecordsCount(Tb)
+@@ -558,7 +558,7 @@
+         If .TextMatrix(R, 7) = "Open" Then Exit For
+         If Not IsDate(.TextMatrix(R, 0)) Then Exit For
+         Sql = "Select * from [Audits] where TRY_CAST([Date] AS datetime) = '" & Format(CDate(CDate(.TextMatrix(R, 0))), "yyyy-mm-dd hh:nn:ss") & "'"
+-        Sql = Sql & " and TRY_CAST([Start Time] AS datetime) = # " & CDate(.TextMatrix(R, 1)) & "#"
++        Sql = Sql & " and TRY_CAST([Start Time] AS datetime) = '" & Format(CDate(CDate(.TextMatrix(R, 1))), "yyyy-mm-dd hh:nn:ss") & "'"
+         Sql = Sql & " and [Operator] = '" & .TextMatrix(R, 2) & "'"
+         Sql = Sql & " and [Register Name] = '" & .TextMatrix(R, 8) & "'"
+        ConnectADORS Sql, DB, Tb

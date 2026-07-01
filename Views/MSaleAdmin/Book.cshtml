@@ -1,0 +1,404 @@
+@{
+    Layout = null;
+    var restaurantName = ViewData["RestaurantName"] as string ?? "Reserve a Table";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reserve a Table</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            background: #0f0d0a;
+            color: #e8dcc8;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 16px;
+        }
+
+        /* ── header ── */
+        .brand {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+        .brand-rule {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .brand-rule::before,
+        .brand-rule::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #c9a060, transparent);
+        }
+        .brand-rule span {
+            color: #c9a060;
+            font-size: 18px;
+            letter-spacing: .15em;
+        }
+        .brand h1 {
+            font-size: clamp(22px, 5vw, 34px);
+            font-weight: 300;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: #f0e6d0;
+        }
+        .brand p {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #8a7a62;
+            letter-spacing: .06em;
+        }
+
+        /* ── card ── */
+        .card {
+            width: 100%;
+            max-width: 520px;
+            background: #1c1812;
+            border: 1px solid #3a3020;
+            border-radius: 4px;
+            padding: 36px 40px;
+            box-shadow: 0 24px 80px rgba(0,0,0,.6);
+        }
+
+        /* ── form fields ── */
+        .field { margin-bottom: 20px; }
+        .field label {
+            display: block;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: #c9a060;
+            margin-bottom: 7px;
+        }
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            background: #0f0d0a;
+            border: 1px solid #3a3020;
+            border-radius: 3px;
+            padding: 11px 14px;
+            font-size: 14px;
+            color: #e8dcc8;
+            outline: none;
+            transition: border-color .2s;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        .field input::placeholder,
+        .field textarea::placeholder { color: #4a4030; }
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus { border-color: #c9a060; }
+        .field textarea { resize: vertical; min-height: 80px; }
+        .field select option { background: #1c1812; }
+
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* ── submit ── */
+        .submit-btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid #c9a060;
+            border-radius: 3px;
+            color: #c9a060;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background .2s, color .2s;
+        }
+        .submit-btn:hover {
+            background: #c9a060;
+            color: #0f0d0a;
+        }
+        .submit-btn:disabled {
+            opacity: .5;
+            cursor: default;
+        }
+
+        /* ── error ── */
+        .error-msg {
+            display: none;
+            margin-top: 14px;
+            padding: 10px 14px;
+            background: #2a0a0a;
+            border: 1px solid #7a2020;
+            border-radius: 3px;
+            font-size: 13px;
+            color: #f87171;
+        }
+
+        /* ── confirmation ── */
+        .confirm-panel {
+            display: none;
+            text-align: center;
+        }
+        .confirm-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 20px;
+            border: 1px solid #c9a060;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .confirm-icon svg { width: 26px; height: 26px; stroke: #c9a060; }
+        .confirm-panel h2 {
+            font-size: 20px;
+            font-weight: 300;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: #f0e6d0;
+            margin-bottom: 10px;
+        }
+        .confirm-panel p {
+            font-size: 13px;
+            color: #8a7a62;
+            line-height: 1.7;
+            margin-bottom: 6px;
+        }
+        .confirm-detail {
+            margin: 22px 0;
+            padding: 16px;
+            background: #0f0d0a;
+            border: 1px solid #3a3020;
+            border-radius: 3px;
+            font-size: 13px;
+            color: #c9a060;
+            line-height: 1.8;
+        }
+        .book-again {
+            margin-top: 20px;
+            background: none;
+            border: none;
+            color: #8a7a62;
+            font-size: 12px;
+            letter-spacing: .08em;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .book-again:hover { color: #c9a060; }
+
+        /* ── footer ── */
+        .footer {
+            margin-top: 28px;
+            font-size: 11px;
+            color: #4a4030;
+            letter-spacing: .06em;
+            text-align: center;
+        }
+
+        @@media (max-width: 480px) {
+            .card { padding: 28px 22px; }
+            .field-row { grid-template-columns: 1fr; gap: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="brand">
+        <div class="brand-rule"><span>&#10022;</span></div>
+        <h1>Reserve a Table</h1>
+        <p>We look forward to welcoming you</p>
+    </div>
+
+    <div class="card">
+
+        <!-- ── booking form ── -->
+        <form id="bookForm">
+
+            <div class="field">
+                <label>Name</label>
+                <input id="partyName" type="text" placeholder="Your name" autocomplete="name" />
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    <label>Date</label>
+                    <input id="reservationDate" type="date" />
+                </div>
+                <div class="field">
+                    <label>Time</label>
+                    <input id="reservationTime" type="time" />
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Party Size</label>
+                <select id="partySize">
+                    <option value="1">1 guest</option>
+                    <option value="2" selected>2 guests</option>
+                    <option value="3">3 guests</option>
+                    <option value="4">4 guests</option>
+                    <option value="5">5 guests</option>
+                    <option value="6">6 guests</option>
+                    <option value="7">7 guests</option>
+                    <option value="8">8 guests</option>
+                    <option value="9">9 guests</option>
+                    <option value="10">10 guests</option>
+                    <option value="11">Large party — please call</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Phone</label>
+                <input id="phone" type="tel" placeholder="(555) 555-1234" autocomplete="tel" />
+            </div>
+
+            <div class="field">
+                <label>Special Requests <span style="color:#4a4030;font-size:9px;font-weight:400;">(optional)</span></label>
+                <textarea id="notes" placeholder="Dietary needs, occasions, seating preferences…"></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">Request Reservation</button>
+
+            <div class="error-msg" id="errorMsg"></div>
+
+        </form>
+
+        <!-- ── confirmation panel ── -->
+        <div class="confirm-panel" id="confirmPanel">
+            <div class="confirm-icon">
+                <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+            </div>
+            <h2>Reservation Received</h2>
+            <p>Thank you — we have your request and will have your table ready.</p>
+            <div class="confirm-detail" id="confirmDetail"></div>
+            <p style="font-size:12px;">If you need to make changes, please give us a call.</p>
+            <button class="book-again" onclick="resetForm()">Make another reservation</button>
+        </div>
+
+    </div>
+
+    <div class="footer">Reservations are subject to availability</div>
+
+<script>
+    // Set minimum date to today
+    const today = new Date().toISOString().slice(0, 10);
+    document.getElementById('reservationDate').min = today;
+
+    document.getElementById('bookForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        submitReservation();
+    });
+
+    function submitReservation() {
+        const name  = document.getElementById('partyName').value.trim();
+        const date  = document.getElementById('reservationDate').value;
+        const time  = document.getElementById('reservationTime').value;
+        const size  = document.getElementById('partySize').value;
+        const phone = document.getElementById('phone').value.trim();
+        const notes = document.getElementById('notes').value.trim();
+
+        if (!name)  { showError('Please enter your name.');           return; }
+        if (!date)  { showError('Please select a date.');             return; }
+        if (!time)  { showError('Please select a time.');             return; }
+        if (!phone) { showError('Please enter a phone number so we can confirm your reservation.'); return; }
+        if (size === '11') {
+            showError('For parties larger than 10 please call us directly to arrange your reservation.');
+            return;
+        }
+
+        clearError();
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+
+        const dto = {
+            partyName:       name,
+            partySize:       parseInt(size),
+            reservationDate: date,
+            reservationTime: time,
+            phone:           phone,
+            notes:           notes,
+            tableNumber:     '',
+            status:          'Pending'
+        };
+
+        fetch('/Book/Submit', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(dto)
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                showConfirmation(name, date, time, size, phone);
+            } else {
+                showError(result.message || 'Something went wrong. Please call us to book.');
+                btn.disabled    = false;
+                btn.textContent = 'Request Reservation';
+            }
+        })
+        .catch(() => {
+            showError('Unable to reach the server. Please call us to book your table.');
+            btn.disabled    = false;
+            btn.textContent = 'Request Reservation';
+        });
+    }
+
+    function showConfirmation(name, date, time, size, phone) {
+        document.getElementById('bookForm').style.display = 'none';
+
+        const d       = new Date(date + 'T00:00:00');
+        const dateStr = d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+        const [h, m]  = time.split(':').map(Number);
+        const ampm    = h >= 12 ? 'PM' : 'AM';
+        const h12     = h % 12 || 12;
+        const timeStr = `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+        const guests  = size === '1' ? '1 guest' : `${size} guests`;
+
+        document.getElementById('confirmDetail').innerHTML =
+            `${esc(name)}<br>${dateStr}<br>${timeStr} &nbsp;·&nbsp; ${guests}<br>${esc(phone)}`;
+
+        document.getElementById('confirmPanel').style.display = 'block';
+    }
+
+    function resetForm() {
+        document.getElementById('bookForm').reset();
+        document.getElementById('bookForm').style.display    = 'block';
+        document.getElementById('confirmPanel').style.display = 'none';
+        document.getElementById('submitBtn').disabled         = false;
+        document.getElementById('submitBtn').textContent      = 'Request Reservation';
+        clearError();
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('errorMsg');
+        el.textContent      = msg;
+        el.style.display    = 'block';
+    }
+
+    function clearError() {
+        const el = document.getElementById('errorMsg');
+        el.style.display = 'none';
+        el.textContent   = '';
+    }
+
+    function esc(s) {
+        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+</script>
+
+</body>
+</html>

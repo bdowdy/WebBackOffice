@@ -1,0 +1,825 @@
+@{
+    ViewData["Title"] = "Frequent Diner";
+    ViewData["Subtitle"] = "Loyalty program — customers, plans, and status.";
+}
+
+<style>
+    .fd-layout { display: flex; gap: 1.25rem; align-items: flex-start; }
+    .fd-sidebar {
+        width: 200px; flex-shrink: 0; background: #fff; border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,.08); border: 1px solid #e2e8f0;
+        padding: 8px 0; position: sticky; top: 80px;
+    }
+    .fd-sidebar-title { font-size: 10px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .06em; color: #94a3b8; padding: 6px 14px 4px; }
+    .fd-nav-btn {
+        display: block; width: 100%; text-align: left;
+        padding: 9px 14px; font-size: 13px; color: #475569;
+        background: none; border: none; cursor: pointer;
+        border-left: 3px solid transparent; transition: all .15s;
+    }
+    .fd-nav-btn:hover  { background: #f8fafc; color: #1e293b; }
+    .fd-nav-btn.active { background: #eff6ff; color: #2563eb; border-left-color: #2563eb; font-weight: 600; }
+    .fd-main { flex: 1; min-width: 0; }
+    .fd-panel { display: none; }
+    .fd-panel.active { display: block; }
+    /* cards */
+    .card { background:#fff; border-radius:12px; padding:18px 20px;
+            box-shadow:0 1px 3px rgba(0,0,0,.08); border:1px solid #e2e8f0; margin-bottom:14px; }
+    /* form grid */
+    .form-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
+    .form-field label { display:block; font-size:12px; font-weight:500; color:#64748b; margin-bottom:3px; }
+    .form-field input, .form-field select {
+        width:100%; border:none; border-radius:8px; padding:7px 10px;
+        font-size:13px; box-shadow:0 0 0 1px #cbd5e1 inset; background:#fff; color:#1e293b;
+        box-sizing:border-box;
+    }
+    .form-field input:focus, .form-field select:focus {
+        outline:none; box-shadow:0 0 0 2px #2563eb inset;
+    }
+    .form-field.full { grid-column: 1 / -1; }
+    /* buttons */
+    .btn { border:none; border-radius:8px; padding:8px 16px;
+           font-size:13px; font-weight:600; cursor:pointer; transition:background .15s; }
+    .btn-blue  { background:#2563eb; color:#fff; } .btn-blue:hover  { background:#1d4ed8; }
+    .btn-green { background:#16a34a; color:#fff; } .btn-green:hover { background:#15803d; }
+    .btn-red   { background:#dc2626; color:#fff; } .btn-red:hover   { background:#b91c1c; }
+    .btn-slate { background:#475569; color:#fff; } .btn-slate:hover { background:#334155; }
+    .btn-ghost { background:#f1f5f9; color:#475569; border:1px solid #e2e8f0; }
+    .btn-ghost:hover { background:#e2e8f0; }
+    .btn-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    /* customer list table */
+    .data-tbl { width:100%; border-collapse:collapse; font-size:12px; }
+    .data-tbl th { background:#f8fafc; padding:7px 10px; text-align:left;
+        border-bottom:2px solid #e2e8f0; color:#64748b;
+        font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; }
+    .data-tbl td { padding:7px 10px; border-bottom:1px solid #f1f5f9; color:#334155; }
+    .data-tbl tr { cursor:pointer; }
+    .data-tbl tr:hover td { background:#eff6ff; }
+    .data-tbl tr.selected td { background:#dbeafe; }
+    /* activity / status tables */
+    .plan-badge { display:inline-block; background:#dbeafe; color:#1d4ed8;
+        border-radius:4px; padding:1px 7px; font-size:11px; font-weight:600; }
+    .qualify-bar-wrap { background:#f1f5f9; border-radius:6px; height:10px; overflow:hidden; min-width:80px; }
+    .qualify-bar { height:100%; background:#16a34a; border-radius:6px; transition:width .3s; }
+    .qualify-bar.over { background:#dc2626; }
+    /* plan form item grid */
+    .item-grid { width:100%; border-collapse:collapse; font-size:12px; margin-top:8px; }
+    .item-grid th { background:#f8fafc; padding:6px 8px; text-align:left;
+        border-bottom:1px solid #e2e8f0; font-size:11px; color:#64748b;
+        font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+    .item-grid td { padding:5px 8px; border-bottom:1px solid #f1f5f9; }
+    .item-grid td input, .item-grid td select {
+        width:100%; border:none; border-radius:6px; padding:4px 7px;
+        font-size:12px; box-shadow:0 0 0 1px #cbd5e1 inset; background:#fff;
+    }
+    .del-row-btn { background:#fee2e2; color:#dc2626; border:none; border-radius:6px;
+        padding:3px 8px; font-size:11px; font-weight:600; cursor:pointer; }
+    /* search bar */
+    .search-wrap { position:relative; margin-bottom:12px; }
+    .search-wrap svg { position:absolute; left:10px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:#94a3b8; pointer-events:none; }
+    .search-wrap input { width:100%; padding:8px 12px 8px 32px; border:none; border-radius:8px;
+        box-shadow:0 0 0 1px #cbd5e1 inset; font-size:13px; box-sizing:border-box; }
+    .search-wrap input:focus { outline:none; box-shadow:0 0 0 2px #2563eb inset; }
+    /* summary strip */
+    .summary-strip { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+    .sc { background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:10px 14px; }
+    .sc .lbl { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:#94a3b8; }
+    .sc .val { font-size:18px; font-weight:700; color:#1e293b; margin-top:1px; }
+    @@media print {
+        nav, header, .fd-sidebar, .no-print { display:none !important; }
+        .fd-layout { display:block; }
+    }
+</style>
+
+<div class="fd-layout">
+
+<!-- SIDEBAR -->
+<nav class="fd-sidebar no-print">
+    <div class="fd-sidebar-title">Frequent Diner</div>
+    <button class="fd-nav-btn active" onclick="showPanel('customers',this)">Customer Setup</button>
+    <button class="fd-nav-btn" onclick="showPanel('plans',this)">Plan Setup</button>
+    <button class="fd-sidebar-title" style="display:block;margin-top:4px">Reports</button>
+    <button class="fd-nav-btn" onclick="showPanel('status',this)">Customer Status</button>
+    <button class="fd-nav-btn" onclick="showPanel('custlist',this)">Customer List</button>
+</nav>
+
+<div class="fd-main">
+
+<!-- ═══════════════════════════════════════════════════════
+     PANEL 1 — CUSTOMER SETUP
+════════════════════════════════════════════════════════ -->
+<div id="panel-customers" class="fd-panel active">
+
+    <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">
+
+        <!-- LEFT: customer list -->
+        <div style="width:280px;flex-shrink:0">
+            <div class="card" style="padding:14px">
+                <div class="search-wrap">
+                    <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+                    <input type="search" id="cust-search" placeholder="Search customers…" oninput="searchCustomers()">
+                </div>
+                <div style="overflow-y:auto;max-height:460px" id="cust-list-wrap">
+                    <table class="data-tbl" id="cust-list-tbl">
+                        <thead><tr><th>Name</th><th>Account</th></tr></thead>
+                        <tbody id="cust-list-body"></tbody>
+                    </table>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-blue" onclick="newCustomer()">+ New</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: edit form + activity -->
+        <div style="flex:1;min-width:0">
+
+            <!-- Edit form -->
+            <div class="card" id="cust-form-card" style="display:none">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                    <h3 style="margin:0;font-size:15px;font-weight:700;color:#1e293b" id="cust-form-title">New Customer</h3>
+                    <span id="cust-acct-badge" class="plan-badge" style="display:none"></span>
+                </div>
+                <div class="form-grid">
+                    <div class="form-field"><label>Full Name *</label><input id="c-name" type="text" placeholder="Last, First"></div>
+                    <div class="form-field"><label>Account Number *</label><input id="c-acct" type="text" placeholder="Scan code / card number"></div>
+                    <div class="form-field"><label>Phone</label><input id="c-phone" type="text"></div>
+                    <div class="form-field"><label>Cell</label><input id="c-cell" type="text"></div>
+                    <div class="form-field"><label>Email</label><input id="c-email" type="email"></div>
+                    <div class="form-field"><label>Birthday</label><input id="c-birthday" type="text" placeholder="MM/DD/YYYY"></div>
+                    <div class="form-field"><label>Anniversary</label><input id="c-anniv" type="text" placeholder="MM/DD/YYYY"></div>
+                    <div class="form-field full"><label>Address</label><input id="c-addr" type="text"></div>
+                    <div class="form-field"><label>City</label><input id="c-city" type="text"></div>
+                    <div class="form-field"><label>State</label><input id="c-state" type="text" maxlength="2" style="max-width:80px"></div>
+                    <div class="form-field"><label>Zip</label><input id="c-zip" type="text" style="max-width:110px"></div>
+                    <div class="form-field"><label>Interest 1</label><input id="c-i1" type="text"></div>
+                    <div class="form-field"><label>Interest 2</label><input id="c-i2" type="text"></div>
+                    <div class="form-field"><label>Suspend <input type="checkbox" id="c-suspend" style="width:auto;margin-left:6px"></label></div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-green" onclick="saveCustomer()">Save</button>
+                    <button class="btn btn-ghost" onclick="clearCustForm()">Clear</button>
+                    <button class="btn btn-red" onclick="deleteCustomer()" id="cust-del-btn" style="display:none;margin-left:auto">Delete Account</button>
+                </div>
+
+                <!-- Manager actions (always visible in web version) -->
+                <div style="border-top:1px solid #e2e8f0;margin-top:16px;padding-top:14px">
+                    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;margin-bottom:10px">Manager Actions</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end">
+                        <div class="form-field" style="max-width:200px">
+                            <label>Plan</label>
+                            <select id="mgr-plan"></select>
+                        </div>
+                        <div class="form-field" style="max-width:110px">
+                            <label>Dollars (+/−)</label>
+                            <input type="number" id="mgr-dollars" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-field" style="max-width:110px">
+                            <label>Points (+/−)</label>
+                            <input type="number" id="mgr-points" step="1" placeholder="0">
+                        </div>
+                        <button class="btn btn-slate" onclick="addMgrTx()">Post Adjustment</button>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:10px">
+                        <div class="form-field" style="max-width:240px">
+                            <label>New Account Number</label>
+                            <input type="text" id="mgr-newacct" placeholder="Enter new account #">
+                        </div>
+                        <button class="btn btn-slate" onclick="changeAcctNum()">Change Acct #</button>
+                        <div class="form-field" style="max-width:240px">
+                            <label>New Customer Name</label>
+                            <input type="text" id="mgr-newname" placeholder="Enter new name">
+                        </div>
+                        <button class="btn btn-slate" onclick="changeCustName()">Rename</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity for selected customer -->
+            <div class="card" id="cust-activity-card" style="display:none">
+                <div style="font-size:14px;font-weight:700;color:#1e293b;margin-bottom:12px" id="activity-title">Plan Activity</div>
+                <div id="activity-plans"></div>
+                <div style="margin-top:14px">
+                    <div style="font-size:12px;font-weight:600;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Recent Transactions</div>
+                    <div style="overflow-x:auto">
+                        <table class="data-tbl" id="activity-tbl">
+                            <thead><tr><th>Date</th><th>Plan</th><th>Check #</th><th>Dollars</th><th>Points</th></tr></thead>
+                            <tbody id="activity-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="lifetime-wrap" style="margin-top:14px"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PANEL 2 — PLAN SETUP
+════════════════════════════════════════════════════════ -->
+<div id="panel-plans" class="fd-panel">
+
+    <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">
+
+        <!-- Plan list -->
+        <div style="width:220px;flex-shrink:0">
+            <div class="card" style="padding:14px">
+                <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:10px">Plans</div>
+                <div style="overflow-y:auto;max-height:420px">
+                    <table class="data-tbl" id="plan-list-tbl">
+                        <thead><tr><th>Plan Name</th></tr></thead>
+                        <tbody id="plan-list-body"></tbody>
+                    </table>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-blue" onclick="newPlan()">+ New</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plan editor -->
+        <div style="flex:1;min-width:0">
+            <div class="card" id="plan-form-card" style="display:none">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                    <h3 style="margin:0;font-size:15px;font-weight:700;color:#1e293b" id="plan-form-title">New Plan</h3>
+                </div>
+
+                <div class="form-grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">
+                    <div class="form-field"><label>Plan Name *</label><input id="p-name" type="text" placeholder="e.g. Birthday Club"></div>
+                    <div class="form-field">
+                        <label>Reward Discount</label>
+                        <select id="p-discount"><option value="">— none —</option></select>
+                    </div>
+                    <div class="form-field"><label>Qualify Amount</label><input id="p-qualify" type="number" step="0.01" placeholder="50.00"></div>
+                    <div class="form-field">
+                        <label>Plan Type</label>
+                        <select id="p-type" onchange="updatePlanTypeLabel()">
+                            <option value="dollars">Dollars</option>
+                            <option value="points">Points</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label>Search By</label>
+                        <select id="p-searchby" onchange="loadMenuChoices()">
+                            <option value="Menu Item">Menu Item</option>
+                            <option value="Category">Category</option>
+                            <option value="Department">Department</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Qualifying items -->
+                <div style="margin-top:16px">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b">Qualifying Items</div>
+                        <div style="display:flex;gap:8px;align-items:center">
+                            <select id="p-menu-picker" style="font-size:12px;border:none;border-radius:6px;padding:5px 8px;box-shadow:0 0 0 1px #cbd5e1 inset;min-width:180px"></select>
+                            <button class="btn btn-ghost" style="padding:5px 10px;font-size:12px" onclick="addPlanItem()">Add</button>
+                            <button class="btn btn-ghost" style="padding:5px 10px;font-size:12px" onclick="addAllMenuItems()">Add All</button>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table class="item-grid" id="plan-items-tbl">
+                            <thead><tr><th>Item</th><th style="width:100px">Value / Pts</th><th style="width:40px"></th></tr></thead>
+                            <tbody id="plan-items-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Timed events -->
+                <div style="margin-top:16px">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b">Timed Bonus Events</div>
+                        <button class="btn btn-ghost" style="padding:5px 10px;font-size:12px" onclick="addEventRow()">+ Add Event</button>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table class="item-grid" id="plan-events-tbl">
+                            <thead><tr><th>Event Name</th><th style="width:140px">Multiplier</th><th style="width:120px">Min $ Amount</th><th style="width:40px"></th></tr></thead>
+                            <tbody id="plan-events-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-green" onclick="savePlan()">Save Plan</button>
+                    <button class="btn btn-ghost" onclick="newPlan()">Clear</button>
+                    <button class="btn btn-red" onclick="deletePlan()" id="plan-del-btn" style="display:none;margin-left:auto">Delete Plan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PANEL 3 — CUSTOMER STATUS
+════════════════════════════════════════════════════════ -->
+<div id="panel-status" class="fd-panel">
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px">
+        <div style="font-size:14px;font-weight:600;color:#1e293b">Customer Progress Toward Rewards</div>
+        <div style="display:flex;gap:8px">
+            <button class="btn btn-blue" onclick="loadStatus()">Refresh</button>
+            <button class="btn btn-slate" onclick="window.print()">Print</button>
+        </div>
+    </div>
+    <div id="status-out"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PANEL 4 — CUSTOMER LIST
+════════════════════════════════════════════════════════ -->
+<div id="panel-custlist" class="fd-panel">
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px">
+        <div style="font-size:14px;font-weight:600;color:#1e293b">Active Frequent Diner Members</div>
+        <div style="display:flex;gap:8px">
+            <button class="btn btn-blue" onclick="loadCustList()">Refresh</button>
+            <button class="btn btn-slate" onclick="window.print()">Print</button>
+        </div>
+    </div>
+    <div id="custlist-strip" class="summary-strip"></div>
+    <div class="card" style="padding:0;overflow:hidden">
+        <div style="overflow-x:auto">
+            <table class="data-tbl">
+                <thead><tr>
+                    <th>Name</th><th>Account</th><th>Phone</th><th>Cell</th>
+                    <th>Email</th><th>Address</th><th>Birthday</th>
+                </tr></thead>
+                <tbody id="custlist-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</div><!-- .fd-main -->
+</div><!-- .fd-layout -->
+
+<script>
+// ═══════ HELPERS ═══════════════════════════════════════════════════════════
+const money = n => '$'+Number(n||0).toFixed(2);
+const fmt   = (n,d=2) => Number(n||0).toFixed(d);
+
+function showPanel(name, btn) {
+    document.querySelectorAll('.fd-panel').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.fd-nav-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('panel-'+name).classList.add('active');
+    btn.classList.add('active');
+    if(name==='status')   loadStatus();
+    if(name==='custlist') loadCustList();
+    if(name==='plans')    loadPlanList();
+}
+
+// ═══════ CUSTOMER SETUP ════════════════════════════════════════════════════
+let currentAcct = null;
+let allCustomers = [];
+
+async function loadCustomerList() {
+    const res = await fetch('/FrequentDiner/GetCustomers');
+    allCustomers = await res.json();
+    renderCustomerList(allCustomers);
+}
+
+function renderCustomerList(list) {
+    const body = document.getElementById('cust-list-body');
+    body.innerHTML = list.map(c => `
+        <tr onclick="selectCustomer('${esc(c.acctNumber)}')" id="cust-row-${esc(c.acctNumber)}">
+            <td>${c.scanName||''}</td>
+            <td>${c.acctNumber||''}</td>
+        </tr>`).join('');
+}
+
+function searchCustomers() {
+    const q = document.getElementById('cust-search').value.toLowerCase();
+    const filtered = allCustomers.filter(c =>
+        (c.scanName||'').toLowerCase().includes(q) ||
+        (c.acctNumber||'').toLowerCase().includes(q) ||
+        (c.phone||'').includes(q) || (c.email||'').toLowerCase().includes(q));
+    renderCustomerList(filtered);
+}
+
+async function selectCustomer(acct) {
+    // highlight row
+    document.querySelectorAll('#cust-list-body tr').forEach(r=>r.classList.remove('selected'));
+    const row = document.getElementById('cust-row-'+acct);
+    if(row) row.classList.add('selected');
+
+    const res  = await fetch('/FrequentDiner/GetCustomer?acctNumber='+encodeURIComponent(acct));
+    const c    = await res.json();
+    currentAcct = acct;
+
+    document.getElementById('cust-form-title').textContent = c.scanName||'Customer';
+    document.getElementById('c-name').value    = c.scanName||'';
+    document.getElementById('c-acct').value    = c.acctNumber||'';
+    document.getElementById('c-phone').value   = c.phone||'';
+    document.getElementById('c-cell').value    = c.cell||'';
+    document.getElementById('c-email').value   = c.email||'';
+    document.getElementById('c-birthday').value= c.birthday||'';
+    document.getElementById('c-anniv').value   = c.anniversary||'';
+    document.getElementById('c-addr').value    = c.address||'';
+    document.getElementById('c-city').value    = c.city||'';
+    document.getElementById('c-state').value   = c.state||'';
+    document.getElementById('c-zip').value     = c.zip||'';
+    document.getElementById('c-i1').value      = c.interest1||'';
+    document.getElementById('c-i2').value      = c.interest2||'';
+    document.getElementById('c-suspend').checked = !!c.suspend;
+
+    const badge = document.getElementById('cust-acct-badge');
+    badge.textContent = c.acctNumber; badge.style.display='';
+    document.getElementById('cust-del-btn').style.display='';
+    document.getElementById('cust-form-card').style.display='';
+    document.getElementById('mgr-newname').value='';
+    document.getElementById('mgr-newacct').value='';
+
+    await loadActivity(acct);
+}
+
+function newCustomer() {
+    currentAcct = null;
+    clearCustForm();
+    document.getElementById('cust-form-title').textContent='New Customer';
+    document.getElementById('cust-acct-badge').style.display='none';
+    document.getElementById('cust-del-btn').style.display='none';
+    document.getElementById('cust-form-card').style.display='';
+    document.getElementById('cust-activity-card').style.display='none';
+    document.querySelectorAll('#cust-list-body tr').forEach(r=>r.classList.remove('selected'));
+    document.getElementById('c-name').focus();
+}
+
+function clearCustForm() {
+    ['c-name','c-acct','c-phone','c-cell','c-email','c-birthday','c-anniv','c-addr','c-city','c-state','c-zip','c-i1','c-i2'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('c-suspend').checked=false;
+}
+
+async function saveCustomer() {
+    const dto = {
+        scanName:    document.getElementById('c-name').value.trim(),
+        acctNumber:  document.getElementById('c-acct').value.trim(),
+        phone:       document.getElementById('c-phone').value,
+        cell:        document.getElementById('c-cell').value,
+        email:       document.getElementById('c-email').value,
+        birthday:    document.getElementById('c-birthday').value,
+        anniversary: document.getElementById('c-anniv').value,
+        address:     document.getElementById('c-addr').value,
+        city:        document.getElementById('c-city').value,
+        state:       document.getElementById('c-state').value,
+        zip:         document.getElementById('c-zip').value,
+        interest1:   document.getElementById('c-i1').value,
+        interest2:   document.getElementById('c-i2').value,
+        suspend:     document.getElementById('c-suspend').checked ? 1 : 0
+    };
+    if(!dto.scanName||!dto.acctNumber){ alert('Name and Account Number are required.'); return; }
+    const res = await fetch('/FrequentDiner/SaveCustomer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dto)});
+    if(!res.ok){ const e=await res.json(); alert(e.error||'Save failed.'); return; }
+    await loadCustomerList();
+    if(currentAcct===null && dto.acctNumber) { currentAcct=dto.acctNumber; selectCustomer(dto.acctNumber); }
+    else await loadActivity(dto.acctNumber);
+}
+
+async function deleteCustomer() {
+    if(!currentAcct) return;
+    if(!confirm('Delete this customer and all activity? This cannot be undone.')) return;
+    await fetch('/FrequentDiner/DeleteCustomer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({acctNumber:currentAcct})});
+    currentAcct=null;
+    clearCustForm();
+    document.getElementById('cust-form-card').style.display='none';
+    document.getElementById('cust-activity-card').style.display='none';
+    await loadCustomerList();
+}
+
+async function loadActivity(acct) {
+    const res = await fetch('/FrequentDiner/GetCustomerActivity?acctNumber='+encodeURIComponent(acct));
+    const data = await res.json();
+    const card = document.getElementById('cust-activity-card');
+    card.style.display='';
+
+    // Plan progress bars
+    const plansDiv = document.getElementById('activity-plans');
+    const thresholds = {}; // will be loaded with plans
+    const planRes = await fetch('/FrequentDiner/GetPlans');
+    const allPlans = await planRes.json();
+    allPlans.forEach(p => thresholds[p.planName] = p);
+
+    // populate mgr plan dropdown
+    const mgrSel = document.getElementById('mgr-plan');
+    mgrSel.innerHTML = allPlans.map(p=>`<option value="${esc(p.planName)}">${esc(p.planName)}</option>`).join('');
+
+    if(!(data.plans&&data.plans.length)) {
+        plansDiv.innerHTML='<div style="font-size:12px;color:#94a3b8;padding:6px 0">No plan activity recorded.</div>';
+    } else {
+        plansDiv.innerHTML = data.plans.map(p=>{
+            const thr = thresholds[p.planName];
+            const qualify = thr?.qualifyAmount||0;
+            const isPoints = thr?.isPoints;
+            const current = isPoints ? (p.totalPoints||0) : (p.totalDollars||0);
+            const pct = qualify>0 ? Math.min(100,Math.round(current/qualify*100)) : 0;
+            const over = pct>=100;
+            return `<div style="margin-bottom:10px">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+                <span style="font-weight:600;color:#1e293b">${esc(p.planName)}</span>
+                <span style="color:#64748b">${isPoints?fmt(p.totalPoints||0)+' pts':money(p.totalDollars||0)} ${qualify>0?'/ '+(isPoints?fmt(qualify)+' pts':money(qualify)):''} ${over?'<span style="color:#16a34a;font-weight:700">✓ Qualifies</span>':''}</span>
+              </div>
+              ${qualify>0?`<div class="qualify-bar-wrap"><div class="qualify-bar${over?' over':''}" style="width:${pct}%"></div></div>`:''}
+            </div>`;
+        }).join('');
+    }
+
+    // recent transactions
+    const body = document.getElementById('activity-body');
+    if(!(data.recent&&data.recent.length)) {
+        body.innerHTML='<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:12px">No transactions</td></tr>';
+    } else {
+        body.innerHTML = data.recent.slice(0,30).map(r=>`
+            <tr><td>${r.txDate||''}</td><td>${r.planName||''}</td><td>${r.checkNumber||''}</td>
+            <td>${money(r.tPrice)}</td><td>${fmt(r.tPoints||0)}</td></tr>`).join('');
+    }
+
+    // lifetime
+    if(data.lifetime) {
+        const lt = data.lifetime;
+        document.getElementById('lifetime-wrap').innerHTML=`
+            <div style="font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Lifetime Totals</div>
+            <div class="summary-strip">
+                <div class="sc"><div class="lbl">Visits</div><div class="val">${lt.totalVisits||0}</div></div>
+                <div class="sc"><div class="lbl">Dollars</div><div class="val">${money(lt.totalDollars)}</div></div>
+                <div class="sc"><div class="lbl">Points</div><div class="val">${fmt(lt.totalPoints)}</div></div>
+            </div>`;
+    }
+}
+
+async function addMgrTx() {
+    if(!currentAcct){ alert('Select a customer first.'); return; }
+    const name  = document.getElementById('c-name').value;
+    const plan  = document.getElementById('mgr-plan').value;
+    const dol   = parseFloat(document.getElementById('mgr-dollars').value)||0;
+    const pts   = parseFloat(document.getElementById('mgr-points').value)||0;
+    if(!dol&&!pts){ alert('Enter an amount.'); return; }
+    await fetch('/FrequentDiner/AddManagerTransaction',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({acctNumber:currentAcct,customerName:name,planName:plan,dollars:dol,points:pts})});
+    document.getElementById('mgr-dollars').value='';
+    document.getElementById('mgr-points').value='';
+    await loadActivity(currentAcct);
+}
+
+async function changeAcctNum() {
+    if(!currentAcct){ alert('Select a customer first.'); return; }
+    const newAcct = document.getElementById('mgr-newacct').value.trim();
+    if(!newAcct){ alert('Enter new account number.'); return; }
+    const res = await fetch('/FrequentDiner/ChangeAccountNumber',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({oldAcct:currentAcct,newAcct})});
+    if(!res.ok){ const e=await res.json(); alert(e.error||'Failed.'); return; }
+    currentAcct=newAcct;
+    await loadCustomerList();
+    selectCustomer(newAcct);
+}
+
+async function changeCustName() {
+    if(!currentAcct){ alert('Select a customer first.'); return; }
+    const newName = document.getElementById('mgr-newname').value.trim();
+    if(!newName){ alert('Enter new name.'); return; }
+    const oldName = document.getElementById('c-name').value;
+    await fetch('/FrequentDiner/ChangeCustomerName',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({oldName,newName,acctNumber:currentAcct})});
+    document.getElementById('c-name').value=newName;
+    await loadCustomerList();
+}
+
+// ═══════ PLAN SETUP ════════════════════════════════════════════════════════
+let currentPlan = null;
+let timedEvents = [];
+
+async function loadPlanList() {
+    const res = await fetch('/FrequentDiner/GetPlans');
+    const plans = await res.json();
+    document.getElementById('plan-list-body').innerHTML =
+        plans.map(p=>`<tr onclick="selectPlan('${esc(p.planName)}')"><td>${esc(p.planName)}</td></tr>`).join('');
+
+    // load discounts
+    const dr = await fetch('/FrequentDiner/GetDiscounts');
+    const discounts = await dr.json();
+    const sel = document.getElementById('p-discount');
+    sel.innerHTML = '<option value="">— none —</option>' +
+        discounts.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
+
+    // load timed events
+    const er = await fetch('/FrequentDiner/GetTimedEvents');
+    timedEvents = await er.json();
+}
+
+async function selectPlan(planName) {
+    const res  = await fetch('/FrequentDiner/GetPlan?planName='+encodeURIComponent(planName));
+    const data = await res.json();
+    const info = data.info;
+    currentPlan = planName;
+
+    document.getElementById('plan-form-title').textContent = planName;
+    document.getElementById('p-name').value    = info.planName||'';
+    document.getElementById('p-name').disabled = true;
+    document.getElementById('p-discount').value= info.discountName||'';
+    document.getElementById('p-qualify').value = info.qualifyAmount||0;
+    document.getElementById('p-type').value    = info.isPoints ? 'points' : 'dollars';
+    document.getElementById('p-searchby').value= info.searchBy||'Menu Item';
+    document.getElementById('plan-del-btn').style.display='';
+    document.getElementById('plan-form-card').style.display='';
+
+    // items
+    const itemBody = document.getElementById('plan-items-body');
+    itemBody.innerHTML = (data.items||[]).map((item,i)=>planItemRow(i,item.itemQualifier,item.value)).join('');
+
+    // events
+    const evBody = document.getElementById('plan-events-body');
+    evBody.innerHTML = (data.events||[]).map(ev=>planEventRow(ev.eventName,ev.functionName,ev.dollarAmount)).join('');
+
+    await loadMenuChoices();
+    highlightPlanRow(planName);
+}
+
+function highlightPlanRow(name) {
+    document.querySelectorAll('#plan-list-body tr').forEach(r=>r.classList.remove('selected'));
+    [...document.querySelectorAll('#plan-list-body tr')].forEach(r=>{if(r.textContent.trim()===name)r.classList.add('selected');});
+}
+
+function newPlan() {
+    currentPlan=null;
+    document.getElementById('plan-form-title').textContent='New Plan';
+    document.getElementById('p-name').value='';
+    document.getElementById('p-name').disabled=false;
+    document.getElementById('p-discount').value='';
+    document.getElementById('p-qualify').value='';
+    document.getElementById('p-type').value='dollars';
+    document.getElementById('p-searchby').value='Menu Item';
+    document.getElementById('plan-items-body').innerHTML='';
+    document.getElementById('plan-events-body').innerHTML='';
+    document.getElementById('plan-del-btn').style.display='none';
+    document.getElementById('plan-form-card').style.display='';
+    loadMenuChoices();
+}
+
+async function loadMenuChoices() {
+    const type = document.getElementById('p-searchby').value;
+    const res  = await fetch('/FrequentDiner/GetMenuChoices?type='+encodeURIComponent(type));
+    const items = await res.json();
+    const sel  = document.getElementById('p-menu-picker');
+    sel.innerHTML = items.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+}
+
+let _itemIdx=0;
+function planItemRow(idx,name,value) {
+    return `<tr id="item-row-${idx}">
+        <td><input type="text" value="${esc(name)}" placeholder="Item name" class="p-item-name"></td>
+        <td><input type="number" value="${fmt(value)}" step="0.01" placeholder="1.00" class="p-item-val" style="max-width:90px"></td>
+        <td><button class="del-row-btn" onclick="this.closest('tr').remove()">✕</button></td>
+    </tr>`;
+}
+
+function addPlanItem() {
+    const sel = document.getElementById('p-menu-picker');
+    if(!sel.value) return;
+    document.getElementById('plan-items-body').insertAdjacentHTML('beforeend',planItemRow(_itemIdx++,sel.value,1));
+}
+
+function addAllMenuItems() {
+    const sel = document.getElementById('p-menu-picker');
+    [...sel.options].forEach(o=>{
+        document.getElementById('plan-items-body').insertAdjacentHTML('beforeend',planItemRow(_itemIdx++,o.value,1));
+    });
+}
+
+function planEventRow(evName,fn,dol) {
+    const opts=['None','Regular','Double','Triple','Quadruple'].map(f=>`<option value="${f}" ${f===fn?'selected':''}>${f}</option>`).join('');
+    const evOpts=(timedEvents||[]).map(e=>`<option value="${esc(e)}" ${e===evName?'selected':''}>${esc(e)}</option>`).join('');
+    return `<tr>
+        <td><select class="p-ev-name"><option value="">— select event —</option>${evOpts}</select></td>
+        <td><select class="p-ev-fn">${opts}</select></td>
+        <td><input type="number" class="p-ev-dol" value="${dol||0}" step="0.01" placeholder="0.00" style="max-width:100px"></td>
+        <td><button class="del-row-btn" onclick="this.closest('tr').remove()">✕</button></td>
+    </tr>`;
+}
+
+function addEventRow() {
+    document.getElementById('plan-events-body').insertAdjacentHTML('beforeend',planEventRow('','Regular',0));
+}
+
+async function savePlan() {
+    const name = document.getElementById('p-name').value.trim();
+    if(!name){ alert('Plan Name is required.'); return; }
+
+    const items = [...document.querySelectorAll('#plan-items-body tr')].map(r=>({
+        itemQualifier: r.querySelector('.p-item-name').value,
+        value: parseFloat(r.querySelector('.p-item-val').value)||1
+    })).filter(i=>i.itemQualifier);
+
+    const events = [...document.querySelectorAll('#plan-events-body tr')].map(r=>({
+        eventName:   r.querySelector('.p-ev-name').value,
+        functionName:r.querySelector('.p-ev-fn').value,
+        dollarAmount:parseFloat(r.querySelector('.p-ev-dol').value)||0
+    })).filter(e=>e.eventName);
+
+    const typeVal = document.getElementById('p-type').value;
+    const dto = {
+        planName:      name,
+        discountName:  document.getElementById('p-discount').value,
+        qualifyAmount: parseFloat(document.getElementById('p-qualify').value)||0,
+        isPoints:  typeVal==='points',
+        isDollars: typeVal==='dollars',
+        searchBy:  document.getElementById('p-searchby').value,
+        items, events
+    };
+    const res = await fetch('/FrequentDiner/SavePlan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dto)});
+    if(!res.ok){ alert('Save failed.'); return; }
+    currentPlan=name;
+    document.getElementById('p-name').disabled=true;
+    document.getElementById('plan-del-btn').style.display='';
+    await loadPlanList();
+    highlightPlanRow(name);
+}
+
+async function deletePlan() {
+    if(!currentPlan) return;
+    if(!confirm(`Delete plan "${currentPlan}"? Customer transaction history for this plan will also be deleted.`)) return;
+    await fetch('/FrequentDiner/DeletePlan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({planName:currentPlan})});
+    currentPlan=null;
+    document.getElementById('plan-form-card').style.display='none';
+    await loadPlanList();
+}
+
+// ═══════ CUSTOMER STATUS ═══════════════════════════════════════════════════
+async function loadStatus() {
+    const res  = await fetch('/FrequentDiner/GetCustomerStatus');
+    const data = await res.json();
+    const out  = document.getElementById('status-out');
+
+    // build threshold map
+    const thrMap = {};
+    (data.thresholds||[]).forEach(t=>thrMap[t.planName]=t);
+
+    // group activity by customer
+    const custMap = {};
+    (data.activity||[]).forEach(row=>{
+        if(!custMap[row.acctNumber]) custMap[row.acctNumber]={name:row.customerName,plans:[]};
+        custMap[row.acctNumber].plans.push(row);
+    });
+
+    // lifetime map
+    const ltMap = {};
+    (data.lifetime||[]).forEach(lt=>ltMap[lt.acctNumber]=lt);
+
+    let html=`<div class="card" style="padding:0;overflow:hidden"><div style="overflow-x:auto"><table class="data-tbl">
+        <thead><tr><th>Customer</th><th>Plan</th><th>Dollars</th><th>Points</th><th>Visits</th><th>Qualify Amt</th><th>Progress</th><th>Status</th></tr></thead>
+        <tbody>`;
+
+    Object.values(custMap).sort((a,b)=>a.name.localeCompare(b.name)).forEach(cust=>{
+        cust.plans.forEach((p,i)=>{
+            const thr = thrMap[p.planName]||{};
+            const qualify = thr.qualifyAmount||0;
+            const isPoints = thr.isPoints;
+            const current = isPoints ? (p.totalPoints||0) : (p.totalDollars||0);
+            const pct = qualify>0 ? Math.min(100,Math.round(current/qualify*100)) : 0;
+            const over = pct>=100;
+            html+=`<tr>
+                <td style="font-weight:${i===0?600:400}">${i===0?esc(cust.name):''}</td>
+                <td><span class="plan-badge">${esc(p.planName)}</span></td>
+                <td>${money(p.totalDollars)}</td>
+                <td>${fmt(p.totalPoints)}</td>
+                <td>${p.visits}</td>
+                <td>${qualify>0?(isPoints?fmt(qualify)+' pts':money(qualify)):''}</td>
+                <td style="min-width:100px">${qualify>0?`<div class="qualify-bar-wrap"><div class="qualify-bar${over?' over':''}" style="width:${pct}%"></div></div><span style="font-size:11px;color:#64748b">${pct}%</span>`:'—'}</td>
+                <td>${over?`<span style="color:#16a34a;font-weight:700">✓ Qualifies</span>`:`<span style="color:#64748b">${pct}%</span>`}</td>
+            </tr>`;
+        });
+    });
+    html+=`</tbody></table></div></div>`;
+    const total=Object.keys(custMap).length;
+    const qualifying=Object.values(custMap).filter(c=>c.plans.some(p=>{
+        const thr=thrMap[p.planName]||{}; const q=thr.qualifyAmount||0;
+        return q>0&&(thr.isPoints?(p.totalPoints||0):(p.totalDollars||0))>=q;
+    })).length;
+    out.innerHTML=`<div class="summary-strip">
+        <div class="sc"><div class="lbl">Members</div><div class="val">${total}</div></div>
+        <div class="sc"><div class="lbl">Ready for Reward</div><div class="val" style="color:#16a34a">${qualifying}</div></div>
+    </div>`+html;
+}
+
+// ═══════ CUSTOMER LIST ═════════════════════════════════════════════════════
+async function loadCustList() {
+    const res  = await fetch('/FrequentDiner/GetCustomerList');
+    const data = await res.json();
+    document.getElementById('custlist-strip').innerHTML=`<div class="sc"><div class="lbl">Members</div><div class="val">${data.length}</div></div>`;
+    document.getElementById('custlist-body').innerHTML = data.map(c=>`
+        <tr>
+            <td style="font-weight:600">${c.scanName||''}</td>
+            <td>${c.acctNumber||''}</td>
+            <td>${c.phone||''}</td>
+            <td>${c.cell||''}</td>
+            <td>${c.email||''}</td>
+            <td>${[c.address,c.city,c.state,c.zip].filter(Boolean).join(', ')}</td>
+            <td>${c.birthday||''}</td>
+        </tr>`).join('');
+}
+
+// ═══════ UTILS ═════════════════════════════════════════════════════════════
+function esc(s){ const d=document.createElement('div');d.textContent=s||'';return d.innerHTML; }
+
+// ═══════ INIT ══════════════════════════════════════════════════════════════
+(async function init() {
+    await loadCustomerList();
+})();
+</script>

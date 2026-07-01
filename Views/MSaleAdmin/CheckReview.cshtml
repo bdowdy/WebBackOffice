@@ -1,44 +1,79 @@
 @{
-    ViewData["Title"] = "Check Review";
-    ViewData["Subtitle"] = "Review closed checks, menu items, voids, payments, tips, and totals.";
+    ViewData["Title"] = "Transaction Review";
+    ViewData["Subtitle"] = "Search closed checks by date and criteria, then review items, voids, payments, and totals.";
 }
 
 <div class="space-y-6">
 
+    <!-- Live / Archive toggle -->
+    <div class="flex items-center gap-3">
+        <div class="inline-flex rounded-lg bg-slate-100 p-1">
+            <button id="modeArchive" onclick="setMode('archive')">Archive</button>
+            <button id="modeLive" onclick="setMode('live')">Live</button>
+        </div>
+        <span id="liveIndicator" class="hidden items-center gap-1.5 text-xs font-medium text-emerald-600">
+            <span class="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-500"></span>
+            Live &middot; auto-refreshing every 30s
+        </span>
+    </div>
+
+    <!-- Search bar -->
     <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
         <div class="grid gap-4 md:grid-cols-12">
-            <div class="md:col-span-3">
+            <div id="dateWrap" class="md:col-span-3">
                 <label class="block text-sm font-medium text-slate-700">Business Date</label>
-                <input id="businessDate" type="date" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                <input id="businessDate" type="date" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
             </div>
 
             <div class="md:col-span-3">
-                <label class="block text-sm font-medium text-slate-700">Search Type</label>
-                <select id="searchType" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
-                    <option value="">All Checks</option>
+                <label class="block text-sm font-medium text-slate-700">Search By</label>
+                <select id="searchType" onchange="onSearchTypeChange()" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                    <option value="">All Transactions</option>
                     <option value="check">Check Number</option>
                     <option value="server">Server Name</option>
+                    <option value="table">Table / Tab Name</option>
+                    <option value="member">Member / Customer Name</option>
+                    <option value="menuitem">Menu Item</option>
+                    <option value="payment">Payment Type</option>
+                    <option value="voided">Voided Sales</option>
+                    <option value="time">Time Range</option>
                 </select>
             </div>
 
-            <div class="md:col-span-4">
+            <div id="valueWrap" class="hidden md:col-span-4">
                 <label class="block text-sm font-medium text-slate-700">Search Value</label>
-                <input id="searchValue" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" placeholder="Optional" />
+                <input id="searchValue" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" placeholder="Enter value" onkeydown="if(event.key==='Enter')loadChecks()" />
             </div>
 
-            <div class="flex items-end md:col-span-2">
-                <button class="inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="loadChecks()">Load</button>
+            <div id="timeWrap" class="hidden gap-3 md:col-span-4 md:flex">
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-slate-700">Start Time</label>
+                    <input id="startTime" type="time" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                </div>
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-slate-700">End Time</label>
+                    <input id="endTime" type="time" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                </div>
+            </div>
+
+            <div class="flex items-end gap-2 md:col-span-2">
+                <button class="inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="loadChecks()">Search</button>
             </div>
         </div>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-[430px_minmax(0,1fr)]">
 
+        <!-- Results list -->
         <div>
-            <div class="mb-3 text-base font-semibold text-slate-900">Closed Checks</div>
+            <div class="mb-3 flex items-center justify-between">
+                <span class="text-base font-semibold text-slate-900">Search Results</span>
+                <span id="resultCount" class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">0</span>
+            </div>
             <div id="checkList" class="max-h-[680px] divide-y divide-slate-100 overflow-y-auto rounded-xl bg-white shadow-sm ring-1 ring-slate-200"></div>
         </div>
 
+        <!-- Detail -->
         <div>
             <div id="reviewArea" class="space-y-6">
                 <div class="rounded-xl bg-white p-6 text-sm text-slate-500 shadow-sm ring-1 ring-slate-200">
@@ -52,81 +87,130 @@
 </div>
 
 <script>
-    let selectedCheckRow = null;
+    let checks = [];
+    let selectedIndex = -1;
+    let mode = 'archive';
+    let refreshTimer = null;
     const SEL = ['bg-emerald-50', 'text-emerald-900', 'font-medium'];
 
     document.addEventListener("DOMContentLoaded", function () {
         businessDate.value = new Date().toISOString().substring(0, 10);
-        loadChecks();
+        startTime.value = "00:00";
+        endTime.value = "23:59";
+        setMode('archive');
     });
 
-    function money(v) {
-        return Number(v || 0).toFixed(2);
+    function segClass(active) {
+        return 'rounded-md px-4 py-1.5 text-sm font-semibold transition '
+            + (active ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700');
     }
 
-    function loadChecks() {
-        const date = businessDate.value;
-        const type = searchType.value;
-        const value = encodeURIComponent(searchValue.value || '');
+    function setMode(m) {
+        mode = m;
+        const liveOn = m === 'live';
 
-        fetch(`/CheckReview/GetClosedChecks?businessDate=${date}&searchType=${type}&searchValue=${value}`)
+        modeLive.className = segClass(liveOn);
+        modeArchive.className = segClass(!liveOn);
+        dateWrap.classList.toggle('hidden', liveOn);
+        liveIndicator.classList.toggle('hidden', !liveOn);
+        liveIndicator.classList.toggle('inline-flex', liveOn);
+
+        if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+        if (liveOn) refreshTimer = setInterval(() => loadChecks(true), 30000);
+
+        loadChecks();
+    }
+
+    function money(v) { return Number(v || 0).toFixed(2); }
+
+    function onSearchTypeChange() {
+        const t = searchType.value;
+        const needsValue = ['check', 'server', 'table', 'member', 'menuitem', 'payment'].includes(t);
+        valueWrap.classList.toggle('hidden', !needsValue);
+        timeWrap.classList.toggle('hidden', t !== 'time');
+    }
+
+    function loadChecks(isAuto) {
+        // Remember the selected check so an auto-refresh doesn't lose it.
+        const prevCheck = (selectedIndex >= 0 && checks[selectedIndex]) ? checks[selectedIndex].checkNumber : null;
+
+        const params = new URLSearchParams({
+            mode,
+            businessDate: businessDate.value,
+            searchType: searchType.value,
+            searchValue: searchValue.value || '',
+            startTime: startTime.value || '',
+            endTime: endTime.value || ''
+        });
+
+        fetch(`/CheckReview/GetClosedChecks?${params.toString()}`)
             .then(r => r.json())
             .then(result => {
-                if (!result.success) {
-                    alert(result.message);
-                    return;
+                if (!result.success) { if (!isAuto) alert(result.message); return; }
+                checks = result.data || [];
+                selectedIndex = -1;
+                renderCheckList();
+                if (prevCheck != null) {
+                    const i = checks.findIndex(c => c.checkNumber === prevCheck);
+                    if (i >= 0) selectCheck(i);
                 }
-
-                renderCheckList(result.data);
-            });
+            })
+            .catch(err => { if (!isAuto) alert("Load failed: " + err.message); });
     }
 
-    function renderCheckList(data) {
+    function renderCheckList() {
         checkList.innerHTML = '';
+        resultCount.innerText = checks.length;
 
-        if (!data || data.length === 0) {
-            checkList.innerHTML = `<div class="px-4 py-3 text-sm text-slate-500">No checks found.</div>`;
+        if (checks.length === 0) {
+            checkList.innerHTML = `<div class="px-4 py-3 text-sm text-slate-500">No transactions found.</div>`;
+            reviewArea.innerHTML = `<div class="rounded-xl bg-white p-6 text-sm text-slate-500 shadow-sm ring-1 ring-slate-200">Select a check to review.</div>`;
             return;
         }
 
-        data.forEach(row => {
+        checks.forEach((row, i) => {
             const div = document.createElement('div');
             div.className = 'cursor-pointer px-4 py-3 text-sm text-slate-700 hover:bg-slate-50';
-
             div.innerHTML = `
-                <div class="text-base font-bold text-slate-900">Check #${row.checkNumber}</div>
-                <div>${row.serverName || ''}</div>
-                <div class="text-xs text-slate-500">
-                    ${row.openTime || ''} - ${row.closeTime || ''}
-                    &nbsp; | &nbsp; Total: $${money(row.checkTotal)}
+                <div class="flex items-center justify-between">
+                    <span class="text-base font-bold text-slate-900">Check #${row.checkNumber}</span>
+                    <span class="font-semibold text-slate-900">$${money(row.netAmount)}</span>
                 </div>
-            `;
-
-            div.onclick = function () {
-                if (selectedCheckRow)
-                    selectedCheckRow.classList.remove('selected', ...SEL);
-
-                selectedCheckRow = div;
-                div.classList.add('selected', ...SEL);
-
-                loadCheckReview(row.checkNumber, row.orderDate, row.closeOutDay);
-            };
-
+                <div>${row.serverName || ''} &nbsp;&middot;&nbsp; ${row.tableNumber || ''}</div>
+                <div class="text-xs text-slate-500">${row.openTime || ''} - ${row.closeTime || ''}</div>`;
+            div.onclick = () => selectCheck(i, div);
             checkList.appendChild(div);
         });
     }
 
+    function selectCheck(i, div) {
+        [...checkList.children].forEach(c => c.classList.remove('selected', ...SEL));
+        div = div || checkList.children[i];
+        if (!div) return;
+        div.classList.add('selected', ...SEL);
+        div.scrollIntoView({ block: 'nearest' });
+        selectedIndex = i;
+
+        const row = checks[i];
+        loadCheckReview(row.checkNumber, row.orderDate, row.closeOutDay);
+    }
+
+    function nextCheck() {
+        if (selectedIndex < checks.length - 1) selectCheck(selectedIndex + 1);
+    }
+    function prevCheck() {
+        if (selectedIndex > 0) selectCheck(selectedIndex - 1);
+    }
+
     function loadCheckReview(checkNumber, orderDate, closeOutDay) {
-        fetch(`/CheckReview/GetCheckReview?checkNumber=${checkNumber}&businessDate=${orderDate}&closeOutDay=${closeOutDay}`)
+        const params = new URLSearchParams({ mode, checkNumber, businessDate: orderDate, closeOutDay });
+        fetch(`/CheckReview/GetCheckReview?${params.toString()}`)
             .then(r => r.json())
             .then(result => {
-                if (!result.success) {
-                    alert(result.message);
-                    return;
-                }
-
+                if (!result.success) { alert(result.message); return; }
                 renderReview(result.data);
-            });
+            })
+            .catch(err => alert("Could not load check: " + err.message));
     }
 
     function renderReview(data) {
@@ -156,25 +240,36 @@
                 </tr>`;
         });
 
+        const navDisabled = checks.length <= 1;
         reviewArea.innerHTML = `
+            <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="text-base font-semibold text-slate-900">Check #${h.checkNumber}</div>
+                <div class="flex gap-2">
+                    <button onclick="prevCheck()" ${selectedIndex <= 0 ? 'disabled' : ''} class="inline-flex items-center rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50 disabled:opacity-40">Previous</button>
+                    <button onclick="nextCheck()" ${selectedIndex >= checks.length - 1 ? 'disabled' : ''} class="inline-flex items-center rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50 disabled:opacity-40">Next Check</button>
+                    <button onclick="window.print()" class="inline-flex items-center rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Print</button>
+                </div>
+            </div>
+
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-                <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200"><b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Check</b><span class="text-xl font-bold text-slate-900">#${h.checkNumber}</span></div>
                 <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200"><b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Total</b><span class="text-xl font-bold text-slate-900">$${money(h.checkTotal)}</span></div>
                 <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200"><b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Items</b><span class="text-xl font-bold text-slate-900">$${money(totals.itemTotal)}</span></div>
+                <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200"><b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Sales Tax</b><span class="text-xl font-bold text-slate-900">$${money(h.salesTax)}</span></div>
                 <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200"><b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Payments</b><span class="text-xl font-bold text-slate-900">$${money(totals.paymentTotal)}</span></div>
                 <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200"><b class="block text-xs font-semibold uppercase tracking-wide text-slate-500">Tips</b><span class="text-xl font-bold text-slate-900">$${money(totals.tipTotal)}</span></div>
             </div>
 
             <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
                 <div class="mb-3 text-base font-semibold text-slate-900">Check Header</div>
-                <div class="space-y-1 text-sm text-slate-700">
+                <div class="grid gap-x-6 gap-y-1 text-sm text-slate-700 sm:grid-cols-2">
                     <div><b class="font-semibold text-slate-900">Server:</b> ${h.serverName || ''}</div>
                     <div><b class="font-semibold text-slate-900">Cashier:</b> ${h.cashierName || ''}</div>
                     <div><b class="font-semibold text-slate-900">Table:</b> ${h.tableNumber || ''}</div>
-                    <div><b class="font-semibold text-slate-900">Order Type:</b> ${h.orderType || ''}</div>
+                    <div><b class="font-semibold text-slate-900">Destination:</b> ${h.orderType || ''}</div>
+                    <div><b class="font-semibold text-slate-900">Party:</b> ${h.partyNumber || ''}</div>
+                    <div><b class="font-semibold text-slate-900">Member:</b> ${h.memberName || ''}</div>
                     <div><b class="font-semibold text-slate-900">Opened:</b> ${h.orderDate || ''} ${h.openTime || ''}</div>
                     <div><b class="font-semibold text-slate-900">Closed:</b> ${h.closeTime || ''}</div>
-                    <div><b class="font-semibold text-slate-900">Member:</b> ${h.memberName || ''}</div>
                 </div>
             </div>
 

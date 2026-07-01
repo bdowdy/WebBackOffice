@@ -1,0 +1,11 @@
+--- RequestForm.frm
++++ RequestForm.frm (fixed)
+@@ -4956,7 +4956,7 @@
+     Sql = "Select * from [HouseCharges] Where [Day of Charge] = 0 and [voided] = 0"
+     If MYCheckSeries > 0 Then
+      If LoggedOnAs(0).EmpAccessLevel < Access_Required("Managers Menu") Then
+-       Sql = Sql & " and cast([Check Number] / 1000 as int) = " & MYCheckSeries
++       Sql = Sql & " and TRY_CONVERT(int, [Check Number] / 1000) = " & MYCheckSeries
+      End If
+     End If
+     If ConnectADODB(HouseAcct, Db) = False Then

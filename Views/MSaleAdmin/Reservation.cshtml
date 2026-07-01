@@ -1,0 +1,369 @@
+@{
+    ViewData["Title"]    = "Reservations";
+    ViewData["Subtitle"] = "Manage reservations — add, edit, and track party status.";
+}
+
+<style>
+    .res-layout { display: flex; gap: 1.25rem; align-items: flex-start; }
+    .res-list-col {
+        width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: .75rem;
+        position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto;
+    }
+    .res-form-col { flex: 1; min-width: 0; }
+    .card { background: #fff; border-radius: 12px; padding: 16px 18px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.08); border: 1px solid #e2e8f0; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    .form-field label { display: block; font-size: 12px; font-weight: 500; color: #64748b; margin-bottom: 3px; }
+    .form-field input, .form-field select, .form-field textarea {
+        width: 100%; border: none; border-radius: 8px; padding: 7px 10px;
+        font-size: 13px; box-shadow: 0 0 0 1px #cbd5e1 inset; background: #fff; color: #1e293b;
+        box-sizing: border-box;
+    }
+    .form-field textarea { resize: vertical; min-height: 64px; }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+        outline: none; box-shadow: 0 0 0 2px #059669 inset;
+    }
+    .form-field.full { grid-column: 1 / -1; }
+    .btn { border: none; border-radius: 8px; padding: 8px 16px;
+           font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s; }
+    .btn-green { background: #059669; color: #fff; } .btn-green:hover { background: #047857; }
+    .btn-red   { background: #dc2626; color: #fff; } .btn-red:hover   { background: #b91c1c; }
+    .btn-ghost { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+    .btn-ghost:hover { background: #e2e8f0; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    /* filter bar */
+    .filter-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .filter-bar input, .filter-bar select {
+        border: none; border-radius: 8px; padding: 6px 10px; font-size: 12px;
+        box-shadow: 0 0 0 1px #cbd5e1 inset; background: #fff; color: #1e293b;
+    }
+    .filter-bar input:focus, .filter-bar select:focus { outline: none; box-shadow: 0 0 0 2px #059669 inset; }
+    /* reservation list rows */
+    .res-row {
+        padding: 10px 12px; border-bottom: 1px solid #f1f5f9;
+        cursor: pointer; transition: background .1s;
+    }
+    .res-row:last-child { border-bottom: none; }
+    .res-row:hover { background: #f8fafc; }
+    .res-row.selected { background: #ecfdf5; }
+    .res-row-name { font-size: 13px; font-weight: 600; color: #1e293b; }
+    .res-row-sub  { font-size: 11px; color: #64748b; margin-top: 2px; }
+    .res-row-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+    /* status badges */
+    .badge { display: inline-block; border-radius: 4px; padding: 1px 8px;
+             font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+    .badge-pending   { background: #fef9c3; color: #854d0e; }
+    .badge-seated    { background: #dcfce7; color: #166534; }
+    .badge-cancelled { background: #f1f5f9; color: #64748b; }
+    .badge-noshow    { background: #fee2e2; color: #991b1b; }
+</style>
+
+<div class="res-layout">
+
+    <!-- ── LEFT: filter + list ─────────────────────────────────── -->
+    <div class="res-list-col">
+
+        <div class="card" style="padding:12px 14px;">
+            <div class="filter-bar">
+                <input type="date" id="filterDate" title="Filter by date" />
+                <select id="filterStatus">
+                    <option value="">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Seated">Seated</option>
+                    <option value="Cancelled">Cancelled</option>
+                    <option value="No-Show">No-Show</option>
+                </select>
+                <button class="btn btn-ghost" style="padding:6px 10px;font-size:12px;" onclick="loadList()">
+                    Search
+                </button>
+            </div>
+        </div>
+
+        <div class="card" style="padding:0; overflow:hidden;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px;border-bottom:1px solid #e2e8f0;">
+                <span style="font-size:12px;font-weight:600;color:#1e293b;">Reservations</span>
+                <span id="listCount" style="font-size:11px;color:#94a3b8;"></span>
+            </div>
+            <div id="resList" style="max-height:calc(100vh - 260px);overflow-y:auto;"></div>
+        </div>
+
+    </div>
+
+    <!-- ── RIGHT: form panel ───────────────────────────────────── -->
+    <div class="res-form-col">
+
+        <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <h3 id="formTitle" style="font-size:15px;font-weight:700;color:#1e293b;margin:0;">New Reservation</h3>
+                <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px;" onclick="clearForm()">+ New</button>
+            </div>
+
+            <input type="hidden" id="reservationId" value="0" />
+
+            <div class="form-grid">
+
+                <div class="form-field" style="grid-column:1/-1;">
+                    <label>Party Name *</label>
+                    <input id="partyName" placeholder="Smith" />
+                </div>
+
+                <div class="form-field">
+                    <label>Date *</label>
+                    <input type="date" id="reservationDate" />
+                </div>
+
+                <div class="form-field">
+                    <label>Time *</label>
+                    <input type="time" id="reservationTime" />
+                </div>
+
+                <div class="form-field">
+                    <label>Party Size</label>
+                    <input type="number" id="partySize" min="1" max="99" value="2" />
+                </div>
+
+                <div class="form-field">
+                    <label>Phone</label>
+                    <input id="phone" placeholder="(555) 555-1234" />
+                </div>
+
+                <div class="form-field">
+                    <label>Table</label>
+                    <select id="tableNumber">
+                        <option value="">— Unassigned —</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label>Status</label>
+                    <select id="status">
+                        <option value="Pending">Pending</option>
+                        <option value="Seated">Seated</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="No-Show">No-Show</option>
+                    </select>
+                </div>
+
+                <div class="form-field full">
+                    <label>Notes / Special Requests</label>
+                    <textarea id="notes" placeholder="Allergies, occasion, seating preferences…"></textarea>
+                </div>
+
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-green" onclick="saveReservation()">Save</button>
+                <button class="btn btn-red"   onclick="deleteReservation()">Delete</button>
+                <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
+            </div>
+        </div>
+
+        <!-- Quick status-change strip (visible when a record is selected) -->
+        <div id="statusStrip" class="card" style="display:none;margin-top:.75rem;padding:12px 16px;">
+            <div style="font-size:12px;font-weight:600;color:#64748b;margin-bottom:8px;">Quick Status</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn" style="background:#fef9c3;color:#854d0e;font-size:12px;padding:6px 14px;"
+                        onclick="quickStatus('Pending')">Pending</button>
+                <button class="btn" style="background:#dcfce7;color:#166534;font-size:12px;padding:6px 14px;"
+                        onclick="quickStatus('Seated')">Seated</button>
+                <button class="btn" style="background:#fee2e2;color:#991b1b;font-size:12px;padding:6px 14px;"
+                        onclick="quickStatus('No-Show')">No-Show</button>
+                <button class="btn" style="background:#f1f5f9;color:#64748b;font-size:12px;padding:6px 14px;"
+                        onclick="quickStatus('Cancelled')">Cancelled</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let selectedRow = null;
+    let allRows     = [];
+
+    // ── Init ──────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+        // Default filter to today
+        const today = new Date().toISOString().slice(0, 10);
+        document.getElementById('filterDate').value = today;
+
+        loadTables();
+        loadList();
+    });
+
+    // ── Table dropdown ────────────────────────────────────────────
+    function loadTables() {
+        fetch('/Reservation/GetTables')
+            .then(r => r.json())
+            .then(data => {
+                const sel = document.getElementById('tableNumber');
+                data.forEach(t => {
+                    const o = document.createElement('option');
+                    o.value = t; o.textContent = t;
+                    sel.appendChild(o);
+                });
+            })
+            .catch(() => {}); // Layout table not required
+    }
+
+    // ── List ──────────────────────────────────────────────────────
+    function loadList() {
+        const date   = document.getElementById('filterDate').value;
+        const status = document.getElementById('filterStatus').value;
+        const params = new URLSearchParams();
+        if (date)   params.set('date',   date);
+        if (status) params.set('status', status);
+
+        fetch('/Reservation/GetAll?' + params.toString())
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.error) {
+                    document.getElementById('resList').innerHTML =
+                        `<div style="padding:16px;color:#dc2626;font-size:12px;">Error: ${data.error}</div>`;
+                    return;
+                }
+                allRows = data;
+                renderList(data);
+            });
+    }
+
+    function renderList(data) {
+        const container = document.getElementById('resList');
+        const count     = document.getElementById('listCount');
+        container.innerHTML = '';
+        count.textContent   = `${data.length} reservation${data.length === 1 ? '' : 's'}`;
+
+        if (!data.length) {
+            container.innerHTML =
+                '<div style="padding:20px;text-align:center;color:#94a3b8;font-size:12px;">No reservations found.</div>';
+            return;
+        }
+
+        data.forEach(r => {
+            const row = document.createElement('div');
+            row.className = 'res-row';
+
+            const timeStr  = r.reservationTime ? r.reservationTime.substring(0, 5) : '';
+            const dateStr  = r.reservationDate ? r.reservationDate : '';
+            const tableStr = r.tableNumber ? ` · Table ${r.tableNumber}` : '';
+
+            row.innerHTML = `
+                <div class="res-row-name">${esc(r.partyName)}</div>
+                <div class="res-row-sub">${dateStr} ${timeStr} · Party of ${r.partySize}${tableStr}</div>
+                <div class="res-row-meta">
+                    <span class="badge ${badgeClass(r.status)}">${esc(r.status)}</span>
+                    ${r.phone ? `<span style="font-size:11px;color:#94a3b8;">${esc(r.phone)}</span>` : ''}
+                </div>`;
+
+            row.addEventListener('click', () => selectRow(row, r));
+            container.appendChild(row);
+        });
+    }
+
+    function selectRow(rowEl, r) {
+        if (selectedRow) selectedRow.classList.remove('selected');
+        selectedRow = rowEl;
+        rowEl.classList.add('selected');
+
+        document.getElementById('reservationId').value   = r.reservationId;
+        document.getElementById('partyName').value       = r.partyName;
+        document.getElementById('partySize').value       = r.partySize;
+        document.getElementById('reservationDate').value = r.reservationDate;
+        document.getElementById('reservationTime').value = r.reservationTime;
+        document.getElementById('phone').value           = r.phone;
+        document.getElementById('notes').value           = r.notes;
+        document.getElementById('tableNumber').value     = r.tableNumber;
+        document.getElementById('status').value          = r.status;
+
+        document.getElementById('formTitle').textContent   = 'Edit Reservation';
+        document.getElementById('statusStrip').style.display = '';
+    }
+
+    // ── Save ──────────────────────────────────────────────────────
+    function saveReservation() {
+        const dto = {
+            reservationId:   parseInt(document.getElementById('reservationId').value) || 0,
+            partyName:       document.getElementById('partyName').value.trim(),
+            partySize:       parseInt(document.getElementById('partySize').value)  || 1,
+            reservationDate: document.getElementById('reservationDate').value,
+            reservationTime: document.getElementById('reservationTime').value,
+            phone:           document.getElementById('phone').value.trim(),
+            notes:           document.getElementById('notes').value.trim(),
+            tableNumber:     document.getElementById('tableNumber').value,
+            status:          document.getElementById('status').value
+        };
+
+        if (!dto.partyName) { alert('Party name is required.'); return; }
+        if (!dto.reservationDate) { alert('Reservation date is required.'); return; }
+
+        fetch('/Reservation/Save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dto)
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) {
+                loadList();
+                clearForm();
+            } else {
+                alert(result.message || 'Save failed.');
+            }
+        });
+    }
+
+    // ── Delete ────────────────────────────────────────────────────
+    function deleteReservation() {
+        const id = parseInt(document.getElementById('reservationId').value) || 0;
+        if (!id) { alert('Select a reservation to delete.'); return; }
+        const name = document.getElementById('partyName').value;
+        if (!confirm(`Delete reservation for ${name}?`)) return;
+
+        fetch('/Reservation/Delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reservationId: id })
+        })
+        .then(r => r.json())
+        .then(result => {
+            if (result.success) { loadList(); clearForm(); }
+            else alert(result.message || 'Delete failed.');
+        });
+    }
+
+    // ── Quick status ──────────────────────────────────────────────
+    function quickStatus(newStatus) {
+        document.getElementById('status').value = newStatus;
+        saveReservation();
+    }
+
+    // ── Clear ─────────────────────────────────────────────────────
+    function clearForm() {
+        document.getElementById('reservationId').value   = '0';
+        document.getElementById('partyName').value       = '';
+        document.getElementById('partySize').value       = '2';
+        document.getElementById('reservationDate').value = '';
+        document.getElementById('reservationTime').value = '';
+        document.getElementById('phone').value           = '';
+        document.getElementById('notes').value           = '';
+        document.getElementById('tableNumber').value     = '';
+        document.getElementById('status').value          = 'Pending';
+        document.getElementById('formTitle').textContent    = 'New Reservation';
+        document.getElementById('statusStrip').style.display = 'none';
+
+        if (selectedRow) { selectedRow.classList.remove('selected'); selectedRow = null; }
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────
+    function badgeClass(s) {
+        switch ((s || '').toLowerCase()) {
+            case 'seated':    return 'badge-seated';
+            case 'cancelled': return 'badge-cancelled';
+            case 'no-show':   return 'badge-noshow';
+            default:          return 'badge-pending';
+        }
+    }
+
+    function esc(s) {
+        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+</script>

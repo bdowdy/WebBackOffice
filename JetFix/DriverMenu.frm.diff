@@ -1,0 +1,56 @@
+--- DriverMenu.frm
++++ DriverMenu.frm (fixed)
+@@ -965,7 +965,7 @@
+     
+     ConnectADODB SvrPath.TerminalPath & DebitDb, Db
+      Sql = "Select * From [Debit] where [Server Name] = '" & Driver & "' and [close out day] = 0"
+-     Sql = Sql & " Order by cast([Date] as datetime) , cast([Time] as datetime) asc"
++     Sql = Sql & " Order by TRY_CAST([Date] AS datetime) , TRY_CAST([Time] AS datetime) asc"
+     ConnectADORS Sql, Db, ATB
+     If Not ATB.EOF Then
+        StartAudit = ATB![Date] & " " & ATB![Time] & ""
+@@ -976,7 +976,7 @@
+     
+     ConnectADODB SvrPath.TerminalPath & FinancialDb, Db
+      Sql = "Select * From [DayPayments] where [Server Name] = '" & Driver & "'"
+-     Sql = Sql & " Order by cast([Recorded Date] as datetime) , cast([Recorded Time] as datetime) asc"
++     Sql = Sql & " Order by TRY_CAST([Recorded Date] AS datetime) , TRY_CAST([Recorded Time] AS datetime) asc"
+     ConnectADORS Sql, Db, ATB
+      If Not ATB.EOF Then
+       GetStartingTime = ATB![Recorded Date] & " " & Format(ATB![Recorded Time] & "", "HH:MM ampm")
+@@ -992,7 +992,7 @@
+         Call ConnectADODB(CPath.TerminalPath & CallInOrderDb, Db)
+           Sql = "Select * from [Open Checks] Where [Driver Assigned] = '" & Driver & "'"
+           Sql = Sql & " and isdate([Pick Up date] + [Time Assigned]) = 0"
+-          Sql = Sql & "Order by cast([Pick Up Date] as datetime) , cast([Time assigned] as datetime) asc"
++          Sql = Sql & "Order by TRY_CAST([Pick Up Date] AS datetime) , TRY_CAST([Time assigned] AS datetime) asc"
+           Call ConnectADORS(Sql, Db, ATB)
+            If Not ATB.EOF Then
+              GetStartingTime = ATB![Pick Up Date] & " " & ATB![Time assigned] & ""
+@@ -1095,7 +1095,7 @@
+   If StartCheck = 0 Then
+    If GetConfigInfo("Phone Orders", "Search EMV Card By Close Out Day", "No", "Functions.INI") = "ENABLED" Then
+    Else
+-      Sql = Sql & " and Cast([Date] as datetime) + cast([Time] as datetime) >= '" & AuditStart & "'"
++      Sql = Sql & " and TRY_CAST([Date] AS datetime) + TRY_CAST([Time] AS datetime) >= '" & AuditStart & "'"
+    End If
+   Else
+     Sql = Sql & " and [Check Number] >= " & StartCheck
+@@ -1114,7 +1114,7 @@
+ 
+ ConnectADODB SvrPath.TerminalPath & FinancialDb, Db
+   Sql = "Select [Server Name], Sum([Payment Amount]) as TSale, Sum([Tip Amount]) as TGrat, Count([Payment Amount]) as TCrds from [DayPayments] where [Server Name] = '" & ForWho & "'"
+-  Sql = Sql & " and cast([Recorded Date] as datetime) + cast([Recorded Time] as datetime) >= '" & AuditStart & "'"
++  Sql = Sql & " and TRY_CAST([Recorded Date] AS datetime) + TRY_CAST([Recorded Time] AS datetime) >= '" & AuditStart & "'"
+   Sql = Sql & " and [Payment Type] <> 'Cash'"
+   Sql = Sql & " and [Check Number] <> -9999"
+   Sql = Sql & " and [Tip Paid] = 0 Group by [Server Name]"
+@@ -1131,7 +1131,7 @@
+ ConnectADODB SvrPath.TerminalPath & CheckStatDb, Db
+   Sql = "Select [Servers Name], Sum([Price]) as TTip, Count([Price]) as TCrds from [Check Detail] where [Servers Name] = '" & ForWho & "'"
+   Sql = Sql & " and [Department Report] = 'Online Tip' and [Close out Day] = 0"
+-  Sql = Sql & " and cast([Check Date] as datetime) + cast([Recorded Time] as datetime) >= '" & AuditStart & "'"
++  Sql = Sql & " and TRY_CAST([Check Date] AS datetime) + TRY_CAST([Recorded Time] AS datetime) >= '" & AuditStart & "'"
+   Sql = Sql & " Group by [Servers Name]"
+ ConnectADORS Sql, Db, OP
+  Ol_Tip = 0: Ol_Count = 0

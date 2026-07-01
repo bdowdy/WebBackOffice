@@ -1,0 +1,161 @@
+@{
+    ViewData["Title"] = "Receipt Print Size";
+    ViewData["Subtitle"] = "Choose large or small print for menu item and modifier lines, per printer. Saved to [Receipt Print Format].";
+}
+
+<div class="space-y-6">
+
+    <div class="flex flex-wrap items-end gap-4">
+        <div class="w-72">
+            <label for="printer" class="block text-sm font-medium text-slate-700">Printer</label>
+            <select id="printer" onchange="loadFormat()"
+                    class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
+                <option value="">Select a printer…</option>
+            </select>
+        </div>
+        <button type="button" onclick="save()" id="saveBtn" disabled
+                class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500 disabled:opacity-40">
+            Save to printer
+        </button>
+        <span id="toast" class="text-sm text-emerald-600"></span>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-[1fr_380px]">
+
+        <!-- Live receipt preview -->
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <div class="mb-3 text-sm font-medium text-slate-700">Preview</div>
+            <div class="mx-auto max-w-[320px] bg-white p-4 font-mono text-[13px] leading-snug text-slate-900 ring-1 ring-slate-200">
+                <div class="text-center">MSale Version 11</div>
+                <div class="text-center">1221 W. Brandon Blvd.</div>
+                <div class="text-center">Store# 00004918</div>
+                <div class="my-2 border-t border-dashed border-slate-300"></div>
+                <div>Guest Check&nbsp;&nbsp;&nbsp;&nbsp;Party of 1</div>
+                <div>Table 1004&nbsp;&nbsp;&nbsp;&nbsp;Check 1004</div>
+                <div class="my-2 border-t border-dashed border-slate-300"></div>
+
+                <!-- editable region -->
+                <div class="js-item flex justify-between"><span>1 CHEESE BURGER</span><span>12.99</span></div>
+                <div class="js-mod">&nbsp;&nbsp;MEDIUM</div>
+                <div class="js-mod">&nbsp;&nbsp;No-BRIOCHE BUN</div>
+                <div class="js-mod">&nbsp;&nbsp;Add-AMERICAN CHEESE</div>
+                <div class="js-item flex justify-between"><span>1 FRIES</span><span>&nbsp;</span></div>
+
+                <div class="my-2 border-t border-dashed border-slate-300"></div>
+                <div class="flex justify-between"><span>Sub Total</span><span>13.38</span></div>
+                <div class="flex justify-between"><span>Total</span><span>$ 14.18</span></div>
+                <div class="my-2 border-t border-dashed border-slate-300"></div>
+                <div class="text-center">Thank you</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="space-y-6">
+            <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+                <div class="mb-4">
+                    <div class="text-sm font-medium text-slate-700">Menu item lines</div>
+                    <div class="mt-2 inline-flex rounded-lg ring-1 ring-inset ring-slate-300">
+                        <button type="button" data-item="Small" onclick="setItem('Small')" class="js-item-btn rounded-l-lg px-4 py-2 text-sm font-semibold">Small</button>
+                        <button type="button" data-item="Large" onclick="setItem('Large')" class="js-item-btn rounded-r-lg px-4 py-2 text-sm font-semibold">Large</button>
+                    </div>
+                </div>
+                <div class="border-t border-slate-100 pt-4">
+                    <div class="text-sm font-medium text-slate-700">Modifier lines</div>
+                    <div class="mt-2 inline-flex rounded-lg ring-1 ring-inset ring-slate-300">
+                        <button type="button" data-mod="Small" onclick="setMod('Small')" class="js-mod-btn rounded-l-lg px-4 py-2 text-sm font-semibold">Small</button>
+                        <button type="button" data-mod="Large" onclick="setMod('Large')" class="js-mod-btn rounded-r-lg px-4 py-2 text-sm font-semibold">Large</button>
+                    </div>
+                </div>
+            </div>
+
+            <details class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+                <summary class="cursor-pointer text-sm font-medium text-slate-700">Advanced: ESC byte codes</summary>
+                <p class="mt-2 text-xs text-slate-500">Comma-separated decimal bytes. Defaults are standard ESC/POS.</p>
+                <div class="mt-3">
+                    <label class="block text-xs font-medium text-slate-600">Large / big print (GS ! double)</label>
+                    <input id="bigEsc" value="29,33,17" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 font-mono text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                </div>
+                <div class="mt-3">
+                    <label class="block text-xs font-medium text-slate-600">Small / normal print</label>
+                    <input id="smallEsc" value="29,33,0" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 font-mono text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                </div>
+            </details>
+
+            <div class="rounded-xl bg-slate-50 p-4 text-xs text-slate-600 ring-1 ring-slate-200">
+                Saved to <code>[Receipt Print Format]</code>: one row per printer with Item Size, Modifier Size, and the Big/Small ESC codes. Your VB6 print routine reads this row and wraps item and modifier lines with the matching code.
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const API = "/api/receipt-esc";
+    let itemSize = "Small", modSize = "Small";
+
+    const $ = id => document.getElementById(id);
+    function flash(msg, err) {
+        const t = $("toast");
+        t.textContent = msg; t.className = "text-sm " + (err ? "text-rose-600" : "text-emerald-600");
+        if (!err) setTimeout(() => { if ($("toast").textContent === msg) $("toast").textContent = ""; }, 2500);
+    }
+    async function checkOk(r) {
+        if (!r.ok) { let b = ""; try { b = await r.text(); } catch {} throw new Error(b && b.length < 500 ? b : ("HTTP " + r.status)); }
+        return r;
+    }
+
+    function applyPreview() {
+        document.querySelectorAll(".js-item").forEach(el => {
+            el.style.fontSize = itemSize === "Large" ? "20px" : "";
+            el.style.fontWeight = itemSize === "Large" ? "700" : "";
+        });
+        document.querySelectorAll(".js-mod").forEach(el => {
+            el.style.fontSize = modSize === "Large" ? "20px" : "";
+            el.style.fontWeight = modSize === "Large" ? "700" : "";
+        });
+        styleBtns("js-item-btn", "item", itemSize);
+        styleBtns("js-mod-btn", "mod", modSize);
+    }
+    function styleBtns(cls, attr, val) {
+        document.querySelectorAll("." + cls).forEach(b => {
+            const on = b.getAttribute("data-" + attr) === val;
+            b.className = b.className.replace(/\s*(bg-emerald-600|text-white|bg-white|text-slate-700)/g, "");
+            b.className += on ? " bg-emerald-600 text-white" : " bg-white text-slate-700";
+        });
+    }
+    function setItem(v) { itemSize = v; applyPreview(); }
+    function setMod(v) { modSize = v; applyPreview(); }
+
+    function loadPrinters() {
+        fetch(API + "/printers").then(checkOk).then(r => r.json()).then(list => {
+            const sel = $("printer");
+            list.forEach(p => { const o = document.createElement("option"); o.value = p; o.textContent = p; sel.appendChild(o); });
+        }).catch(err => flash("Couldn't load printers. " + err.message, true));
+    }
+
+    function loadFormat() {
+        const p = $("printer").value;
+        $("saveBtn").disabled = !p;
+        if (!p) return;
+        fetch(API + "/format?printer=" + encodeURIComponent(p)).then(checkOk).then(r => r.json()).then(d => {
+            itemSize = d.itemSize || "Small";
+            modSize = d.modifierSize || "Small";
+            $("bigEsc").value = d.bigEsc || "29,33,17";
+            $("smallEsc").value = d.smallEsc || "29,33,0";
+            applyPreview();
+        }).catch(err => flash("Couldn't load format. " + err.message, true));
+    }
+
+    function save() {
+        const p = $("printer").value;
+        if (!p) { flash("Select a printer first.", true); return; }
+        const body = { printer: p, itemSize, modifierSize: modSize, bigEsc: $("bigEsc").value, smallEsc: $("smallEsc").value };
+        fetch(API + "/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+            .then(checkOk).then(() => flash("Saved to " + p))
+            .catch(err => flash("Save failed. " + err.message, true));
+    }
+
+    applyPreview();
+    loadPrinters();
+</script>
+}

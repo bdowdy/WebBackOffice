@@ -1,0 +1,11 @@
+--- AuditDeposit.frm
++++ AuditDeposit.frm (pass2)
+@@ -459,7 +459,7 @@
+      Dim FA As Integer
+      For FA = 0 To NetWork_Data
+         ConnectADODB Server_Path(2, FA) & FinancialDb, FinancialDb, DB
+-              Sql = "Select * from [Audits]" 'Where TRY_CAST([Start Date] AS datetime) + TRY_CAST([start time] AS datetime) Between #" & CDate(Adate) & " " & GetStartTime & "#"
++              Sql = "Select * from [Audits]" 'Where TRY_CAST([Start Date] AS datetime) + TRY_CAST([start time] AS datetime) Between '" & Format(CDate(CDate(Adate) & " " & GetStartTime), "yyyy-mm-dd hh:nn:ss") & "'"
+         ConnectADORS Sql, DB, Tb
+         With RegList
+         .Rows = .Rows + RecordsCount(Tb)

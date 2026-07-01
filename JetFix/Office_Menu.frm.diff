@@ -1,0 +1,65 @@
+--- Office_Menu.frm
++++ Office_Menu.frm (fixed)
+@@ -2502,7 +2502,7 @@
+ Dim OP As ADODB.Recordset
+ Dim Tb As ADODB.Recordset
+           ConnectADODB CheckStatDb, Db
+-             Sql = "Select * from [Check Detail] Order By cast([Check Date] as datetime) asc"
++             Sql = "Select * from [Check Detail] Order By TRY_CAST([Check Date] AS datetime) asc"
+             ConnectADORS Sql, Db, Tb
+             If Not Tb.EOF Then
+               If Not Tb.BOF Then Tb.MoveFirst
+@@ -2514,7 +2514,7 @@
+                    End If
+                 End If
+                 SetNothing Tb
+-                 Sql = "Select * from [Check Detail] Order By cast([Check Date] as datetime) desc"
++                 Sql = "Select * from [Check Detail] Order By TRY_CAST([Check Date] AS datetime) desc"
+                 ConnectADORS Sql, Db, Tb
+                 If Not IsDate(AW(1).Text) Then
+                    AW(1).Text = Format(Tb![Check Date], "MM/DD/YYYY")
+@@ -2561,7 +2561,7 @@
+ Dim Db As ADODB.Connection
+ Dim Tb As ADODB.Recordset
+           ConnectADODB TimeRecordsDb, Db
+-             Sql = "Select * from [Employee Records] Order By cast([Shift Date] as datetime) asc"
++             Sql = "Select * from [Employee Records] Order By TRY_CAST([Shift Date] AS datetime) asc"
+             ConnectADORS Sql, Db, Tb
+             If Not Tb.EOF Then
+               If Not Tb.BOF Then Tb.MoveFirst
+@@ -2818,7 +2818,7 @@
+  Sql = "Delete from [Sales] where not isdate([Date])"
+  Db.Execute Sql
+  
+- Sql = "Select * from [Sales] order by cdate([Date]) desc"
++ Sql = "Select * from [Sales] order by TRY_CAST([Date] AS datetime) desc"
+  If ConnectADORS(Sql, Db, RS) = False Then
+    HotScheduleExport = "Error Connecting to Closing History"
+    Exit Function
+@@ -2835,7 +2835,7 @@
+    Exit Function
+  End If
+  
+- Sql = "Select * from [Check Header]" & ReturnDateString(" where cdate([date]) between #" & CDate(SalesDate) + CDate(GetStartTime) & "# and #" & CDate(SetEndingDate(SalesDate)) + CDate(SetEndingTime) & "#")
++ Sql = "Select * from [Check Header]" & ReturnDateString(" where TRY_CAST([date] AS datetime) between '" & Format(CDate(CDate(SalesDate) + CDate(GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(SalesDate)) + CDate(SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'")
+  
+  If ConnectADORS(Sql, Db, RS) = False Then
+     HotScheduleExport = "Error Connecting to Employee Records"
+@@ -3080,7 +3080,7 @@
+   Exit Sub
+ End If
+ OpenDb SvrPath.LocalTerminalPath & "Employee.mdb", EDb
+-  Sql = "Select * from [General Data] Where Val([Terminated] & '') = 0 order by [Last Name] asc"
++  Sql = "Select * from [General Data] Where ISNULL(TRY_CONVERT(int,[Terminated]),0) = 0 order by [Last Name] asc"
+ ConnectADORS Sql, EDb, Id
+ OpenDb TimeRecordsDb, Db
+ Do While Not Id.EOF
+@@ -3102,7 +3102,7 @@
+     Loop
+     SetNothing PRTb
+     Sql = "Select * From [Employee Records] Where [Employee Name] = '" & SearchName & "'"
+-    Sql = Sql & " AND cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(BusinessDay) & " " & GetStartTime & "'"
++    Sql = Sql & " AND TRY_CAST([Shift Date] AS datetime) + TRY_CAST([Time In] AS datetime) Between '" & CDate(BusinessDay) & " " & GetStartTime & "'"
+     Sql = Sql & " and '" & SetEndingDate(CDate(BusinessDay)) & " " & SetEndingTime & "'"
+     ConnectADORS Sql, Db, Tb
+       If Not Tb.BOF Then Tb.MoveFirst

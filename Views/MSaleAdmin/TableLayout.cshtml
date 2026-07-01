@@ -1,0 +1,759 @@
+@{
+    ViewData["Title"] = "Table Layout Editor";
+}
+
+<style>
+    #canvas {
+        position: relative;
+        width: 900px;
+        height: 640px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: inset 0 0 0 2px rgba(0,0,0,0.12);
+        cursor: default;
+    }
+    .tbl {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: grab;
+        user-select: none;
+        font-size: 12px;
+        font-weight: 700;
+        color: #fff;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+        transition: box-shadow 0.1s;
+        z-index: 10;
+    }
+    .tbl:active { cursor: grabbing; }
+    .tbl.selected {
+        box-shadow: 0 0 0 3px #fbbf24, 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 20;
+    }
+    .tbl .resize-handle {
+        position: absolute;
+        bottom: 2px; right: 2px;
+        width: 12px; height: 12px;
+        background: rgba(255,255,255,0.6);
+        border-radius: 2px;
+        cursor: se-resize;
+        z-index: 30;
+    }
+    .tbl .delete-btn {
+        position: absolute;
+        top: -8px; right: -8px;
+        width: 18px; height: 18px;
+        background: #ef4444;
+        color: #fff;
+        border-radius: 50%;
+        font-size: 10px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        z-index: 40;
+        line-height: 1;
+        display: none;
+    }
+    .tbl.selected .delete-btn { display: flex; }
+    .palette-item {
+        cursor: pointer;
+        border-radius: 8px;
+        padding: 8px 6px;
+        text-align: center;
+        transition: background 0.1s;
+        border: 2px solid transparent;
+    }
+    .palette-item:hover { background: #f1f5f9; border-color: #94a3b8; }
+    .palette-preview {
+        margin: 0 auto 4px;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .bg-swatch {
+        width: 32px; height: 32px; border-radius: 6px;
+        border: 2px solid transparent; cursor: pointer; flex-shrink: 0;
+        transition: border-color 0.1s;
+    }
+    .bg-swatch.active { border-color: #10b981; }
+    .prop-row { margin-top: 12px; }
+    .prop-row label { display: block; font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 3px; }
+    .prop-row input, .prop-row select {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 5px 8px;
+        font-size: 13px;
+        background: #fff;
+        outline: none;
+    }
+    .prop-row input:focus, .prop-row select:focus { border-color: #10b981; }
+    .toolbar-btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+        padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+        cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #374151;
+        transition: background 0.1s;
+    }
+    .toolbar-btn:hover { background: #f1f5f9; }
+    .toolbar-btn.primary { background: #10b981; color: #fff; border-color: #10b981; }
+    .toolbar-btn.primary:hover { background: #059669; }
+    .toolbar-btn.danger { background: #ef4444; color: #fff; border-color: #ef4444; }
+    .toolbar-btn.danger:hover { background: #dc2626; }
+    .toolbar-sep { width: 1px; height: 24px; background: #e2e8f0; margin: 0 4px; }
+    #noRoomMsg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+</style>
+
+<div class="flex flex-col gap-3" style="min-height: calc(100vh - 120px)">
+
+    <!-- Top Toolbar -->
+    <div class="flex flex-wrap items-center gap-2 rounded-xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
+        <span class="text-sm font-semibold text-slate-700 mr-1">Room:</span>
+        <select id="roomSelect" onchange="roomChanged()"
+                class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500" style="min-width:160px">
+            <option value="">-- Select Room --</option>
+        </select>
+        <button class="toolbar-btn" onclick="newRoom()">+ New Room</button>
+        <button class="toolbar-btn" onclick="renameRoom()">Rename</button>
+        <div class="toolbar-sep"></div>
+        <button class="toolbar-btn" onclick="alignLeft()" title="Align selected tables to leftmost X">⬛ Align Left</button>
+        <button class="toolbar-btn" onclick="alignTop()" title="Align selected tables to topmost Y">⬛ Align Top</button>
+        <button class="toolbar-btn" onclick="snapRow()" title="Arrange selected tables in a horizontal row">→ Snap Row</button>
+        <button class="toolbar-btn" onclick="snapColumn()" title="Arrange selected tables in a vertical column">↓ Snap Column</button>
+        <div class="toolbar-sep"></div>
+        <button class="toolbar-btn" onclick="selectAll()" title="Select all tables">Select All</button>
+        <button class="toolbar-btn" onclick="clearSelection()">Deselect</button>
+        <div class="flex-1"></div>
+        <button class="toolbar-btn danger" onclick="deleteRoom()">Delete Room</button>
+        <button class="toolbar-btn primary" onclick="saveRoom()">💾 Save Room</button>
+        <button class="toolbar-btn" onclick="location.href='/MSaleAdmin'">Dashboard</button>
+        <button class="toolbar-btn" onclick="location.href='/'">Exit</button>
+    </div>
+
+    <!-- Main Editor Area -->
+    <div class="flex gap-3 flex-1">
+
+        <!-- Left panel: Background + Properties -->
+        <div class="w-48 flex-shrink-0 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 flex flex-col gap-1" style="max-height: 680px; overflow-y: auto;">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Floor Background</p>
+            <div id="bgSwatches" class="flex flex-wrap gap-2 mb-3"></div>
+            <hr class="border-slate-200 my-2" />
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Selected Table</p>
+            <div id="propsPanel">
+                <p class="text-xs text-slate-400 italic">Click a table to edit</p>
+            </div>
+        </div>
+
+        <!-- Canvas -->
+        <div class="flex-1 flex items-start justify-center overflow-auto" style="min-width: 0">
+            <div id="canvas">
+                <div id="noRoomMsg">
+                    <p class="text-slate-400 text-sm italic">Select or create a room to begin</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right panel: Table Palette -->
+        <div class="w-44 flex-shrink-0 rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-200" style="max-height: 680px; overflow-y: auto;">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Table Palette</p>
+            <p class="text-xs text-slate-400 mb-3">Click to add to canvas</p>
+            <div id="palette" class="grid grid-cols-2 gap-1"></div>
+        </div>
+
+    </div>
+
+    <div id="statusBar" class="text-xs text-slate-400 px-1"></div>
+</div>
+
+<script>
+// ─── Shape definitions ────────────────────────────────────────────────────
+const SHAPES = [
+    { id:'round2',  label:'Round 2',  shape:'round',  seats:2,  dw:55,  dh:55,  color:'#a07850' },
+    { id:'round4',  label:'Round 4',  shape:'round',  seats:4,  dw:70,  dh:70,  color:'#a07850' },
+    { id:'round6',  label:'Round 6',  shape:'round',  seats:6,  dw:90,  dh:90,  color:'#a07850' },
+    { id:'round8',  label:'Round 8',  shape:'round',  seats:8,  dw:110, dh:110, color:'#a07850' },
+    { id:'square2', label:'Square 2', shape:'square', seats:2,  dw:55,  dh:55,  color:'#8c6b4a' },
+    { id:'square4', label:'Square 4', shape:'square', seats:4,  dw:75,  dh:75,  color:'#8c6b4a' },
+    { id:'rect4',   label:'Rect 4',   shape:'rect',   seats:4,  dw:105, dh:65,  color:'#7a5c3c' },
+    { id:'rect6',   label:'Rect 6',   shape:'rect',   seats:6,  dw:135, dh:70,  color:'#7a5c3c' },
+    { id:'rect8',   label:'Rect 8',   shape:'rect',   seats:8,  dw:165, dh:75,  color:'#7a5c3c' },
+    { id:'bar',     label:'Bar Stool',shape:'round',  seats:1,  dw:40,  dh:40,  color:'#5a7a6a' },
+    { id:'booth',   label:'Booth',    shape:'booth',  seats:4,  dw:120, dh:75,  color:'#5c6b9a' },
+    { id:'highbar', label:'High Bar', shape:'rect',   seats:2,  dw:110, dh:40,  color:'#5a7a6a' },
+];
+
+const BACKGROUNDS = [
+    { id:'none',      label:'None',       style:'background:#f8fafc' },
+    { id:'wood',      label:'Wood',       style:'background:repeating-linear-gradient(90deg,#c9956c 0,#c9956c 18px,#b8845b 18px,#b8845b 20px)' },
+    { id:'hardwood',  label:'Hardwood',   style:'background:repeating-linear-gradient(180deg,#c4a882 0,#c4a882 28px,#b89468 28px,#b89468 30px)' },
+    { id:'tile',      label:'Tile',       style:'background:repeating-conic-gradient(#d4d0c8 0% 25%,#e8e4dc 0% 50%) 0 0/40px 40px' },
+    { id:'carpet',    label:'Carpet',     style:'background:#6b4c6b' },
+    { id:'concrete',  label:'Concrete',   style:'background:#c8c4bc' },
+    { id:'dark',      label:'Dark Stone', style:'background:#3a3530' },
+];
+
+// ─── State ────────────────────────────────────────────────────────────────
+let currentRoom   = '';
+let background    = 'none';
+let tables        = [];   // { uid, name, picture, x, y, w, h, covers }
+let selected      = new Set();  // UIDs
+let uidCounter    = 0;
+
+// Drag state
+let dragState     = null; // { uid, startMouseX, startMouseY, startTableX, startTableY }
+// Resize state
+let resizeState   = null; // { uid, startMouseX, startMouseY, startW, startH }
+// Multi-select drag
+let multiDragState= null;
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    buildPalette();
+    buildBgSwatches();
+    loadRooms();
+    applyBackground();
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup',   onMouseUp);
+    document.addEventListener('keydown',   onKeyDown);
+});
+
+// ─── Rooms ────────────────────────────────────────────────────────────────
+function loadRooms() {
+    return fetch('/TableLayout/GetRooms')
+        .then(r => r.json())
+        .then(data => {
+            const sel = document.getElementById('roomSelect');
+            const cur = sel.value;
+            sel.innerHTML = '<option value="">-- Select Room --</option>';
+            data.forEach(n => {
+                const o = new Option(n, n);
+                if (n === cur) o.selected = true;
+                sel.add(o);
+            });
+        });
+}
+
+function roomChanged() {
+    const name = document.getElementById('roomSelect').value;
+    if (!name) { currentRoom=''; tables=[]; selected.clear(); renderCanvas(); return; }
+    loadRoom(name);
+}
+
+function loadRoom(name) {
+    fetch('/TableLayout/GetRoom?name=' + encodeURIComponent(name))
+        .then(r => r.json())
+        .then(data => {
+            currentRoom = name;
+            background  = data.background || 'none';
+            tables      = (data.tables || []).map(t => ({
+                uid:    ++uidCounter,
+                name:   t.tableName,
+                picture:t.picture || 'square4',
+                x:      t.left,
+                y:      t.top,
+                w:      t.width,
+                h:      t.height,
+                covers: t.partyNumber === 1
+            }));
+            selected.clear();
+            applyBackground();
+            renderCanvas();
+            updateBgSwatches();
+            status(name + ' loaded — ' + tables.length + ' table(s)');
+        });
+}
+
+function newRoom() {
+    const name = prompt('New room name:');
+    if (!name || !name.trim()) return;
+    currentRoom = name.trim();
+    tables = [];
+    selected.clear();
+    background = 'none';
+    applyBackground();
+    renderCanvas();
+    updateBgSwatches();
+
+    const sel = document.getElementById('roomSelect');
+    if (!Array.from(sel.options).some(o => o.value === currentRoom)) {
+        sel.add(new Option(currentRoom, currentRoom));
+    }
+    sel.value = currentRoom;
+    status('New room "' + currentRoom + '" — add tables and save');
+}
+
+function renameRoom() {
+    if (!currentRoom) { alert('Select a room first.'); return; }
+    const name = prompt('Rename "' + currentRoom + '" to:', currentRoom);
+    if (!name || !name.trim() || name.trim() === currentRoom) return;
+    const oldName = currentRoom;
+    currentRoom = name.trim();
+    const sel = document.getElementById('roomSelect');
+    const opt = Array.from(sel.options).find(o => o.value === oldName);
+    if (opt) { opt.value = currentRoom; opt.text = currentRoom; }
+    sel.value = currentRoom;
+    status('Renamed to "' + currentRoom + '" — save to apply');
+}
+
+async function saveRoom() {
+    if (!currentRoom) { alert('Select or create a room first.'); return; }
+    // check for duplicate table names
+    const names = tables.map(t => t.name.trim().toLowerCase()).filter(Boolean);
+    const dups = names.filter((n,i) => names.indexOf(n) !== i);
+    if (dups.length) { alert('Duplicate table names: ' + [...new Set(dups)].join(', ')); return; }
+
+    const model = {
+        layoutName: currentRoom,
+        background: background,
+        tables: tables.map(t => ({
+            tableName:   t.name,
+            picture:     t.picture,
+            left:        Math.round(t.x),
+            top:         Math.round(t.y),
+            width:       Math.round(t.w),
+            height:      Math.round(t.h),
+            partyNumber: t.covers ? 1 : 0
+        }))
+    };
+
+    const res = await fetch('/TableLayout/SaveRoom', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(model)
+    }).then(r => r.json());
+
+    alert(res.message);
+    if (res.success) {
+        await loadRooms();
+        document.getElementById('roomSelect').value = currentRoom;
+        status('Saved.');
+    }
+}
+
+async function deleteRoom() {
+    if (!currentRoom) { alert('No room selected.'); return; }
+    if (!confirm('Delete room "' + currentRoom + '" and all its tables?')) return;
+
+    const res = await fetch('/TableLayout/DeleteRoom', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ layoutName: currentRoom })
+    }).then(r => r.json());
+
+    alert(res.message);
+    if (res.success) {
+        currentRoom = ''; tables = []; selected.clear();
+        await loadRooms();
+        applyBackground();
+        renderCanvas();
+    }
+}
+
+// ─── Canvas render ────────────────────────────────────────────────────────
+function renderCanvas() {
+    const canvas = document.getElementById('canvas');
+    // remove all table divs
+    canvas.querySelectorAll('.tbl').forEach(el => el.remove());
+
+    const noMsg = document.getElementById('noRoomMsg');
+    noMsg.style.display = (!currentRoom || tables.length === 0) ? 'flex' : 'none';
+    if (!currentRoom) {
+        noMsg.querySelector('p').textContent = 'Select or create a room to begin';
+        return;
+    }
+    if (tables.length === 0) {
+        noMsg.querySelector('p').textContent = 'Click a shape in the palette to add tables';
+        return;
+    }
+
+    tables.forEach(t => canvas.appendChild(buildTableEl(t)));
+}
+
+function buildTableEl(t) {
+    const shape = getShapeDef(t.picture);
+    const div = document.createElement('div');
+    div.className = 'tbl' + (selected.has(t.uid) ? ' selected' : '');
+    div.dataset.uid = t.uid;
+    div.style.cssText = `
+        left:${t.x}px; top:${t.y}px;
+        width:${t.w}px; height:${t.h}px;
+        background:${shape.color};
+        border: 2px solid ${darken(shape.color)};
+        border-radius:${getRadius(shape.shape, t.w, t.h)};
+    `;
+
+    // label
+    const label = document.createElement('span');
+    label.textContent = t.name || '?';
+    label.style.cssText = 'pointer-events:none; text-align:center; padding:2px 4px; word-break:break-all; line-height:1.2; max-width:90%;';
+    div.appendChild(label);
+
+    // resize handle
+    const rh = document.createElement('div');
+    rh.className = 'resize-handle';
+    rh.addEventListener('mousedown', e => startResize(e, t.uid));
+    div.appendChild(rh);
+
+    // delete button
+    const db = document.createElement('div');
+    db.className = 'delete-btn';
+    db.textContent = '×';
+    db.addEventListener('mousedown', e => { e.stopPropagation(); deleteTable(t.uid); });
+    div.appendChild(db);
+
+    div.addEventListener('mousedown', e => {
+        if (e.target.classList.contains('resize-handle') ||
+            e.target.classList.contains('delete-btn')) return;
+        startDrag(e, t.uid);
+    });
+
+    return div;
+}
+
+function updateTableEl(t) {
+    const el = document.querySelector(`[data-uid="${t.uid}"]`);
+    if (!el) { renderCanvas(); return; }
+    el.style.left   = t.x + 'px';
+    el.style.top    = t.y + 'px';
+    el.style.width  = t.w + 'px';
+    el.style.height = t.h + 'px';
+    el.style.borderRadius = getRadius(getShapeDef(t.picture).shape, t.w, t.h);
+    el.className = 'tbl' + (selected.has(t.uid) ? ' selected' : '');
+    const lbl = el.querySelector('span');
+    if (lbl) lbl.textContent = t.name || '?';
+}
+
+// ─── Drag ─────────────────────────────────────────────────────────────────
+function startDrag(e, uid) {
+    e.preventDefault();
+    const isCtrl = e.ctrlKey || e.metaKey;
+    if (isCtrl) {
+        if (selected.has(uid)) selected.delete(uid);
+        else selected.add(uid);
+        renderCanvas();
+        showProps();
+        return;
+    }
+    if (!selected.has(uid)) {
+        selected.clear();
+        selected.add(uid);
+        renderCanvas();
+        showProps();
+    }
+
+    // record start positions for all selected tables
+    const startPositions = {};
+    selected.forEach(id => {
+        const t = tables.find(t => t.uid === id);
+        if (t) startPositions[id] = { x: t.x, y: t.y };
+    });
+
+    dragState = { uid, startMouseX: e.clientX, startMouseY: e.clientY, startPositions };
+}
+
+function startResize(e, uid) {
+    e.preventDefault();
+    e.stopPropagation();
+    const t = tables.find(t => t.uid === uid);
+    if (!t) return;
+    resizeState = { uid, startMouseX: e.clientX, startMouseY: e.clientY, startW: t.w, startH: t.h };
+}
+
+function onMouseMove(e) {
+    const canvas = document.getElementById('canvas');
+    const rect   = canvas.getBoundingClientRect();
+    const dx = e.clientX - (dragState || resizeState || { startMouseX: 0 }).startMouseX;
+    const dy = e.clientY - (dragState || resizeState || { startMouseY: 0 }).startMouseY;
+
+    if (dragState) {
+        selected.forEach(id => {
+            const t = tables.find(t => t.uid === id);
+            const sp = dragState.startPositions[id];
+            if (!t || !sp) return;
+            t.x = Math.max(0, Math.min(sp.x + dx, rect.width  - t.w));
+            t.y = Math.max(0, Math.min(sp.y + dy, rect.height - t.h));
+            updateTableEl(t);
+        });
+    }
+
+    if (resizeState) {
+        const t = tables.find(t => t.uid === resizeState.uid);
+        if (t) {
+            t.w = Math.max(30, resizeState.startW + dx);
+            t.h = Math.max(30, resizeState.startH + dy);
+            updateTableEl(t);
+        }
+    }
+}
+
+function onMouseUp() {
+    if (dragState || resizeState) showProps();
+    dragState = null;
+    resizeState = null;
+}
+
+// ─── Selection ────────────────────────────────────────────────────────────
+function selectTable(uid) {
+    selected.clear();
+    selected.add(uid);
+    renderCanvas();
+    showProps();
+}
+
+function selectAll() {
+    selected.clear();
+    tables.forEach(t => selected.add(t.uid));
+    renderCanvas();
+    showProps();
+}
+
+function clearSelection() {
+    selected.clear();
+    renderCanvas();
+    showProps();
+}
+
+function onKeyDown(e) {
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+        const tag = document.activeElement?.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+        [...selected].forEach(uid => deleteTable(uid, true));
+        selected.clear();
+        renderCanvas();
+        showProps();
+    }
+    if (e.key === 'Escape') clearSelection();
+    if ((e.ctrlKey||e.metaKey) && e.key==='a') { e.preventDefault(); selectAll(); }
+    if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); saveRoom(); }
+    // Arrow nudge
+    if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key) && selected.size) {
+        e.preventDefault();
+        const dx = e.key==='ArrowLeft'?-1:e.key==='ArrowRight'?1:0;
+        const dy = e.key==='ArrowUp'?-1:e.key==='ArrowDown'?1:0;
+        const step = e.shiftKey ? 10 : 1;
+        selected.forEach(uid => {
+            const t = tables.find(t => t.uid===uid);
+            if (t) { t.x = Math.max(0,t.x+dx*step); t.y = Math.max(0,t.y+dy*step); updateTableEl(t); }
+        });
+    }
+}
+
+// ─── Table CRUD ───────────────────────────────────────────────────────────
+function addTable(shapeId) {
+    if (!currentRoom) { alert('Select or create a room first.'); return; }
+    const shape = getShapeDef(shapeId);
+    // auto-name: next available number
+    const nums = tables.map(t => parseInt(t.name)).filter(n => !isNaN(n));
+    const nextNum = nums.length ? Math.max(...nums) + 1 : 1;
+
+    // stagger position so tables don't stack exactly
+    const offset = (tables.length % 8) * 15;
+    const t = {
+        uid:    ++uidCounter,
+        name:   String(nextNum),
+        picture:shapeId,
+        x:      30 + offset,
+        y:      30 + offset,
+        w:      shape.dw,
+        h:      shape.dh,
+        covers: false
+    };
+    tables.push(t);
+    selected.clear();
+    selected.add(t.uid);
+
+    const canvas = document.getElementById('canvas');
+    document.getElementById('noRoomMsg').style.display = 'none';
+    canvas.appendChild(buildTableEl(t));
+    showProps();
+    status('Added table ' + t.name);
+}
+
+function deleteTable(uid, skipRender) {
+    tables = tables.filter(t => t.uid !== uid);
+    if (!skipRender) { selected.delete(uid); renderCanvas(); showProps(); }
+}
+
+// ─── Properties panel ─────────────────────────────────────────────────────
+function showProps() {
+    const panel = document.getElementById('propsPanel');
+    if (selected.size === 0) {
+        panel.innerHTML = '<p class="text-xs text-slate-400 italic">Click a table to edit</p>';
+        return;
+    }
+    if (selected.size > 1) {
+        panel.innerHTML = `<p class="text-xs text-slate-500">${selected.size} tables selected<br><span class="text-slate-400">Use alignment tools above</span></p>`;
+        return;
+    }
+    const uid = [...selected][0];
+    const t = tables.find(t => t.uid === uid);
+    if (!t) return;
+
+    panel.innerHTML = `
+        <div class="prop-row">
+            <label>Table Name</label>
+            <input id="p_name" value="${esc(t.name)}" onchange="propChanged(${uid},'name',this.value)" />
+        </div>
+        <div class="prop-row">
+            <label>Shape</label>
+            <select id="p_shape" onchange="propChanged(${uid},'picture',this.value)">
+                ${SHAPES.map(s=>`<option value="${s.id}"${s.id===t.picture?' selected':''}>${s.label}</option>`).join('')}
+            </select>
+        </div>
+        <div class="prop-row">
+            <label>Width (px)</label>
+            <input type="number" id="p_w" value="${Math.round(t.w)}" min="30" max="400"
+                   onchange="propChanged(${uid},'w',+this.value)" />
+        </div>
+        <div class="prop-row">
+            <label>Height (px)</label>
+            <input type="number" id="p_h" value="${Math.round(t.h)}" min="30" max="400"
+                   onchange="propChanged(${uid},'h',+this.value)" />
+        </div>
+        <div class="prop-row">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="p_covers" ${t.covers?'checked':''} onchange="propChanged(${uid},'covers',this.checked)" />
+                <span>Prompt for covers</span>
+            </label>
+        </div>
+        <div class="mt-3">
+            <button class="toolbar-btn danger w-full" onclick="deleteTable(${uid})">Delete Table</button>
+        </div>
+    `;
+}
+
+function propChanged(uid, key, value) {
+    const t = tables.find(t => t.uid === uid);
+    if (!t) return;
+    t[key] = value;
+    if (key === 'picture') {
+        const shape = getShapeDef(value);
+        // keep current size unless it's a 'bar' shape (force small)
+        if (value === 'bar') { t.w = shape.dw; t.h = shape.dh; }
+    }
+    updateTableEl(t);
+    status('');
+}
+
+// ─── Alignment ────────────────────────────────────────────────────────────
+function alignLeft() {
+    const sel = [...selected].map(uid => tables.find(t => t.uid===uid)).filter(Boolean);
+    if (sel.length < 2) { alert('Select at least 2 tables.'); return; }
+    const minX = Math.min(...sel.map(t => t.x));
+    sel.forEach(t => { t.x = minX; updateTableEl(t); });
+    status('Aligned left');
+}
+
+function alignTop() {
+    const sel = [...selected].map(uid => tables.find(t => t.uid===uid)).filter(Boolean);
+    if (sel.length < 2) { alert('Select at least 2 tables.'); return; }
+    const minY = Math.min(...sel.map(t => t.y));
+    sel.forEach(t => { t.y = minY; updateTableEl(t); });
+    status('Aligned top');
+}
+
+function snapRow() {
+    const sel = [...selected].map(uid => tables.find(t => t.uid===uid)).filter(Boolean);
+    if (sel.length < 2) { alert('Select at least 2 tables.'); return; }
+    sel.sort((a,b) => a.x - b.x);
+    const topY = Math.min(...sel.map(t => t.y));
+    let curX = sel[0].x;
+    sel.forEach(t => {
+        t.x = curX; t.y = topY;
+        curX += t.w + 12;
+        updateTableEl(t);
+    });
+    status('Snapped into row');
+}
+
+function snapColumn() {
+    const sel = [...selected].map(uid => tables.find(t => t.uid===uid)).filter(Boolean);
+    if (sel.length < 2) { alert('Select at least 2 tables.'); return; }
+    sel.sort((a,b) => a.y - b.y);
+    const leftX = Math.min(...sel.map(t => t.x));
+    let curY = sel[0].y;
+    sel.forEach(t => {
+        t.x = leftX; t.y = curY;
+        curY += t.h + 12;
+        updateTableEl(t);
+    });
+    status('Snapped into column');
+}
+
+// ─── Background ───────────────────────────────────────────────────────────
+function buildBgSwatches() {
+    const container = document.getElementById('bgSwatches');
+    BACKGROUNDS.forEach(bg => {
+        const sw = document.createElement('div');
+        sw.className = 'bg-swatch' + (bg.id === background ? ' active' : '');
+        sw.dataset.bgid = bg.id;
+        sw.style.cssText = bg.style + '; flex-shrink:0;';
+        sw.title = bg.label;
+        sw.onclick = () => { background = bg.id; applyBackground(); updateBgSwatches(); };
+        container.appendChild(sw);
+    });
+}
+
+function updateBgSwatches() {
+    document.querySelectorAll('.bg-swatch').forEach(sw => {
+        sw.classList.toggle('active', sw.dataset.bgid === background);
+    });
+}
+
+function applyBackground() {
+    const canvas = document.getElementById('canvas');
+    const bg = BACKGROUNDS.find(b => b.id === background) || BACKGROUNDS[0];
+    canvas.style.cssText = bg.style + '; position:relative; width:900px; height:640px; flex-shrink:0; border-radius:8px; overflow:hidden; box-shadow:inset 0 0 0 2px rgba(0,0,0,0.12);';
+}
+
+// ─── Palette ──────────────────────────────────────────────────────────────
+function buildPalette() {
+    const container = document.getElementById('palette');
+    SHAPES.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'palette-item';
+        item.title = s.label + ' (' + s.seats + ' seats)';
+        item.onclick = () => addTable(s.id);
+
+        const preview = document.createElement('div');
+        preview.className = 'palette-preview';
+        const w = Math.min(s.dw, 42), h = Math.min(s.dh, 42);
+        preview.style.width  = w + 'px';
+        preview.style.height = h + 'px';
+        preview.style.cssText += `background:${s.color}; border-radius:${getRadius(s.shape,w,h)}; border:2px solid ${darken(s.color)};`;
+
+        const lbl = document.createElement('div');
+        lbl.style.cssText = 'font-size:10px; color:#475569; line-height:1.2;';
+        lbl.textContent = s.label;
+
+        item.appendChild(preview);
+        item.appendChild(lbl);
+        container.appendChild(item);
+    });
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────
+function getShapeDef(id) {
+    return SHAPES.find(s => s.id === id) || SHAPES[6]; // fallback rect4
+}
+
+function getRadius(shape, w, h) {
+    if (shape === 'round')  return '50%';
+    if (shape === 'booth')  return '10px 10px 4px 4px';
+    return '8px';
+}
+
+function darken(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    const r = Math.max(0,(n>>16)-30), g = Math.max(0,((n>>8)&0xff)-30), b = Math.max(0,(n&0xff)-30);
+    return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+function esc(s) {
+    return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function status(msg) {
+    document.getElementById('statusBar').textContent = msg;
+}
+</script>

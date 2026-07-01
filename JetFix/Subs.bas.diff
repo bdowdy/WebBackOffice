@@ -1,0 +1,1100 @@
+--- Subs.bas
++++ Subs.bas (fixed)
+@@ -460,7 +460,7 @@
+        End If
+         Sql = Sql & " and [Voided] = 0 and [Deleted] = 0"
+         If IsDate(STime) And IsDate(ETime) Then
+-          Sql = Sql & " and cast([recorded time] as datetime) between '" & CDate(STime) & "' and '" & CDate(ETime) & "'"
++          Sql = Sql & " and TRY_CAST([recorded time] AS datetime) between '" & CDate(STime) & "' and '" & CDate(ETime) & "'"
+         End If
+        If ByGroup = 1 And ByInd = 1 Then
+          Sql = Sql & " Group By [Menu Item],[Servers Name],[Quantity]"
+@@ -668,7 +668,7 @@
+ Public Function ReturnDateString(StringIn As String) As String
+ Dim strData As String
+ If InStr(UCase(ProductHistory), ".MDB") = 0 Then
+-   strData = Replace(UCase(StringIn), "CDATE([DATE])", "[Date]")
++   strData = Replace(UCase(StringIn), "TRY_CAST([DATE] AS datetime)", "[Date]")
+    ReturnDateString = Replace(strData, "#", "'")
+ Else
+    ReturnDateString = StringIn
+@@ -692,7 +692,7 @@
+ ConnectADODB SvrPath.TerminalPath & ProductHistory, Ndb
+ If ByInd = 1 Then
+   Sql = "Select distinct [Server Name] from [Detail]"
+-  Sql = Sql & " Where cast([date] as datetime) Between '" & CDate(SDate) & " " & GetStartTime & "' and '" & SetEndingDate(EDate) & " " & SetEndingTime & "'"
++  Sql = Sql & " Where TRY_CAST([date] AS datetime) Between '" & CDate(SDate) & " " & GetStartTime & "' and '" & SetEndingDate(EDate) & " " & SetEndingTime & "'"
+   Sql = Sql & " Group by [Server Name]"
+   ConnectADORS ReturnDateString(Sql), Ndb, Tb
+   If Tb.EOF Then
+@@ -733,9 +733,9 @@
+        Sql = "Select Distinct [menu Item],[Category Name], [Department Name],sum([Quantity]) as [Quantity],[Server Name],count([Menu Item]) as QtySold, Sum([Item Price]) as TotalSold ,[PLU] From [Detail] "
+      End If
+      If IsDate(STime) And IsDate(ETime) Then
+-       Sql = Sql & " Where cast([date] as datetime) between '" & CDate(SDate) & " " & CDate(STime) & "' and '" & CDate(EDate) & " " & CDate(ETime) & "' and [Menu Item] = '" & Item_Search(Inds) & "'"
++       Sql = Sql & " Where TRY_CAST([date] AS datetime) between '" & CDate(SDate) & " " & CDate(STime) & "' and '" & CDate(EDate) & " " & CDate(ETime) & "' and [Menu Item] = '" & Item_Search(Inds) & "'"
+      Else
+-       Sql = Sql & " Where cast([date] as datetime) Between '" & CDate(SDate) & " " & GetStartTime & "' and '" & SetEndingDate(EDate) & " " & SetEndingTime & "' and [Menu Item] = '" & Item_Search(Inds) & "'"
++       Sql = Sql & " Where TRY_CAST([date] AS datetime) Between '" & CDate(SDate) & " " & GetStartTime & "' and '" & SetEndingDate(EDate) & " " & SetEndingTime & "' and [Menu Item] = '" & Item_Search(Inds) & "'"
+      End If
+      If ByInd = 1 Then
+        Sql = Sql & " and [Server Name] = '" & IndSales & "'"
+@@ -811,7 +811,7 @@
+ Dim RCT            As Long
+ ConnectADODB SvrPath.TerminalPath & ProductHistory, Ndb
+    Sql = "Select Distinct [menu Item],sum([Quantity]) as [Quantity],count([Menu Item]) as QtySold, Sum([Item Price]) as TotalSold From [Detail]"
+-   Sql = Sql & " Where cdate([date]) Between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
++   Sql = Sql & " Where TRY_CAST([date] AS datetime) Between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
+   Sql = Sql & " Group By [Menu Item]"
+   ConnectADORS ReturnDateString(Sql), Ndb, Tb
+   If Tb.EOF Then
+@@ -894,8 +894,8 @@
+     Update.Refresh
+     For Inds = 0 To UBound(Item_Search, 1) - 1
+        Sql = "Select Distinct [menu Item],[Category Name],[PLU], [Department Name],Sum([Quantity]) as [Quantity],count([Menu Item]) as QtySold, Sum([Item Price]) as TotalSold From [Detail] "
+-       Sql = Sql & " Where cdate([date]) Between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "# and [Menu Item] = '" & Item_Search(Inds) & "'"
+-       GIsql = " Where cdate([date]) Between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "# and [Menu Item] = '" & Item_Search(Inds) & "'"
++       Sql = Sql & " Where TRY_CAST([date] AS datetime) Between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "# and [Menu Item] = '" & Item_Search(Inds) & "'"
++       GIsql = " Where TRY_CAST([date] AS datetime) Between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "# and [Menu Item] = '" & Item_Search(Inds) & "'"
+        Sql = Sql & " Group By [Menu Item],[Category Name],[PLU],[Department Name]"
+      ConnectADORS ReturnDateString(Sql), Ndb, Tb
+       
+@@ -967,8 +967,8 @@
+  ReturnGamePaidOut = 0
+ Dim RS As ADODB.Recordset
+  Sql = "Select Distinct [Name],Sum([Amount]) as [Price] from [Paid Outs]"
+- Sql = Sql & " Where not isnull([date]) and cdate([Date]) Between #" & CDate(SDate) & "#"
+- Sql = Sql & " and #" & EDate & "#"
++ Sql = Sql & " Where not isnull([date]) and TRY_CAST([Date] AS datetime) Between '" & Format(CDate(CDate(SDate)), "yyyy-mm-dd hh:nn:ss") & "'"
++ Sql = Sql & " and '" & Format(CDate(EDate), "yyyy-mm-dd hh:nn:ss") & "'"
+  Sql = Sql & " and [Name] = '" & GameName & "'"
+  Sql = Sql & " group by [Name] order by [Name] asc"
+ ConnectADORS Sql, MCD, RS
+@@ -992,7 +992,7 @@
+ Dim Reg As Integer
+ ConnectADODB SvrPath.TerminalPath & ProductHistory, Ndb
+   Sql = "Select distinct [Menu Item],[Department Name] from [Detail]"
+-  Sql = Sql & " Where Cdate([date]) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
++  Sql = Sql & " Where TRY_CAST([date] AS datetime) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
+ ConnectADORS ReturnDateString(Sql), Ndb, Nrs
+ If Nrs.EOF Then
+    See_Msg "No Sales Found", 5, ""
+@@ -1002,10 +1002,10 @@
+ SetNothing Nrs
+         If Mx = Department Then
+             Sql = "Select Distinct [Menu Item],[Department Name], Sum([Quantity]) as QtySold, Sum([Item Price]) as TotalSold, Count([Menu Item]) as TMod From [Detail] "
+-            Sql = Sql & " Where Cdate([date]) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
++            Sql = Sql & " Where TRY_CAST([date] AS datetime) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
+             Sql = Sql & " and [Department Name] = '" & SearchItems(0) & "'"
+             For Reg = 1 To SNumber
+-               Sql = Sql & " Or Cdate([date]) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
++               Sql = Sql & " Or TRY_CAST([date] AS datetime) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
+                Sql = Sql & " and [Department Name] = '" & SearchItems(Reg) & "'"
+             Next Reg
+             Sql = Sql & " Group By [Menu Item],[Department Name]"
+@@ -1037,10 +1037,10 @@
+                 Loop
+       Else
+             Sql = "Select Distinct [Menu Item],[Category Name], Sum([Quantity]) as QtySold, Sum([Item Price]) as TotalSold , Count([Menu Item]) as TMod From [Detail] "
+-            Sql = Sql & " Where Cdate([date]) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
++            Sql = Sql & " Where TRY_CAST([date] AS datetime) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
+             Sql = Sql & " and [Category Name] = '" & SearchItems(0) & "'"
+             For Reg = 1 To SNumber
+-               Sql = Sql & " Or Cdate([date]) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
++               Sql = Sql & " Or TRY_CAST([date] AS datetime) between #" & CDate(SDate) & " " & GetStartTime & "# and #" & SetEndingDate(EDate) & " " & SetEndingTime & "#"
+                Sql = Sql & " and [Category Name] = '" & SearchItems(Reg) & "'"
+             Next Reg
+             Sql = Sql & " Group By [Menu Item],[Category Name]"
+@@ -1596,7 +1596,7 @@
+     End If
+     If Select_What <> SaleMixInstruction.ShiftMix Then
+      If IsDate(STime) And IsDate(ETime) Then
+-        Sql = Sql & " and cast([recorded time] as datetime) between '" & CDate(STime) & "' and '" & CDate(ETime) & "'"
++        Sql = Sql & " and TRY_CAST([recorded time] AS datetime) between '" & CDate(STime) & "' and '" & CDate(ETime) & "'"
+      End If
+     End If
+     Sql = Sql & " GROUP BY [cateory Name], [Menu Item], Quantity,"
+@@ -1771,7 +1771,7 @@
+  For MP = 0 To 4
+   If IsDate(BusinessPeriods(MP).PeriodStart) And IsDate(BusinessPeriods(MP).PeriodEnd) Then
+   Sql = "Select * From [Detail] where [Date] Between '" & CDate(StartDate) + CDate(GetStartTime) & "' and '" & CDate(SetEndingDate(StartDate)) + CDate(SetEndingTime) & "'"
+-  Sql = Sql & " order by cast([Time] as datetime) asc"
++  Sql = Sql & " order by TRY_CAST([Time] AS datetime) asc"
+   ConnectADORS Sql, Db, Tb
+    Do While Not Tb.EOF
+      If IsDate(Tb![Time]) Then
+@@ -1861,12 +1861,12 @@
+    Dim GRS As GeneralLib.Utilities
+    Set GRS = New GeneralLib.Utilities
+    Sql = "Delete from [Detail] "
+-   Sql = Sql & " Where cdate([date])  Between #" & CDate(ClosingDate & " " & GetStartTime) & "#"
++   Sql = Sql & " Where TRY_CAST([date] AS datetime)  Between #" & CDate(ClosingDate & " " & GetStartTime) & "#"
+    Sql = Sql & " and #" & CDate(SetEndingDate(ClosingDate) & " " & SetEndingTime) & "#"
+    R = GRS.ExecuteSql(ReturnDateString(Sql), ReturnAdoConnection(SvrPath.TerminalPath & ProductHistory))
+ 
+    Sql = "Delete From [Voids]"
+-   Sql = Sql & " Where cdate([date])  Between #" & CDate(ClosingDate & " " & GetStartTime) & "#"
++   Sql = Sql & " Where TRY_CAST([date] AS datetime)  Between #" & CDate(ClosingDate & " " & GetStartTime) & "#"
+    Sql = Sql & " and #" & CDate(SetEndingDate(ClosingDate) & " " & SetEndingTime) & "#"
+    R = GRS.ExecuteSql(ReturnDateString(Sql), ReturnAdoConnection(SvrPath.TerminalPath & ProductHistory))
+    Set GRS = Nothing
+@@ -1960,37 +1960,37 @@
+ Cod = GetDateToNo(CDate(MyDate))
+    ConnectADODB SvrPath.TerminalPath & CheckStatDb, Db
+     Sql = "Update [Check Detail] Set [Close Out Day] = " & Cod
+-    Sql = Sql & " Where Cast([Check date] as datetime) + cast([Recorded Time] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
++    Sql = Sql & " Where TRY_CAST([Check date] AS datetime) + TRY_CAST([Recorded Time] AS datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+     Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+     Db.Execute Sql
+     Sql = "Update [Closed Checks] Set [Close Out Day] = " & Cod
+-    Sql = Sql & " Where Cast([Order date] as datetime) + cast([Open Time] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
++    Sql = Sql & " Where TRY_CAST([Order date] AS datetime) + TRY_CAST([Open Time] AS datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+     Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+     Db.Execute Sql
+     Sql = "Update [Payments] Set [Close Out Day] = " & Cod
+-    Sql = Sql & " Where Cast([date] as datetime) + cast([Time] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
++    Sql = Sql & " Where TRY_CAST([date] AS datetime) + TRY_CAST([Time] AS datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+     Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+     Db.Execute Sql
+     Sql = "Update [Item Refund] Set [Close Out Day] = " & Cod
+-    Sql = Sql & " Where Cast([date] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
++    Sql = Sql & " Where TRY_CAST([date] AS datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+     Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+     Db.Execute Sql
+     Sql = "Update [Error Correct] Set [Close Out Day] = " & Cod
+-    Sql = Sql & " Where Cast([date] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
++    Sql = Sql & " Where TRY_CAST([date] AS datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+     Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+     Db.Execute Sql
+     DbClose Db, Nothing
+    ConnectADODB SvrPath.TerminalPath & FinancialDb, Db
+     Sql = "Update [Paid Ins] Set [Close Out Day] = " & Cod
+-    Sql = Sql & " Where Cast([date] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
++    Sql = Sql & " Where TRY_CAST([date] AS datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+     Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+     Db.Execute Sql
+     Sql = "Update [Paid Outs] Set [Close Out Day] = " & Cod
+-    Sql = Sql & " Where Cast([date] as datetime) + cast([time] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
++    Sql = Sql & " Where TRY_CAST([date] AS datetime) + TRY_CAST([time] AS datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+     Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+     Db.Execute Sql
+     Sql = "Update [Refund] Set [Close Out Day] = " & Cod
+-    Sql = Sql & " Where Cast([date] as datetime) + + cast([time] as datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
++    Sql = Sql & " Where TRY_CAST([date] AS datetime) + + TRY_CAST([time] AS datetime)  Between '" & CDate(MyDate & " " & GetStartTime) & "'"
+     Sql = Sql & " and '" & CDate(SetEndingDate(MyDate) & " " & SetEndingTime) & "'"
+     Db.Execute Sql
+     DbClose Db, Nothing
+@@ -2049,20 +2049,20 @@
+      Dim GRS As GeneralLib.Utilities
+      Set GRS = New GeneralLib.Utilities
+     
+-     Sql = "Delete from [Check Header] where cast([Date] as datetime)  Between '" & CDate(ClosingDate) + CDate(GetStartTime) & "' and '" & CDate(SetEndingDate(Date)) + CDate(SetEndingTime) & "'"
++     Sql = "Delete from [Check Header] where TRY_CAST([Date] AS datetime)  Between '" & CDate(ClosingDate) + CDate(GetStartTime) & "' and '" & CDate(SetEndingDate(Date)) + CDate(SetEndingTime) & "'"
+      R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & ProductHistory))
+   
+      Sql = "Delete from [Detail] "
+-     Sql = Sql & " Where cast([date] as datetime)  Between '" & CDate(ClosingDate & " " & GetStartTime) & "'"
++     Sql = Sql & " Where TRY_CAST([date] AS datetime)  Between '" & CDate(ClosingDate & " " & GetStartTime) & "'"
+      Sql = Sql & " and '" & CDate(SetEndingDate(Date) & " " & SetEndingTime) & "'"
+      R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & ProductHistory))
+   
+      Sql = "Delete From [Voids]"
+-     Sql = Sql & " Where cast([date] as datetime)  Between '" & CDate(ClosingDate & " " & GetStartTime) & "'"
++     Sql = Sql & " Where TRY_CAST([date] AS datetime)  Between '" & CDate(ClosingDate & " " & GetStartTime) & "'"
+      Sql = Sql & " and '" & CDate(SetEndingDate(Date) & " " & SetEndingTime) & "'"
+      R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & ProductHistory))
+      
+-     Sql = ReturnDateString("Delete from [CheckPayments] where cast([Date] as datetime)  Between '" & CDate(ClosingDate) + CDate(GetStartTime) & "' and '" & CDate(SetEndingDate(Date)) + CDate(SetEndingTime) & "'")
++     Sql = ReturnDateString("Delete from [CheckPayments] where TRY_CAST([Date] AS datetime)  Between '" & CDate(ClosingDate) + CDate(GetStartTime) & "' and '" & CDate(SetEndingDate(Date)) + CDate(SetEndingTime) & "'")
+      R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & ProductHistory))
+      Set GRS = Nothing
+          
+@@ -2231,7 +2231,7 @@
+   If OverWriteDay Then
+    Dim GRS As GeneralLib.Utilities
+    Set GRS = New GeneralLib.Utilities
+-   Sql = "Delete from [No Sale] where cast([Date] as datetime)  Between '" & CDate(ClosingDate) + CDate(GetStartTime) & "' and '" & CDate(SetEndingDate(ClosingDate)) + CDate(SetEndingTime) & "'"
++   Sql = "Delete from [No Sale] where TRY_CAST([Date] AS datetime)  Between '" & CDate(ClosingDate) + CDate(GetStartTime) & "' and '" & CDate(SetEndingDate(ClosingDate)) + CDate(SetEndingTime) & "'"
+    R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & ProductHistory))
+    Set GRS = Nothing
+   End If
+@@ -2242,7 +2242,7 @@
+    Exit Sub
+ End If
+    ConnectADODB SvrPath.TerminalPath & CheckStatDb, Db
+-      Sql = "Select * from [No Sale] where cdate([Date])  Between #" & CDate(ClosingDate) + CDate(GetStartTime) & "# and #" & CDate(SetEndingDate(ClosingDate)) + CDate(SetEndingTime) & "#"
++      Sql = "Select * from [No Sale] where TRY_CAST([Date] AS datetime)  Between '" & Format(CDate(CDate(ClosingDate) + CDate(GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(ClosingDate)) + CDate(SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+     ConnectADORS ReturnDateString(Sql), Db, RS
+        Do While Not RS.EOF
+             Sql = HSql
+@@ -2422,13 +2422,13 @@
+ ConnectADODB SvrPath.TerminalPath & ClosingHistory, Hdb
+  
+  '  If DaysToKeep > 0 Then
+- '   Sql = "Delete from [Item Refund] where cdate([Date]) < #" & Date - DaysToKeep & " 12:00 am #"
++ '   Sql = "Delete from [Item Refund] where TRY_CAST([Date] AS datetime) < #" & Date - DaysToKeep & " 12:00 am #"
+  '   Hdb.Execute Sql
+  '  End If
+    
+    If IsDate(ClosingDate) Then
+      If OverWriteDay Then
+-       Sql = "Delete from [Item Refund] where cdate([Date])  Between #" & CDate(ClosingDate) + CDate(GetStartTime) & "# and #" & CDate(SetEndingDate(ClosingDate)) + CDate(SetEndingTime) & "#"
++       Sql = "Delete from [Item Refund] where TRY_CAST([Date] AS datetime)  Between '" & Format(CDate(CDate(ClosingDate) + CDate(GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(ClosingDate)) + CDate(SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+        Hdb.Execute Sql
+      End If
+    End If '// over write day for reclose
+@@ -4376,53 +4376,53 @@
+ If ConnectADODB(SvrPath.TerminalPath & ClosingHistory, Db) = False Then Exit Sub
+  Sql = "Delete from [Sales] Where ISNull([Date])"
+ Db.Execute (Sql)
+-  Sql = "Delete from [Sales] Where cdate([Date]) < #" & Date - DaysToKeep & "#"
++  Sql = "Delete from [Sales] Where TRY_CAST([Date] AS datetime) < '" & Format(CDate(Date - DaysToKeep), "yyyy-mm-dd hh:nn:ss") & "'"
+ Db.Execute (Sql)
+   Sql = "Delete from [Category Sales] Where ISNull([Date])"
+ Db.Execute (Sql)
+-  Sql = "Delete from [Category Sales] Where cdate([Date]) < #" & Date - DaysToKeep & "#"
++  Sql = "Delete from [Category Sales] Where TRY_CAST([Date] AS datetime) < '" & Format(CDate(Date - DaysToKeep), "yyyy-mm-dd hh:nn:ss") & "'"
+ Db.Execute (Sql)
+   Sql = "Delete from [Department Sales] Where ISNull([Date])"
+ Db.Execute (Sql)
+-  Sql = "Delete from [Department Sales] Where cdate([Date]) < #" & Date - DaysToKeep & "#"
++  Sql = "Delete from [Department Sales] Where TRY_CAST([Date] AS datetime) < '" & Format(CDate(Date - DaysToKeep), "yyyy-mm-dd hh:nn:ss") & "'"
+ Db.Execute (Sql)
+   Sql = "Delete from [Discounts] Where ISNull([Date])"
+ Db.Execute (Sql)
+-  Sql = "Delete from [Discounts] Where cdate([Date]) < #" & Date - DaysToKeep & "#"
++  Sql = "Delete from [Discounts] Where TRY_CAST([Date] AS datetime) < '" & Format(CDate(Date - DaysToKeep), "yyyy-mm-dd hh:nn:ss") & "'"
+ Db.Execute (Sql)
+   Sql = "Delete from [Tenders] Where ISNull([Date])"
+ Db.Execute (Sql)
+-  Sql = "Delete from [Tenders] Where cdate([Date]) < #" & Date - DaysToKeep & "#"
++  Sql = "Delete from [Tenders] Where TRY_CAST([Date] AS datetime) < '" & Format(CDate(Date - DaysToKeep), "yyyy-mm-dd hh:nn:ss") & "'"
+ Db.Execute (Sql)
+   Sql = "Delete from [Deposits] Where ISNull([Date])"
+ Db.Execute (Sql)
+-  Sql = "Delete from [Deposits] Where cdate([Date]) < #" & Date - DaysToKeep & "#"
++  Sql = "Delete from [Deposits] Where TRY_CAST([Date] AS datetime) < '" & Format(CDate(Date - DaysToKeep), "yyyy-mm-dd hh:nn:ss") & "'"
+ Db.Execute (Sql)
+   Sql = "Delete from [Paid Outs] Where ISNull([Date])"
+ Db.Execute (Sql)
+-  Sql = "Delete from [Paid Outs] Where cdate([Date]) < #" & Date - DaysToKeep & "#"
++  Sql = "Delete from [Paid Outs] Where TRY_CAST([Date] AS datetime) < '" & Format(CDate(Date - DaysToKeep), "yyyy-mm-dd hh:nn:ss") & "'"
+ Db.Execute (Sql)
+   Sql = "Delete from [Hourly Sales] Where ISNull([Date])"
+ Db.Execute (Sql)
+-  Sql = "Delete from [Hourly Sales] Where cdate([Date]) < #" & Date - DaysToKeep & "#"
++  Sql = "Delete from [Hourly Sales] Where TRY_CAST([Date] AS datetime) < '" & Format(CDate(Date - DaysToKeep), "yyyy-mm-dd hh:nn:ss") & "'"
+ Db.Execute (Sql)
+   Sql = "Delete from [Meal Periods] Where ISNull([Date])"
+ Db.Execute (Sql)
+-  Sql = "Delete from [Meal Periods] Where cdate([Date]) < #" & Date - DaysToKeep & "#"
++  Sql = "Delete from [Meal Periods] Where TRY_CAST([Date] AS datetime) < '" & Format(CDate(Date - DaysToKeep), "yyyy-mm-dd hh:nn:ss") & "'"
+ Db.Execute (Sql)
+   Sql = "Delete from [Labor] Where ISNull([Date])"
+ Db.Execute (Sql)
+-  Sql = "Delete from [Labor] Where cdate([Date]) < #" & Date - DaysToKeep & "#"
++  Sql = "Delete from [Labor] Where TRY_CAST([Date] AS datetime) < '" & Format(CDate(Date - DaysToKeep), "yyyy-mm-dd hh:nn:ss") & "'"
+ Db.Execute (Sql)
+   Sql = "Delete from [Non Sales Items] Where ISNull([Date])"
+ Db.Execute (Sql)
+-  Sql = "Delete from [Non Sales Items] Where cdate([Date]) < #" & Date - DaysToKeep & "#"
++  Sql = "Delete from [Non Sales Items] Where TRY_CAST([Date] AS datetime) < '" & Format(CDate(Date - DaysToKeep), "yyyy-mm-dd hh:nn:ss") & "'"
+ Db.Execute Sql
+  Sql = "Delete from [Sales Tax] where IsNull([Date]) or Not IsDate([Date])"
+ Db.Execute Sql
+- Sql = "Delete from [Sales Tax] where cdate([Date]) < #" & Date - DaysToKeep & " 12:00 am #"
++ Sql = "Delete from [Sales Tax] where TRY_CAST([Date] AS datetime) < #" & Date - DaysToKeep & " 12:00 am #"
+ Db.Execute Sql
+- Sql = "Delete from [Item Refund] where cdate([Date]) < #" & Date - DaysToKeep & " 12:00 am #"
++ Sql = "Delete from [Item Refund] where TRY_CAST([Date] AS datetime) < #" & Date - DaysToKeep & " 12:00 am #"
+ Db.Execute Sql
+ SetNothing Db
+ 
+@@ -4430,44 +4430,44 @@
+ If ConnectADODB(SvrPath.TerminalPath & "MSaleData", Db) = False Then Exit Sub
+   Sql = "Delete from [Server Payments] Where isdate([Date]) = 0"
+  Db.Execute (Sql)
+-  Sql = "Delete from [Server Payments] Where cast([Date] as date) < '" & Date - 365 & "'"
++  Sql = "Delete from [Server Payments] Where TRY_CAST([Date] AS date) < '" & Date - 365 & "'"
+  Db.Execute (Sql)
+   Sql = "Delete from [Tip Income] Where Isdate([Date])=0"
+  Db.Execute (Sql)
+-  Sql = "Delete from [Tip Income] Where cast([Date] as date) < '" & Date - DaysToKeep & "'"
++  Sql = "Delete from [Tip Income] Where TRY_CAST([Date] AS date) < '" & Date - DaysToKeep & "'"
+  Db.Execute (Sql)
+   Sql = "Delete from [AuditSales] Where Isdate([Date])=0"
+  Db.Execute (Sql)
+-  Sql = "Delete from [AuditSales] Where cast([Date] as date) < '" & Date - DaysToKeep & "'"
++  Sql = "Delete from [AuditSales] Where TRY_CAST([Date] AS date) < '" & Date - DaysToKeep & "'"
+  Db.Execute (Sql)
+-  Sql = "Delete from [AuditReports] Where cast([Date] as date) < '" & Date - DaysToKeep & "'"
++  Sql = "Delete from [AuditReports] Where TRY_CAST([Date] AS date) < '" & Date - DaysToKeep & "'"
+  Db.Execute (Sql)
+  
+  SetNothing Db
+  
+  Dim GRS As GeneralLib.Utilities
+  Set GRS = New GeneralLib.Utilities
+- Sql = "Delete from [Check Detail] where Cast([Check Date] as date) < '" & Date - DaysToKeep & "'"
++ Sql = "Delete from [Check Detail] where TRY_CAST([Check Date] AS date) < '" & Date - DaysToKeep & "'"
+  R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & "MSaleData"))
+- Sql = "Delete from [Closed Checks] where Cast([Order Date] as date) < '" & Date - DaysToKeep & "'"
++ Sql = "Delete from [Closed Checks] where TRY_CAST([Order Date] AS date) < '" & Date - DaysToKeep & "'"
+  R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & "MSaleData"))
+- Sql = "Delete from [Payments] where Cast([Date] as date) < '" & Date - DaysToKeep & "'"
++ Sql = "Delete from [Payments] where TRY_CAST([Date] AS date) < '" & Date - DaysToKeep & "'"
+  R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & "MSaleData"))
+ 
+- Sql = "Delete from [Detail] where cast([Date] as date) < '" & Date - DaysToKeep & "'"
++ Sql = "Delete from [Detail] where TRY_CAST([Date] AS date) < '" & Date - DaysToKeep & "'"
+  R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & ProductHistory))
+-    Sql = "Delete from [Voids] where cast([Date] as date) < '" & Date - DaysToKeep & "'"
++    Sql = "Delete from [Voids] where TRY_CAST([Date] AS date) < '" & Date - DaysToKeep & "'"
+  R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & ProductHistory))
+  
+- Sql = "Delete from [Check Header] where cast([Date] as datetime) < '" & Date - DaysToKeep & " 12:00 am '"
++ Sql = "Delete from [Check Header] where TRY_CAST([Date] AS datetime) < '" & Date - DaysToKeep & " 12:00 am '"
+  R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & ProductHistory))
+- Sql = "Delete from [Detail] where cast([Date] as date) < '" & Date - DaysToKeep & "'"
++ Sql = "Delete from [Detail] where TRY_CAST([Date] AS date) < '" & Date - DaysToKeep & "'"
+  R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & ProductHistory))
+- Sql = "Delete from [Voids] where cast([Date] as date) < '" & Date - DaysToKeep & "'"
++ Sql = "Delete from [Voids] where TRY_CAST([Date] AS date) < '" & Date - DaysToKeep & "'"
+  R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & ProductHistory))
+- Sql = "Delete from [CheckPayments] where cast([Date] as datetime) < '" & Date - DaysToKeep & " 12:00 am '"
++ Sql = "Delete from [CheckPayments] where TRY_CAST([Date] AS datetime) < '" & Date - DaysToKeep & " 12:00 am '"
+  R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & ProductHistory))
+- Sql = "Delete from [No Sale] where cast([Date] as datetime) < '" & Date - DaysToKeep & " 12:00 am '"
++ Sql = "Delete from [No Sale] where TRY_CAST([Date] AS datetime) < '" & Date - DaysToKeep & " 12:00 am '"
+  R = GRS.ExecuteSql(Sql, ReturnAdoConnection(SvrPath.TerminalPath & ProductHistory))
+ 
+  Set GRS = Nothing
+@@ -4504,7 +4504,7 @@
+  '// hourly sales for sale report above
+  If Not IsDate(ClosingDate) Then Exit Sub
+  ConnectADODB SvrPath.TerminalPath & ClosingHistory, CHDB
+- CHDB.Execute ("delete from [Meal Periods] where Cdate([date]) = #" & CDate(ClosingDate) & "#")
++ CHDB.Execute ("delete from [Meal Periods] where TRY_CAST([date] AS datetime) = '" & Format(CDate(CDate(ClosingDate)), "yyyy-mm-dd hh:nn:ss") & "'")
+  ConnectADORS ("Select * from [Meal Periods]"), CHDB, CHRS
+    For WD = 1 To 5
+      CHRS.AddNew
+@@ -4515,7 +4515,7 @@
+      CHRS.Update
+    Next WD
+  SetNothing CHRS
+- CHDB.Execute ("delete from [Hourly Sales] where cdate([date]) = #" & CDate(ClosingDate) & "#")
++ CHDB.Execute ("delete from [Hourly Sales] where TRY_CAST([date] AS datetime) = '" & Format(CDate(CDate(ClosingDate)), "yyyy-mm-dd hh:nn:ss") & "'")
+  ConnectADORS ("Select * from [Hourly Sales] "), CHDB, CHRS
+    For WD = 6 To 23
+     If Val(Hourly(0, WD, 1) & "") > 0 Then
+@@ -6727,7 +6727,7 @@
+ Else
+      Sql = "Select Distinct Sum([Check Total]) as TotalClosed from [Closed Checks] where [Cashier Name] = '" & ServersName & "' and [Server Name] <> '" & ServersName & "' and [Close out day] = 0 "
+      If IsDate(StartTime) And IsDate(StartDate) Then
+-        Sql = Sql & " and Cast([Order date] as datetime) + cast([Close Time] as datetime) between '" & CDate(StartDate) + CDate(StartTime) & "' and '" & EndDateTime & "'"
++        Sql = Sql & " and TRY_CAST([Order date] AS datetime) + TRY_CAST([Close Time] AS datetime) between '" & CDate(StartDate) + CDate(StartTime) & "' and '" & EndDateTime & "'"
+      End If
+     ConnectADORS Sql, Db, OP
+     If Not OP.EOF Then
+@@ -7691,16 +7691,16 @@
+ If HR = -1 Then Exit Function
+     If DN = -1 Then
+       Sql = "select * from [Closed Checks] where [Register Name] = '" & RegisterName & "' and [close out day] = " & 0
+-      Sql = Sql & " and datepart(hh,cast([Close Time] as datetime)) = " & HR
++      Sql = Sql & " and datepart(hh,TRY_CAST([Close Time] AS datetime)) = " & HR
+     ElseIf DN = -2 Then
+       Sql = "select * from [Closed Checks] where [Register Name] = '" & RegisterName & "'"
+-      Sql = Sql & " and datepart(hh,cast([Close Time] as datetime)) = " & HR
++      Sql = Sql & " and datepart(hh,TRY_CAST([Close Time] AS datetime)) = " & HR
+     ElseIf DN = -3 Then
+       Sql = "select * from [Closed Checks]"
+-      Sql = Sql & " Where datepart(hh,cast([Close Time] as datetime)) = " & HR
++      Sql = Sql & " Where datepart(hh,TRY_CAST([Close Time] AS datetime)) = " & HR
+     Else
+       Sql = "select * from [Closed Checks] where [close out day] = " & DN
+-      Sql = Sql & " and datepart(hh,cast([Close Time] as datetime)) = " & HR
++      Sql = Sql & " and datepart(hh,TRY_CAST([Close Time] AS datetime)) = " & HR
+     End If
+    ConnectADORS Sql, Db, OP
+     Do While Not OP.EOF
+@@ -7724,7 +7724,7 @@
+ ConnectADODB SvrPath.TerminalPath & CheckStatDb, Db
+  Sql = "Select Distinct [Menu Item], Count([Quantity]) as Customer from [Check Detail]"
+  Sql = Sql & " Where [Voided] = 0 and [close out day] = " & DayNumber & " and [menu item] in (select [Menu Item Name] from [MSaleData].[dbo].[Menu Items] Where [Item Info] = 'CountasCustomer') "
+- Sql = Sql & " and datepart(hh,cast([Recorded Time] as datetime)) = " & SeachHour
++ Sql = Sql & " and datepart(hh,TRY_CAST([Recorded Time] AS datetime)) = " & SeachHour
+  Sql = Sql & " Group by [Menu Item]"
+ ConnectADORS Sql, Db, RS
+ MealCount = 0
+@@ -7772,7 +7772,7 @@
+ 
+     ConnectADODB SvrPath.TerminalPath & CheckStatDb, Db
+ 
+-    StrEnd = " ORDER BY CAST([Check Date] AS date), CAST([Recorded Time] AS datetime) ASC"
++    StrEnd = " ORDER BY TRY_CAST([Check Date] AS date), TRY_CAST([Recorded Time] AS datetime) ASC"
+ 
+     '-----------------------------
+     ' Build SQL by DN parameter
+@@ -7956,7 +7956,7 @@
+ Dim NSales As Currency
+ GetMealPerioCustomerCounts.CustomerCount = 0: GetMealPerioCustomerCounts.TransCount = 0: GetMealPerioCustomerCounts.NetSales = 0
+      Sql = "Select * from [Closed Checks] "
+-     Sql = Sql & " Where cast([Order date] as datetime) + cast([Open Time] as datetime) between '" & CDate(PeriodStart) & "' and '" & CDate(PeriodEnd) & "'"
++     Sql = Sql & " Where TRY_CAST([Order date] AS datetime) + TRY_CAST([Open Time] AS datetime) between '" & CDate(PeriodStart) & "' and '" & CDate(PeriodEnd) & "'"
+      Sql = Sql & " and [close out day] = " & DN
+     ConnectADORS Sql, Db, OP
+      Do While Not OP.EOF
+@@ -8093,7 +8093,7 @@
+      Sql = "Select * from [HouseCharges] "
+      Sql = Sql & " where [charged to] = '" & RC![scan Name] & "" & "'"
+      Sql = Sql & " and [Voided] = 0"
+-     Sql = Sql & " and cast([Check Date] as datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "' order by Cast([Check date] as datetime) asc"
++     Sql = Sql & " and TRY_CAST([Check Date] AS datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "' order by TRY_CAST([Check date] AS datetime) asc"
+     Set RS = GRS.ReturnRecordset(Sql, ReturnAdoConnection(HouseAcct), "Charge Data")
+           If Not RS.BOF Then RS.MoveFirst
+           If Not RS.EOF Then
+@@ -8123,7 +8123,7 @@
+                 Sql = "Select Distinct [Item Name],[Check Number],Sum([Quantity]) as TPurchase from HouseChargeDetail "
+                 Sql = Sql & " where [Account Number] = '" & AccountStatment.StatmentAcct & "" & "'"
+                 Sql = Sql & " and [Check Number] = " & RS![Check Number] & ""
+-                Sql = Sql & " and cast([Check Date] as datetime) = '" & CDate(RS![Check Date]) & "'"
++                Sql = Sql & " and TRY_CAST([Check Date] AS datetime) = '" & CDate(RS![Check Date]) & "'"
+                 Sql = Sql & " Group By [Item Name],[Check Number]"
+                 'ConnectADORS Sql, DB, DRS
+                 Set DRS = GRS.ReturnRecordset(Sql, ReturnAdoConnection(HouseAcct), "Charge Detail")
+@@ -8147,7 +8147,7 @@
+           SetNothing RS
+           Sql = "Select * "
+           Sql = Sql & "From [HousePayments] where [Account Name] = '" & RC![scan Name] & "'"
+-          Sql = Sql & " and cast([Date] as datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "' Order by cast([Date] as datetime) asc"
++          Sql = Sql & " and TRY_CAST([Date] AS datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "' Order by TRY_CAST([Date] AS datetime) asc"
+            Set RS = GRS.ReturnRecordset(Sql, ReturnAdoConnection(HouseAcct), "Payments")
+            If Not RS.BOF Then RS.MoveFirst
+            If Not RS.EOF Then
+@@ -8316,9 +8316,9 @@
+ Dim Data            As String
+ ConnectADODB SvrPath.TerminalPath & CallInOrderDb, Cdb
+  Sql = "Select * from [Check Detail] Where "
+- Sql = Sql & " cast([Check Date] as datetime) between '" & SearchDates.Item(1).StartDate & "'"
++ Sql = Sql & " TRY_CAST([Check Date] AS datetime) between '" & SearchDates.Item(1).StartDate & "'"
+  Sql = Sql & " and '" & SearchDates.Item(1).EndDate & "'"
+- Sql = Sql & "Order By cast([Check date] as datetime),[Check Number],[Selection Number],[Pos] asc"
++ Sql = Sql & "Order By TRY_CAST([Check date] AS datetime),[Check Number],[Selection Number],[Pos] asc"
+ ConnectADORS Sql, Cdb, CRS
+  If CRS.EOF Then
+   See_Msg "No Orders Found", 0, ""
+@@ -8499,7 +8499,7 @@
+ Dim Category        As String
+ ConnectADODB SvrPath.TerminalPath & CallInOrderDb, Cdb
+   Sql = "Select Distinct [Cateory Name],[Menu Item], Sum([Quantity]) as TQTY , Count([Menu Item]) as TCT from [Check Detail] Where "
+-  Sql = Sql & " cast([Check Date] as datetime) between '" & SearchDates.Item(1).StartDate & "'"
++  Sql = Sql & " TRY_CAST([Check Date] AS datetime) between '" & SearchDates.Item(1).StartDate & "'"
+   Sql = Sql & " and '" & SearchDates.Item(1).EndDate & "'"
+ Sql = Sql & "Group by [Cateory Name], [Menu Item] Order by [Cateory Name], [Menu Item] asc"
+ ConnectADORS Sql, Cdb, CRS
+@@ -8723,7 +8723,7 @@
+ Dim StartWeekDate   As Date
+ Dim EndingWeekDate  As Date
+   ConnectADODB SvrPath.TerminalPath & CheckStatDb, Cdb
+-    Sql = "Select distinct cast([Order Date] as date) as distinct_Order_Date from [Closed Checks] Order by distinct_order_date asc"
++    Sql = "Select distinct TRY_CAST([Order Date] AS date) as distinct_Order_Date from [Closed Checks] Order by distinct_order_date asc"
+   ConnectADORS Sql, Cdb, CRS
+   If CRS.EOF Then
+      DbClose Cdb, CRS
+@@ -8734,18 +8734,18 @@
+     StartWeekDate = CRS.fields("distinct_order_date").Value
+   End If
+   CRS.Close
+-   Sql = "Select distinct cast([Order Date] as date) as distinct_Order_Date from [Closed Checks] Order by distinct_order_date Desc"
++   Sql = "Select distinct TRY_CAST([Order Date] AS date) as distinct_Order_Date from [Closed Checks] Order by distinct_order_date Desc"
+   ConnectADORS Sql, Cdb, CRS
+    If Not CRS.EOF Then
+      EndingWeekDate = CRS.fields("distinct_order_date").Value
+    End If
+   DbClose Cdb, CRS
+  If ConnectADODB("MSaleData", Db) Then
+-   Sql = "Delete from [Closed Checks] Where cast([Order date] as date) Between '" & StartWeekDate & "' and '" & EndingWeekDate & "'"
++   Sql = "Delete from [Closed Checks] Where TRY_CAST([Order date] AS date) Between '" & StartWeekDate & "' and '" & EndingWeekDate & "'"
+   Db.Execute Sql
+-   Sql = "Delete from [Check Detail] Where cast([Check date] as date) Between '" & StartWeekDate & "' and '" & EndingWeekDate & "'"
++   Sql = "Delete from [Check Detail] Where TRY_CAST([Check date] AS date) Between '" & StartWeekDate & "' and '" & EndingWeekDate & "'"
+   Db.Execute Sql
+-   Sql = "Delete from [Payments] Where cast([date] as date) Between '" & StartWeekDate & "' and '" & EndingWeekDate & "'"
++   Sql = "Delete from [Payments] Where TRY_CAST([date] AS date) Between '" & StartWeekDate & "' and '" & EndingWeekDate & "'"
+   Db.Execute Sql
+   Dim BC As GeneralLib.Utilities
+   Set BC = New GeneralLib.Utilities
+@@ -8784,11 +8784,11 @@
+ If IsDate(EndingWeekDate) Then
+  
+  If ConnectADODB("MSaleData", Db) Then
+-   Sql = "Delete from [Closed Checks] Where cast([Order date] as date) Between '" & StartWeekDate & "' and '" & EndingWeekDate & "'"
++   Sql = "Delete from [Closed Checks] Where TRY_CAST([Order date] AS date) Between '" & StartWeekDate & "' and '" & EndingWeekDate & "'"
+   Db.Execute Sql
+-   Sql = "Delete from [Check Detail] Where cast([Check date] as date) Between '" & StartWeekDate & "' and '" & EndingWeekDate & "'"
++   Sql = "Delete from [Check Detail] Where TRY_CAST([Check date] AS date) Between '" & StartWeekDate & "' and '" & EndingWeekDate & "'"
+   Db.Execute Sql
+-   Sql = "Delete from [Payments] Where cast([date] as date) Between '" & StartWeekDate & "' and '" & EndingWeekDate & "'"
++   Sql = "Delete from [Payments] Where TRY_CAST([date] AS date) Between '" & StartWeekDate & "' and '" & EndingWeekDate & "'"
+   Db.Execute Sql
+    Sql = "Delete from Refund where [Close Out Day] <> 0"
+   Db.Execute Sql
+@@ -9232,7 +9232,7 @@
+ Dim P  As Integer
+ Sql = "Delete from [Reservations] Where [Name] = '" & RName & "'"
+ Sql = Sql & " and [Phone] = '" & RPhone & "'"
+-Sql = Sql & " and Cast([Date] as datetime) = '" & CDate(Rdate) & "'"
++Sql = Sql & " and TRY_CAST([Date] AS datetime) = '" & CDate(Rdate) & "'"
+ If ConnectADODB(SvrPath.TerminalPath & "MSaleData", Db) = False Then Exit Sub
+ Db.Execute Sql
+ Exit Sub
+@@ -9279,7 +9279,7 @@
+  If ConnectADODB(SvrPath.TerminalPath & TimeRecordsDb, Db) = False Then Exit Sub
+    Sql = "Select * from [Employee Records] where "
+    Sql = Sql & " [time in] > '' and isdate([time out]) = 0"
+-   Sql = Sql & " order by cast([Shift Date] as datetime) asc"
++   Sql = Sql & " order by TRY_CAST([Shift Date] AS datetime) asc"
+  If ConnectADORS(Sql, Db, Tb) = False Then Exit Sub
+  Do While Not Tb.EOF
+       Tb![Altered By] = "Auto Out"
+@@ -10756,19 +10756,19 @@
+     If Check_Option(244) = 1 Then
+       If See_Msg("Show Voided Items Only", 4, "Filter Out Deletes") = 6 Then
+         Sql = "Select * From [Voids]"
+-        Sql = Sql & " Where cdate([date])  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
++        Sql = Sql & " Where TRY_CAST([date] AS datetime)  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+         Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+         Sql = Sql & " and [Reason] <> 'Cashier Correct'"
+         Sql = Sql & " and [Reason] <> 'Manager Correct'"
+         Sql = Sql & " and [Reason] <> 'Cancel Order'"
+       Else
+         Sql = "Select * From [Voids]"
+-        Sql = Sql & " Where cdate([date])  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
++        Sql = Sql & " Where TRY_CAST([date] AS datetime)  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+         Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+       End If
+     Else
+       Sql = "Select * From [Voids]"
+-      Sql = Sql & " Where cdate([date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
++      Sql = Sql & " Where TRY_CAST([date] AS datetime) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+       Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+     End If
+     Sql = Sql & " Order by [Server], [date],[Check No],[Item Name] asc"
+@@ -10886,9 +10886,9 @@
+ 
+   ConnectADODB SvrPath.TerminalPath & ClosingHistory, Db
+         Sql = "Select * From [Item Refund]"
+-        Sql = Sql & " Where cdate([date])  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
++        Sql = Sql & " Where TRY_CAST([date] AS datetime)  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+         Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+-        Sql = Sql & " Order by [Manager], cdate([date]),[Item] asc"
++        Sql = Sql & " Order by [Manager], TRY_CAST([date] AS datetime),[Item] asc"
+   ConnectADORS (Sql), Db, CC
+      If CC.EOF Then
+         DbClose Db, CC
+@@ -10947,7 +10947,7 @@
+ NetSales = GetNetSales(StartDate, EndDate)
+ If ConnectADODB(SvrPath.TerminalPath & ProductHistory, Db) = False Then Exit Sub
+ Sql = "Select Distinct [Date], [Item Name],[Reason], sum([Amount]) as ToTalWaste From [Voids]"
+-Sql = Sql & " Where cdate([date])  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
++Sql = Sql & " Where TRY_CAST([date] AS datetime)  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+ Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+ Sql = Sql & " and left([Item Name],5) = 'Waste'"
+ Sql = Sql & " Group by [Date], [Item Name],[Reason]"
+@@ -10999,7 +10999,7 @@
+ Dim Data    As String
+ If ConnectADODB(SvrPath.TerminalPath & ProductHistory, Db) = False Then Exit Sub
+ Sql = "Select * From [No Sale]"
+-Sql = Sql & " Where cdate([date])  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
++Sql = Sql & " Where TRY_CAST([date] AS datetime)  Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+ Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+ 
+ If ConnectADORS(ReturnDateString(Sql), Db, RS) = False Then Exit Sub
+@@ -12764,7 +12764,7 @@
+ nHandle = FreeFile
+ ConnectADODB SvrPath.TerminalPath & ReceiptDb, Db
+    'If ReceiptDb = "Receipt.MDB" Then
+-   ' Sql = "Select * from [Receipts] Where [Date] = #" & PrintDate & "#"
++   ' Sql = "Select * from [Receipts] Where [Date] = '" & Format(CDate(PrintDate), "yyyy-mm-dd hh:nn:ss") & "'"
+    'Else
+     Sql = "Select * from [Receipts] Where [Date] = '" & CDate(PrintDate) & "'"
+    'End If
+@@ -14349,7 +14349,7 @@
+ Dim Tb As ADODB.Recordset
+ ConnectADODB SvrPath.TerminalPath & CallInOrderDb, Db
+   Sql = "Select Distinct [Customer Name],[Customer Phone] from [Visits] Where "
+-  Sql = Sql & " cast([Order Date] as datetime) between '" & StartDate & "'"
++  Sql = Sql & " TRY_CAST([Order Date] AS datetime) between '" & StartDate & "'"
+   Sql = Sql & " and '" & EndDate & "'"
+ ConnectADORS Sql, Db, RS
+ If RS.EOF Then
+@@ -14397,7 +14397,7 @@
+ Dim RS As ADODB.Recordset
+ ConnectADODB SvrPath.TerminalPath & CallInOrderDb, Db
+    Sql = "Select * from [Visits] Where [Customer Name] = '" & CName & "' and [Customer Phone] = '" & CPhone & "'"
+-   Sql = Sql & " and  cast([Order Date] as datetime) between '" & StartDate & "'"
++   Sql = Sql & " and  TRY_CAST([Order Date] AS datetime) between '" & StartDate & "'"
+    Sql = Sql & " and '" & EndDate & "'"
+ ConnectADORS Sql, Db, RS
+ GetVisits = 0
+@@ -14415,9 +14415,9 @@
+ Dim Heading         As String
+ ConnectADODB SvrPath.TerminalPath & CallInOrderDb, Cdb
+  Sql = "Select * from [Check Detail] Where "
+- Sql = Sql & " cast([Check Date] as datetime) between '" & StartDate & "'"
++ Sql = Sql & " TRY_CAST([Check Date] AS datetime) between '" & StartDate & "'"
+  Sql = Sql & " and '" & EndDate & "'"
+- Sql = Sql & "Order By cast([Check date] as datetime),[Check Number],[Selection Number],[Pos] asc"
++ Sql = Sql & "Order By TRY_CAST([Check date] AS datetime),[Check Number],[Selection Number],[Pos] asc"
+ ConnectADORS Sql, Cdb, CRS
+  If CRS.EOF Then
+   Call See_Msg("No Orders Found", 5, "")
+@@ -16878,7 +16878,7 @@
+ If ConnectADODB("MSaleData", Db) = False Then Exit Sub
+ 
+   Sql = "Select * from [Message All] where [Name] = '" & MailFor & "'"
+-  Sql = Sql & " and cast([Date] as date) <= '" & Date & "'"
++  Sql = Sql & " and TRY_CAST([Date] AS date) <= '" & Date & "'"
+    ConnectADORS Sql, Db, Tb
+      Do While Not Tb.EOF
+         Print_Message "Important Message...", Tb(0) & "", Tb(3) & "", Tb(2) & ""
+@@ -16886,7 +16886,7 @@
+      Loop
+      SetNothing Tb
+      Sql = "Delete from [Message All] where [Name] = '" & MailFor & "'"
+-     Sql = Sql & " and cast([Date] as date) <= '" & Date & "'"
++     Sql = Sql & " and TRY_CAST([Date] AS date) <= '" & Date & "'"
+      Db.Execute Sql
+      DbClose Db, Tb
+ Exit Sub
+@@ -17213,8 +17213,8 @@
+ Dim RS  As ADODB.Recordset
+    ConnectADODB SvrPath.TerminalPath & "MSaleData, sDb"
+      Sql = "Delete from [Audits] Where [Operator] = '" & SvrName & "'"
+-     Sql = Sql & " and cast([Start Time] as datetime) = '" & CDate(ATime) & "'"
+-     Sql = Sql & " and cast([date] as date) = '" & CDate(Adate) & "'"
++     Sql = Sql & " and TRY_CAST([Start Time] AS datetime) = '" & CDate(ATime) & "'"
++     Sql = Sql & " and TRY_CAST([date] AS date) = '" & CDate(Adate) & "'"
+      Sql = Sql & " and [close out day] = 0"
+   sDb.Execute Sql
+ DbClose sDb, RS
+@@ -17470,7 +17470,7 @@
+ 
+ ConnectADODB CallInOrderDb, Cdb
+  Sql = "Select Distinct [Customer Name],[Customer Phone] from [Order History] Where "
+- Sql = Sql & " cast([Check Date] as date) < '" & Date - DaysToKeep & "'"
++ Sql = Sql & " TRY_CAST([Check Date] AS date) < '" & Date - DaysToKeep & "'"
+ ConnectADORS Sql, Cdb, CRS
+ If CRS.EOF Then
+    DbClose Cdb, CRS
+@@ -17484,11 +17484,11 @@
+ Loop
+ SetNothing CRS
+  Sql = "Delete from [Order History] Where "
+- Sql = Sql & " cast([Check Date] as datetime) < '" & Date - DaysToKeep & "'"
++ Sql = Sql & " TRY_CAST([Check Date] AS datetime) < '" & Date - DaysToKeep & "'"
+ Cdb.Execute Sql
+ SetNothing CRS
+  Sql = "Delete from [Visits] Where "
+- Sql = Sql & " cast([Order Date] as datetime) < '" & Date - DaysToKeep & "'"
++ Sql = Sql & " TRY_CAST([Order Date] AS datetime) < '" & Date - DaysToKeep & "'"
+  Cdb.Execute Sql
+ DbClose Cdb, CRS
+ See_Msg "Finished....", 5, "Cleaning Phone Order History"
+@@ -17591,7 +17591,7 @@
+     Trans_Log Now & " " & SvrName & " Tip Edit Charge Sales " & Audits.ChargeSales & " Charge Tips " & Audits.ChargeTips & " Tip Sales " & Audits.TipSales
+   End If
+   RemoveNullDates
+-   Sql = "Select * from [Tip Income] Where [Server Name] = '" & SvrName & "' and Cast([Date] as date) = '" & Format(RecordDate, "MM/DD/YYYY") & "'"
++   Sql = "Select * from [Tip Income] Where [Server Name] = '" & SvrName & "' and TRY_CAST([Date] AS date) = '" & Format(RecordDate, "MM/DD/YYYY") & "'"
+    Sql = Sql & " and [Shift] = " & AuditCheckNo
+   If ConnectADODB("MSaleData", Db) = False Then Exit Sub
+   If ConnectADORS(Sql, Db, RS) = False Then Exit Sub
+@@ -17654,7 +17654,7 @@
+ Dim Db          As ADODB.Connection
+ Dim RS          As ADODB.Recordset
+ RemoveNullDates
+- Sql = "Select top 1 [Shift] from [Tip Income] Where [Server Name] = '" & SvrName & "' and cast([Date] as date) = '" & Format(CDate(ShiftDate), "MM/DD/YYYY") & "'"
++ Sql = "Select top 1 [Shift] from [Tip Income] Where [Server Name] = '" & SvrName & "' and TRY_CAST([Date] AS date) = '" & Format(CDate(ShiftDate), "MM/DD/YYYY") & "'"
+  Sql = Sql & " Order by [Shift] Desc"
+ If ConnectADODB("MSaleData", Db) = False Then Exit Function
+ If ConnectADORS(Sql, Db, RS) = False Then Exit Function
+@@ -18684,7 +18684,7 @@
+ If ConnectADODB("MSaleData", Db) Then
+    Sql = "Delete from [Menu Links] Where isdate([Date]) = 0"
+   Db.Execute Sql
+-   Sql = "Delete from [Menu Links] Where cast([Date] as date) < '" & Date - 180 & "'"
++   Sql = "Delete from [Menu Links] Where TRY_CAST([Date] AS date) < '" & Date - 180 & "'"
+   Db.Execute Sql
+   DbClose Db, Nothing
+ End If
+@@ -19022,7 +19022,7 @@
+    Exit Function
+ End If
+  Sql = "Select * from [Employee Records] where [Department Name] = '" & JobCodeWorked & "'"
+- Sql = Sql & " AND cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(AuditStartDate & " " & AuditStartTime) & "'"
++ Sql = Sql & " AND TRY_CAST([Shift Date] AS datetime) + TRY_CAST([Time In] AS datetime) Between '" & CDate(AuditStartDate & " " & AuditStartTime) & "'"
+  Sql = Sql & " and '" & Now & "'"
+ If ConnectADORS(Sql, Db, FE) = False Then
+    See_Msg "Error Connecting to time records", 5, ""
+@@ -19083,7 +19083,7 @@
+       If ConnectADODB(CheckStatDb, Db) Then
+         Sql = "Select * from [Check Detail] Where [Voided] = 0 and [Close out Day] = 0 "
+         Sql = Sql & " and [Servers Name] = '" & ServersName & "'"
+-        Sql = Sql & " and cast([Check Date] as datetime) + cast([Recorded Time] as datetime) between '" & ShiftStart & "' and '" & ShiftEnd & "'"
++        Sql = Sql & " and TRY_CAST([Check Date] AS datetime) + TRY_CAST([Recorded Time] AS datetime) between '" & ShiftStart & "' and '" & ShiftEnd & "'"
+       ConnectADORS Sql, Db, RS
+            Do While Not RS.EOF
+             GetTipOutSales = GetTipOutSales + Val(RS.fields("Price").Value & "")
+@@ -19114,8 +19114,8 @@
+    Exit Function
+ End If
+  Sql = "Select * from [Employee Records] where [Department Name] = '" & JobCodeWorked & "'"
+- Sql = Sql & " AND cast([Shift Date] as date) >= '" & CDate(AuditStartDate) & "'"
+-' Sql = Sql & " AND cast([Shift Date] as date) + cast([Time In] as datetime) Between '" & CDate(AuditStartDate & " " & AuditStartTime) & "'"
++ Sql = Sql & " AND TRY_CAST([Shift Date] AS date) >= '" & CDate(AuditStartDate) & "'"
++' Sql = Sql & " AND TRY_CAST([Shift Date] AS date) + TRY_CAST([Time In] AS datetime) Between '" & CDate(AuditStartDate & " " & AuditStartTime) & "'"
+ ' Sql = Sql & " and '" & Now & "'"
+ If ConnectADORS(Sql, Db, FE) = False Then
+    See_Msg "Error Connecting to time records", 5, ""
+@@ -19187,7 +19187,7 @@
+ Dim RS      As ADODB.Recordset
+ Dim T       As Integer
+ ConnectADODB TimeRecordsDb, Db
+-  Sql = "Select * from [Employee Records] Where cast([Shift Date] as datetime) = '" & CDate(ShiftDate) & "' and [Department Name] = '" & JobCode & "'"
++  Sql = "Select * from [Employee Records] Where TRY_CAST([Shift Date] AS datetime) = '" & CDate(ShiftDate) & "' and [Department Name] = '" & JobCode & "'"
+ ConnectADORS Sql, Db, RS
+ If Not RS.EOF Then
+   JobCodeHasWorked = True
+@@ -19232,7 +19232,7 @@
+ Dim RS      As ADODB.Recordset
+ ConnectADODB SvrPath.TerminalPath & "MSaleData", Db
+ 'do not use close out day if close before server punches out will miss
+-  Sql = "Select * from [Tip Share] Where [Server Name] = '" & Svr_Name & "' and cast([Date] as date) = '" & ShiftDate & "'"
++  Sql = "Select * from [Tip Share] Where [Server Name] = '" & Svr_Name & "' and TRY_CAST([Date] AS date) = '" & ShiftDate & "'"
+ ConnectADORS Sql, Db, RS
+ Do While Not RS.EOF
+  GetTipSharePaidOut = GetTipSharePaidOut + RS![Tip Share]
+@@ -19319,7 +19319,7 @@
+ '   sql = "Select * from [Audits] Where [Operator] = '" & Audit.Operator & "' and [Close Out Day] = -1"
+ ' Else
+    Sql = "Select * from [AuditSales] Where [Operator] = '" & Audit.Operator & "' and [Close Out Day] = 0"
+-   Sql = Sql & " and cast([Start Time] as datetime) = '" & Audit.StartTime & "'"
++   Sql = Sql & " and TRY_CAST([Start Time] AS datetime) = '" & Audit.StartTime & "'"
+ ' End If
+ 'End If
+ ConnectADODB SvrPath.TerminalPath & "MSaleData", Db
+@@ -19386,7 +19386,7 @@
+ End Sub
+ Public Sub ShowAllAudits()
+ On Error GoTo ErrorHandler
+-LoadDates "Select Distinct cast([Shift Date] as datetime) as MyDate from [Employee Records] order by cast([Shift Date] as datetime) desc", TimeRecordsDb, "Shift Date"
++LoadDates "Select Distinct TRY_CAST([Shift Date] AS datetime) as MyDate from [Employee Records] order by TRY_CAST([Shift Date] AS datetime) desc", TimeRecordsDb, "Shift Date"
+ If SearchDates Is Nothing Then
+  Exit Sub
+ End If
+@@ -19416,7 +19416,7 @@
+      Dim H$
+      H = "Register Name|Manager|Date|Start|End|Name|Sales|Discounts|Voids|Cash In Drw|Cash Dep.|+/-|Tips;"
+ ConnectADODB SvrPath.TerminalPath & "MSaleData", Db
+-  Sql = "Select * from [AuditSales] Where cast([Date] as date) between '" & BeginWeek & "' and '" & EndingWeek & "' order by [Date] ,[Start Time] asc"
++  Sql = "Select * from [AuditSales] Where TRY_CAST([Date] AS date) between '" & BeginWeek & "' and '" & EndingWeek & "' order by [Date] ,[Start Time] asc"
+ ConnectADORS Sql, Db, CC
+  Data = "": TDisc = 0: TVoid = 0: TSales = 0: TOvSt = 0: TTip = 0: CID = 0: CDP = 0
+      Do While Not CC.EOF
+@@ -21292,7 +21292,7 @@
+ End If
+ 
+ Sql = "Select * from [HouseCharges] "
+-Sql = Sql & " Where cast([Check Date] as datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "'"
++Sql = Sql & " Where TRY_CAST([Check Date] AS datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "'"
+ If UCase(AccountType) <> "ALL" Then
+   Sql = Sql & " and [Account Type] = '" & AccountType & "'"
+ End If
+@@ -21322,12 +21322,12 @@
+     Print #PF, Tab(24); "Date  "; Trim(Date); EC(7)
+     Print #PF, String(40, 45); EC(7)
+     Sql = "Select Distinct [Charged To] from [HouseCharges]"
+-    Sql = Sql & " Where cast([Check Date] as datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "'"
++    Sql = Sql & " Where TRY_CAST([Check Date] AS datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "'"
+ If ConnectADORS(Sql, vDb, AllNames) = False Then Exit Sub
+ If Not AllNames.EOF Then
+ Do While Not AllNames.EOF
+     Sql = "Select * from [HouseCharges] Where [Charged To] = '" & AllNames![Charged To] & "" & "'"
+-    Sql = Sql & " and cast([Check Date] as datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "'"
++    Sql = Sql & " and TRY_CAST([Check Date] AS datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "'"
+ '   Sql = Sql & " order by [charged to] asc "
+ If ConnectADORS(Sql, vDb, vRc) = False Then Exit Sub
+ If Not vRc.EOF Then
+@@ -21365,7 +21365,7 @@
+     Print #PF, "Payments"; EC(7)
+     Print #PF, String(40, 45); EC(7)
+     Sql = "Select * from [HousePayments] Where [Account Name] = '" & ACCTNAME & "'"
+-    Sql = Sql & " and cast([Date] as datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "'"
++    Sql = Sql & " and TRY_CAST([Date] AS datetime) between '" & CDate(BeginDate) & "' and '" & CDate(EndDate) & "'"
+     If ConnectADORS(Sql, vDb, Arc) = False Then Exit Sub
+     PAmount = 0
+     Do While Not Arc.EOF
+@@ -21452,15 +21452,15 @@
+    Do While Not RRs.EOF
+       PaymentTotal = 0: ChargeTotal = 0
+       Sql = "Select Distinct sum([Adj total]) as TotalCharged, sum([Tip Amount]) as TTip from [HouseCharges] where [Charged To] = '" & RRs![scan Name] & " ' and [Voided] = 0 "
+-      Sql = Sql & " and Cast([Check date] as datetime) Between '01/01/2000' and '" & CDate(EndDate) & "'"
++      Sql = Sql & " and TRY_CAST([Check date] AS datetime) Between '01/01/2000' and '" & CDate(EndDate) & "'"
+       If ConnectADORS(Sql, Rdb, ChargeRS) = False Then Exit Sub
+       If Not ChargeRS.EOF Then ChargeTotal = Val(Check_Null(ChargeRS![totalcharged])) '+ Val(ChargeRS![TTip] & "")
+       Sql = "Select Distinct sum([Amount]) as Totalpayment from [HousePayments] where [Account Name] = '" & RRs![scan Name] & "'"
+-      Sql = Sql & " and Cast([date] as datetime) Between '01/01/2000' and '" & CDate(EndDate) & "'"
++      Sql = Sql & " and TRY_CAST([date] AS datetime) Between '01/01/2000' and '" & CDate(EndDate) & "'"
+       If ConnectADORS(Sql, Rdb, PaymentRs) = False Then Exit Sub
+       If Not PaymentRs.EOF Then PaymentTotal = Val(Check_Null(PaymentRs![TotalPayment]))
+       Sql = "Select * from [Starting Balance] where [Account Name] = '" & RRs![scan Name] & "'"
+-      Sql = Sql & " and Cast([date] as datetime) Between '01/01/2000' and '" & CDate(EndDate) & "'"
++      Sql = Sql & " and TRY_CAST([date] AS datetime) Between '01/01/2000' and '" & CDate(EndDate) & "'"
+       If ConnectADORS(Sql, Rdb, StartRS) = False Then Exit Sub
+           If StartRS.EOF Then StartRS.AddNew
+           StartRS![Date] = Format(EndDate, "MM/DD/YYYY")
+@@ -21503,7 +21503,7 @@
+ If ConnectADORS(Sql, Rdb, RRs) = False Then Exit Sub
+    Do While Not RRs.EOF
+       Sql = "Delete from [HousePayments] where [Account Name] = '" & RRs![scan Name] & "'"
+-      Sql = Sql & " and Cast([date] as datetime) Between '01/01/2000' and '" & CDate(EndDate) & "'"
++      Sql = Sql & " and TRY_CAST([date] AS datetime) Between '01/01/2000' and '" & CDate(EndDate) & "'"
+       Rdb.Execute Sql
+      RRs.MoveNext
+    Loop
+@@ -21974,7 +21974,7 @@
+ Dim RS          As ADODB.Recordset
+ Dim Cr          As Integer
+ ConnectADODB SvrPath.TerminalPath & ClosingHistory, Db
+-    Sql = "Delete from [Refunds] Where Cdate([Date]) = #" & ClosingDate & "#"
++    Sql = "Delete from [Refunds] Where TRY_CAST([Date] AS datetime) = '" & Format(CDate(ClosingDate), "yyyy-mm-dd hh:nn:ss") & "'"
+  Db.Execute (Sql)
+     Sql = "Select * from [Refunds]"
+ ConnectADORS Sql, Db, RS
+@@ -24523,7 +24523,7 @@
+ On Error GoTo ERH:
+ Dim CHRS As ADODB.Recordset
+  If Not IsDate(BusinessDate) Then BusinessDate = Date  ' Exit Function
+-   Sql = "Select * from [Non Sales Items] where [Name] = 'Safe Amount' and Cdate([date]) = #" & CDate(BusinessDate) & "#"
++   Sql = "Select * from [Non Sales Items] where [Name] = 'Safe Amount' and TRY_CAST([date] AS datetime) = '" & Format(CDate(CDate(BusinessDate)), "yyyy-mm-dd hh:nn:ss") & "'"
+   ConnectADORS Sql, Db, CHRS
+   If CHRS.EOF Then CHRS.AddNew
+   CHRS.fields("Date").Value = Format(BusinessDate, "MM/DD/YYYY")
+@@ -24543,7 +24543,7 @@
+ Dim CHDB As ADODB.Connection
+ Dim CHRS As ADODB.Recordset
+  ConnectADODB SvrPath.TerminalPath & ClosingHistory, CHDB
+-   Sql = "Select * from [Non Sales Items] where [Name] = 'Safe Amount' and Cdate([date]) between #" & CDate(BusinessDate) & "# and #" & CDate(SetEndingDate(BusinessDate)) & "#"
++   Sql = "Select * from [Non Sales Items] where [Name] = 'Safe Amount' and TRY_CAST([date] AS datetime) between '" & Format(CDate(CDate(BusinessDate)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(BusinessDate))), "yyyy-mm-dd hh:nn:ss") & "'"
+  ConnectADORS (Sql), CHDB, CHRS
+   Do While Not CHRS.EOF
+    ReturnChangeFundAdj = ReturnChangeFundAdj + CHRS![Amount]
+@@ -24763,7 +24763,7 @@
+ Dim Db As ADODB.Connection
+ Dim RS As ADODB.Recordset
+ ConnectADODB SvrPath.TerminalPath & ClosingHistory, Db
+-Sql = "Select Distinct sum([Net Sales]) as NtSales, Sum([Discounts]) as TDisc from [Sales] where cdate([Date]) between #" & CDate(BegDate) & "# and #" & CDate(EndDate) & "#"
++Sql = "Select Distinct sum([Net Sales]) as NtSales, Sum([Discounts]) as TDisc from [Sales] where TRY_CAST([Date] AS datetime) between '" & Format(CDate(CDate(BegDate)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(EndDate)), "yyyy-mm-dd hh:nn:ss") & "'"
+ ConnectADORS (Sql), Db, RS
+  If Not RS.EOF Then
+     GetNetSales = Val(RS![NtSales] & "")
+@@ -24934,7 +24934,7 @@
+ 'do nothing
+ 
+ Else
+-  Sql = Sql & " Where cast([Shift Date] as datetime) between '" & BeginWeek & "' and '" & EndWeek & "'"
++  Sql = Sql & " Where TRY_CAST([Shift Date] AS datetime) between '" & BeginWeek & "' and '" & EndWeek & "'"
+   Sql = Sql & " order by [Employee Name],Shift asc"
+ End If
+ ConnectADODB SvrPath.TerminalPath & TimeRecordsDb, Db
+@@ -25435,7 +25435,7 @@
+ Dim OTB As ADODB.Recordset
+ ConnectADODB TimeRecordsDb, Db
+  Sql = "Select * from [Employee Records] where [employee name] = '" & SvrName & "' and [time in] > '' and [Time out] = ''"
+- Sql = Sql & " and cast([Shift Date] as datetime) = '" & Date & "'"
++ Sql = Sql & " and TRY_CAST([Shift Date] AS datetime) = '" & Date & "'"
+ ConnectADORS Sql, Db, OTB
+ If Not OTB.EOF Then
+   If Val(OTB![Shift] & "") = 0 And StartAudit(OTB.fields("Department Name").Value) = 1 Then
+@@ -25672,10 +25672,10 @@
+ 'not data found leave here.
+     ConnectADODB "MSaleData", CCDB
+       Sql = "Delete from [TipOut Withheld]"
+-      Sql = Sql & " Where cast([Date] as date) = '" & CurrentBusinessDay & "'"
++      Sql = Sql & " Where TRY_CAST([Date] AS date) = '" & CurrentBusinessDay & "'"
+     CCDB.Execute Sql
+       Sql = "Select * from [TipOut Withheld]"
+-      Sql = Sql & " Where cast([Date] as date) = '" & CurrentBusinessDay & "'"
++      Sql = Sql & " Where TRY_CAST([Date] AS date) = '" & CurrentBusinessDay & "'"
+     ConnectADORS Sql, CCDB, CCRS
+     For St = 1 To TipData.count
+       CCRS.AddNew
+@@ -25742,10 +25742,10 @@
+ 'not data found leave here.
+     ConnectADODB "MSaleData", CCDB
+     Sql = "Delete from [Tips Withheld]"
+-    Sql = Sql & " Where cast([Date] as date) = '" & CurrentBusinessDay & "'"
++    Sql = Sql & " Where TRY_CAST([Date] AS date) = '" & CurrentBusinessDay & "'"
+     CCDB.Execute Sql
+     Sql = "Select * from [Tips Withheld]"
+-    Sql = Sql & " Where Cast([Date] as date) = '" & CurrentBusinessDay & "'"
++    Sql = Sql & " Where TRY_CAST([Date] AS date) = '" & CurrentBusinessDay & "'"
+     ConnectADORS Sql, CCDB, CCRS
+     For St = 0 To RN
+       CCRS.AddNew
+@@ -25807,7 +25807,7 @@
+    End If
+    Sql = Sql & " and [Register Name] = '" & MyRegisterName & "'"
+    Sql = Sql & " and [Payment Type] <> 'Cash'"
+-   Sql = Sql & " and cast([Recorded Date] as datetime) + cast([Recorded time] as datetime)  >= '" & AuditTime & "'"
++   Sql = Sql & " and TRY_CAST([Recorded Date] AS datetime) + TRY_CAST([Recorded time] AS datetime)  >= '" & AuditTime & "'"
+    Sql = Sql & " and [Cashier Name] <> 'Closed'"
+    Sql = Sql & " Group by [Payment Type]"
+    Sql = Sql & " Order by [Payment Type] asc"
+@@ -27682,7 +27682,7 @@
+ OpenDb TimeRecordsDb, Hdb
+  Sql = "Delete from [Employee Records] where IsDate([Shift Date]) = 0"
+ Hdb.Execute Sql
+- Sql = "Delete from [Employee Records] where year(cast([Shift Date] as datetime)) <= '" & Year(CDate(Date)) - 2 & "'"
++ Sql = "Delete from [Employee Records] where year(TRY_CAST([Shift Date] AS datetime)) <= '" & Year(CDate(Date)) - 2 & "'"
+ Hdb.Execute Sql
+ End Sub
+ Public Sub LoadDates(mSql As String, Dbase As String, RSS As String)
+@@ -27715,7 +27715,7 @@
+ Dim RS As ADODB.Recordset
+ ConnectADODB SvrPath.TerminalPath & ClosingHistory, Db
+     Sql = "Select * from [Sales]  "
+-    Sql = Sql & " Where cdate([date]) Between #" & CDate(StartDate) & "# and #" & EndDate & "#"
++    Sql = Sql & " Where TRY_CAST([date] AS datetime) Between '" & Format(CDate(CDate(StartDate)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(EndDate), "yyyy-mm-dd hh:nn:ss") & "'"
+     'Sql = Sql & " and not isnull([date])"
+ ConnectADORS (Sql), Db, RS
+ Dim WNo As Integer
+@@ -27728,8 +27728,8 @@
+ SetNothing RS
+ Call UpdateWindow(Financal_Reports.hwnd)
+     Sql = "Select * From [Sales]"
+-    Sql = Sql & " Where cdate([date]) Between #" & CDate(StartDate) & "# and #" & EndDate & "#"
+-    Sql = Sql & " Order by Cdate([date]) asc"
++    Sql = Sql & " Where TRY_CAST([date] AS datetime) Between '" & Format(CDate(CDate(StartDate)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(EndDate), "yyyy-mm-dd hh:nn:ss") & "'"
++    Sql = Sql & " Order by TRY_CAST([date] AS datetime) asc"
+ ConnectADORS (Sql), Db, RS
+ Dim WeekS() As Currency
+ ReDim WeekS(WNo, 3) As Currency
+@@ -29217,9 +29217,9 @@
+ If Not IsDate(SystemClose) Then SystemClose = Format(Date, "mm/dd/yyyy")
+ ConnectADODB SvrPath.TerminalPath & ClosingHistory, CHDB
+ If OverWrite Then
+-  Sql = "Delete from [Category Sales] where cdate([date]) = #" & SystemClose & "#"
++  Sql = "Delete from [Category Sales] where TRY_CAST([date] AS datetime) = '" & Format(CDate(SystemClose), "yyyy-mm-dd hh:nn:ss") & "'"
+   CHDB.Execute (Sql)
+-  Sql = "Delete from [Department Sales] where cdate([date]) = #" & SystemClose & "#"
++  Sql = "Delete from [Department Sales] where TRY_CAST([date] AS datetime) = '" & Format(CDate(SystemClose), "yyyy-mm-dd hh:nn:ss") & "'"
+   CHDB.Execute (Sql)
+  End If
+ '=========================================
+@@ -30048,7 +30048,7 @@
+      If StartCheck > 0 Then
+        Sql = Sql & " and [Check Number] > " & StartCheck - 1
+      End If
+-     Sql = Sql & " order by  cast([Check date] as datetime) + cast([Recorded Time] as datetime) asc"
++     Sql = Sql & " order by  TRY_CAST([Check date] AS datetime) + TRY_CAST([Recorded Time] AS datetime) asc"
+    ConnectADORS Sql, Db, Tb
+    Do While Not Tb.EOF
+      If IsDate(Tb![Recorded Time]) Then
+@@ -32716,7 +32716,7 @@
+                 Sql = Sql & " and [close out day] = 0"
+             End If
+             Sql = Sql & " and [servers Name] = '" & Tb![Server Name] & "'"
+-            Sql = Sql & " order by cast([check date] as datetime),[Check Number] asc"
++            Sql = Sql & " order by TRY_CAST([check date] AS datetime),[Check Number] asc"
+             ConnectADORS Sql, Db, VRTB
+             Do While Not VRTB.EOF
+               If CuDay <> VRTB![Check Date] Then
+@@ -32960,7 +32960,7 @@
+   Sql = Sql & " and [Department Report] = 'Service Charge'"
+   Sql = Sql & " and [Cateory Name] <> 'Processing Fee'"
+   Sql = Sql & " and [Cateory Name] <> 'Convenience Fee'"
+-  Sql = Sql & " and Cast([Check Date] as datetime) + cast([Recorded Time] as datetime) >= '" & CDate(AuditStart) & "'"
++  Sql = Sql & " and TRY_CAST([Check Date] AS datetime) + TRY_CAST([Recorded Time] AS datetime) >= '" & CDate(AuditStart) & "'"
+  Else
+   Sql = "Select * from [Check Detail] Where [check Number] >= " & BegCheckNo & " and [Close out day] = 0 and [Voided] = 0 and [Servers Name] = '" & DriverName & "' and [Cashier Name] <> 'Closed'"
+   Sql = Sql & " and [Department Report] = 'Service Charge'"
+@@ -32991,7 +32991,7 @@
+  If BegCheckNo = 0 Then
+   Sql = "Select * from [Check Detail] Where [Close out day] = 0 and [Voided] = 0 and [Servers Name] = '" & DriverName & "' and [Cashier Name] <> 'Closed'"
+   Sql = Sql & " and [Department Report] = 'Gratuity'"
+-  Sql = Sql & " and Cast([Check Date] as datetime) + cast([Recorded Time] as datetime) >= '" & CDate(AuditStart) & "'"
++  Sql = Sql & " and TRY_CAST([Check Date] AS datetime) + TRY_CAST([Recorded Time] AS datetime) >= '" & CDate(AuditStart) & "'"
+  Else
+   Sql = "Select * from [Check Detail] Where [check Number] >= " & BegCheckNo & " and [Close out day] = 0 and [Voided] = 0 and [Servers Name] = '" & DriverName & "' and [Cashier Name] <> 'Closed'"
+   Sql = Sql & " and [Department Report] = 'Gratuity'"
+@@ -33416,7 +33416,7 @@
+ Dim RS As ADODB.Recordset
+ ConnectADODB ProductHistory, Db
+   Sql = "Select Distinct [Category Name] from [Detail]"
+-  Sql = Sql & " Where cdate([Date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
++  Sql = Sql & " Where TRY_CAST([Date] AS datetime) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+   Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+   Sql = Sql & " order by [Category Name] asc"
+ ConnectADORS ReturnDateString(Sql), Db, RS
+@@ -33438,12 +33438,12 @@
+   Loop
+ SetNothing RS
+   Sql = "Select * from [Detail]"
+-  Sql = Sql & " Where cdate([Date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
++  Sql = Sql & " Where TRY_CAST([Date] AS datetime) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+   Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+   If Check_Option(125) = 1 Then
+     Sql = Sql & " and [Item Price] <> 0"
+   End If
+-  Sql = Sql & " order by cdate([date]) asc"
++  Sql = Sql & " order by TRY_CAST([date] AS datetime) asc"
+ ConnectADORS ReturnDateString(Sql), Db, RS
+ Dim StartPeriod As String, EndPeriod As String
+ If Not RS.EOF Then
+@@ -33464,7 +33464,7 @@
+     Sql = Sql & " SUM([Item Price]) as Total_Sale "
+ End If
+ Sql = Sql & " FROM [Detail]"
+-Sql = Sql & " Where cdate([Date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
++Sql = Sql & " Where TRY_CAST([Date] AS datetime) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+ Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+ Sql = Sql & " and [Menu Item] <> 'Gratuity'"
+ If ReportType = "Mix" Then
+@@ -33698,7 +33698,7 @@
+ Dim H$
+ ConnectADODB ProductHistory, Db
+   Sql = "Select * from [Detail]"
+-  Sql = Sql & " Where cdate([Date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
++  Sql = Sql & " Where TRY_CAST([Date] AS datetime) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+   Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+   Sql = Sql & " order by [date] asc"
+ ConnectADORS ReturnDateString(Sql), Db, RS
+@@ -33713,7 +33713,7 @@
+ Sql = "SELECT DISTINCT  [DepartMent Name], Sum([Quantity]) as Qty_Sold,"
+ Sql = Sql & " SUM([Item Price]) as Total_Sale "
+ Sql = Sql & " FROM [Detail]"
+-Sql = Sql & " Where cdate([Date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
++Sql = Sql & " Where TRY_CAST([Date] AS datetime) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+ Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+ Sql = Sql & " and [Menu Item] <> 'Gratuity'"
+ Sql = Sql & " GROUP BY [Department Name]"
+@@ -33760,7 +33760,7 @@
+     Sql = "SELECT DISTINCT [Media], Sum([Amount]) as TotalPayment,"
+     Sql = Sql & " SUM([Tip]) as Total_Tip "
+     Sql = Sql & " FROM [Payments]"
+-    Sql = Sql & " Where cdate([Date]) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
++    Sql = Sql & " Where TRY_CAST([Date] AS datetime) Between #" & CDate(StartDate & " " & GetStartTime) & "#"
+     Sql = Sql & " and #" & CDate(SetEndingDate(EndDate) & " " & SetEndingTime) & "#"
+     Sql = Sql & " GROUP BY [Media]"
+     Sql = Sql & " Order by [Media] asc"
+@@ -33815,7 +33815,7 @@
+         SQL1 = "Select * from [DayPayments]"
+ ConnectADORS SQL1, SS, SRS
+ If Not SRS.EOF Then
+-  Sql2 = "Delete from [Server Payments] Where cast([Date] as date) = '" & SRS![Recorded Date] & "'"
++  Sql2 = "Delete from [Server Payments] Where TRY_CAST([Date] AS date) = '" & SRS![Recorded Date] & "'"
+   SH.Execute Sql2
+   Sql2 = "Select * from [Server Payments] "
+   SalesDate = SRS.fields("Recorded Date").Value & ""

@@ -1,0 +1,238 @@
+--- Time_Reports.frm
++++ Time_Reports.frm (fixed)
+@@ -2960,8 +2960,8 @@
+    Exit Function
+ End If
+ Sql = "Select * from [Employee Records] "
+-Sql = Sql & " Where cast([Shift Date] as datetime) >= '" & Date - Val(Input_Option(25)) & "'"
+-Sql = Sql & " Order By cast([Shift Date] as datetime) asc"
++Sql = Sql & " Where TRY_CAST([Shift Date] AS datetime) >= '" & Date - Val(Input_Option(25)) & "'"
++Sql = Sql & " Order By TRY_CAST([Shift Date] AS datetime) asc"
+ If ConnectADORS(Sql, Db, RS) = False Then
+    WriteHotSchedules = "Error Connecting to Time Records"
+    Exit Function
+@@ -3614,11 +3614,11 @@
+     Loop
+   SetNothing PRTb
+   Sql = "Select * from [Employee Records] "
+-  Sql = Sql & " Where cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
++  Sql = Sql & " Where TRY_CAST([Shift Date] AS datetime) + TRY_CAST([Time In] AS datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
+   Sql = Sql & " and '" & SetEndingDate(CDate(EndDate)) & " " & SetEndingTime & "'"
+   Sql = Sql & " and [Employee Name] = '" & SearchName & "'"
+   Sql = Sql & " and isdate([Time In]) = 1"
+-  Sql = Sql & " Order By cast([Time In] as datetime) asc"
++  Sql = Sql & " Order By TRY_CAST([Time In] AS datetime) asc"
+ ConnectADORS Sql, Db, Tb
+ 'If Not Tb.BOF Then Tb.MoveFirst
+ If Not Tb.EOF Then
+@@ -3774,9 +3774,9 @@
+ DrawLine
+ OpenDb SvrPath.TerminalPath & TimeRecordsDb, Db
+ Sql = "Select * from [Employee Records] "
+-Sql = Sql & " Where cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
++Sql = Sql & " Where TRY_CAST([Shift Date] AS datetime) + TRY_CAST([Time In] AS datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
+ Sql = Sql & " and '" & SetEndingDate(CDate(EndDate)) & " " & SetEndingTime & "'"
+-Sql = Sql & "Order by [Department Name],cast([Shift Date] as datetime),[Employee Name] asc"
++Sql = Sql & "Order by [Department Name],TRY_CAST([Shift Date] AS datetime),[Employee Name] asc"
+ ConnectADORS Sql, Db, Tb
+ DptName = ""
+ DptHours = 0
+@@ -4074,7 +4074,7 @@
+ Private Sub Form_Load()
+ ResizeScreen1024 Me
+ CenterObject Me, Frame1
+-LoadPRDates = "Select Distinct cast([Shift Date] as datetime) as myDate from [Employee Records] order by cast([Shift Date] as datetime) desc"
++LoadPRDates = "Select Distinct TRY_CAST([Shift Date] AS datetime) as myDate from [Employee Records] order by TRY_CAST([Shift Date] AS datetime) desc"
+ Reportday.Left = -3480
+ Reportday.Top = 240 * TopScale1024
+ 'Load_Depts
+@@ -4121,7 +4121,7 @@
+ Dim AllNames()          As String
+ If ConnectADODB(SvrPath.TerminalPath & TimeRecordsDb, TRDB) = False Then Exit Function
+    Sql = "Select distinct [Employee Name] from [Employee Records] where "
+-   Sql = Sql & " cast([Shift Date] as datetime) Between '" & CDate(BeginDate) & "'"
++   Sql = Sql & " TRY_CAST([Shift Date] AS datetime) Between '" & CDate(BeginDate) & "'"
+    Sql = Sql & " and '" & CDate(EndDate) & "'"
+    If ConnectADORS(Sql, TRDB, TRRS) = False Then Exit Function
+     If TRRS.EOF Then
+@@ -4228,7 +4228,7 @@
+    
+    
+    Sql = "Select * from [Breaks]"
+-   Sql = Sql & " Where cast([TimeOut] as datetime)  Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
++   Sql = Sql & " Where TRY_CAST([TimeOut] AS datetime)  Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
+    Sql = Sql & " and '" & SetEndingDate(CDate(EndDate)) & " " & SetEndingTime & "'"
+    Sql = Sql & " Order by [Name] asc"
+    If ConnectADORS(Sql, TRDB, TRRS) = False Then Exit Function
+@@ -4250,7 +4250,7 @@
+    TRRS.Close
+    
+    Sql = "Select * from [" & TableName & "]"
+-   Sql = Sql & " Where cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
++   Sql = Sql & " Where TRY_CAST([Shift Date] AS datetime) + TRY_CAST([Time In] AS datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
+    Sql = Sql & " and '" & SetEndingDate(CDate(EndDate)) & " " & SetEndingTime & "'"
+    Sql = Sql & " and isdate([Shift Date] + [time out]) = 1"
+    If ConnectADORS(Sql, TRDB, TRRS) = False Then Exit Function
+@@ -4276,7 +4276,7 @@
+    DayInPayroll = DateDiff("d", CDate(BeginDate) & " " & GetStartTime, SetEndingDate(CDate(EndDate)) & " " & SetEndingTime, 3)
+    SetNothing TRRS
+     Sql = "Select Distinct[Employee Name] from [" & TableName & "]"
+-    Sql = Sql & " Where cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
++    Sql = Sql & " Where TRY_CAST([Shift Date] AS datetime) + TRY_CAST([Time In] AS datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
+     Sql = Sql & " and '" & SetEndingDate(CDate(EndDate)) & " " & SetEndingTime & "'"
+     If ConnectADORS(Sql, TRDB, TRRS) = False Then Exit Function
+     RCT = RecordsCount(TRRS)
+@@ -4285,7 +4285,7 @@
+    For FindEmp = 0 To UBound(EmPNames, 1)
+     If EmPNames(FindEmp).WholeName > "" Then
+      Sql = "Select Distinct [Employee Name] from [" & TableName & "] Where "
+-     Sql = Sql & " cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
++     Sql = Sql & " TRY_CAST([Shift Date] AS datetime) + TRY_CAST([Time In] AS datetime) Between '" & CDate(BeginDate) & " " & GetStartTime & "'"
+      Sql = Sql & " and '" & SetEndingDate(CDate(EndDate)) & " " & SetEndingTime & "'"
+      Sql = Sql & " and [employee Name] = '" & EmPNames(FindEmp).WholeName & "'"
+      If ConnectADORS(Sql, TRDB, TRRS) = False Then Exit Function
+@@ -4301,7 +4301,7 @@
+    Next FindEmp
+    'MsgBox "Find Employee " & Ct
+     Sql = "Select Distinct [shift Date] from [" & TableName & "] Where "
+-    Sql = Sql & " cast([Shift Date] as datetime) Between '" & CDate(BeginDate) & "'"
++    Sql = Sql & " TRY_CAST([Shift Date] AS datetime) Between '" & CDate(BeginDate) & "'"
+     Sql = Sql & " and '" & CDate(EndDate) & "'"
+     'Sql = Sql & " Order by [shift date] desc"
+     If ConnectADORS(Sql, TRDB, TRRS) = False Then Exit Function
+@@ -4318,8 +4318,8 @@
+     SetNothing TRRS
+     For CT = 1 To WeekS.count
+      Sql = "Select * from [" & TableName & "] Where "
+-     Sql = Sql & " dateDiff(m,cast([shift date] as datetime),'" & CDate(BeginDate) & "') < 2"
+-     Sql = Sql & " order by [employee Name], cast([shift Date] as datetime) + cast([Time In] as datetime) ,cast([Punch Out Date] as datetime ) + cast([time out] as datetime) asc"
++     Sql = Sql & " dateDiff(m,TRY_CAST([shift date] AS datetime),'" & CDate(BeginDate) & "') < 2"
++     Sql = Sql & " order by [employee Name], TRY_CAST([shift Date] AS datetime) + TRY_CAST([Time In] AS datetime) ,TRY_CAST([Punch Out Date] AS datetime) + TRY_CAST([time out] AS datetime) asc"
+      If ConnectADORS(Sql, TRDB, TRRS) = False Then Exit Function
+      Do While Not TRRS.EOF
+       ' Debug.Print TRRS![Shift date]
+@@ -4396,9 +4396,9 @@
+    
+    Sql = "Select * from [" & TableName & "] Where "
+    Sql = Sql & " isdate([Punch Out Date]+[time Out]) = 0"
+-   Sql = Sql & " and cast([Shift Date] as datetime) Between '" & CDate(BeginDate) & "'"
++   Sql = Sql & " and TRY_CAST([Shift Date] AS datetime) Between '" & CDate(BeginDate) & "'"
+    Sql = Sql & " and '" & CDate(EndDate) & "'"
+-   Sql = Sql & " Order by [Employee Name], cast([Shift Date] as datetime) + cast([Time In] as datetime) asc" ',[Department Name]
++   Sql = Sql & " Order by [Employee Name], TRY_CAST([Shift Date] AS datetime) + TRY_CAST([Time In] AS datetime) asc" ',[Department Name]
+    If ConnectADORS(Sql, TRDB, TRRS) = False Then Exit Function
+     If TRRS.EOF Then
+       DbClose TRDB, TRRS
+@@ -4412,9 +4412,9 @@
+     End If
+     Sql = "Select * from [" & TableName & "] Where "
+     Sql = Sql & " isdate([Punch Out Date]+[time Out]) = 0"
+-    Sql = Sql & " and cast([Shift Date] as datetime) Between '" & CDate(BeginDate) & "'"
++    Sql = Sql & " and TRY_CAST([Shift Date] AS datetime) Between '" & CDate(BeginDate) & "'"
+     Sql = Sql & " and '" & CDate(EndDate) & "'"
+-    Sql = Sql & " Order by [Employee Name],  cast([Shift Date] as datetime)+ cast([Time In] as datetime),cast([Punch Out Date] as datetime)+ cast([time out] as datetime) asc" ',[Department Name]
++    Sql = Sql & " Order by [Employee Name],  TRY_CAST([Shift Date] AS datetime)+ TRY_CAST([Time In] AS datetime),TRY_CAST([Punch Out Date] AS datetime)+ TRY_CAST([time out] AS datetime) asc" ',[Department Name]
+     If ConnectADORS(Sql, TRDB, TRRS) = False Then Exit Function
+     Do While Not TRRS.EOF
+       CT = CT + 1
+@@ -5097,7 +5097,7 @@
+ Dim wkEndDate   As String
+ ConnectADODB SvrPath.TerminalPath & TimeRecordsDb, Db
+ Sql = "Select * from [Employee Records] "
+-Sql = Sql & "order by cast([Shift Date] as datetime) asc"
++Sql = Sql & "order by TRY_CAST([Shift Date] AS datetime) asc"
+ ConnectADORS Sql, Db, RS
+ If Not RS.EOF Then
+     If Not RS.EOF Then RS.MoveLast
+@@ -5115,8 +5115,8 @@
+ Dim TRDB As ADODB.Connection
+ Dim TRRS As ADODB.Recordset
+ OpenDb SvrPath.TerminalPath & TimeRecordsDb, TRDB
+- Sql = "Select Distinct cast([Shift Date] as date) as MyDate from [Employee Records]" 'order by cast([Shift Date] as datetime) asc"
+- Sql = Sql & " Group By cast([Shift Date] as date) Order by cast([Shift Date] as date) desc"
++ Sql = "Select Distinct TRY_CAST([Shift Date] AS date) as MyDate from [Employee Records]" 'order by TRY_CAST([Shift Date] AS datetime) asc"
++ Sql = Sql & " Group By TRY_CAST([Shift Date] AS date) Order by TRY_CAST([Shift Date] AS date) desc"
+ ConnectADORS Sql, TRDB, TRRS
+ If TRRS.EOF Then
+    See_Msg "No Records Found", 5, ""
+@@ -5157,8 +5157,8 @@
+ BRKMINS = 0
+ SetPage ReportView.View, Heading
+ OpenDb SvrPath.TerminalPath & TimeRecordsDb, Db
+-Sql = "Select * From [Employee Records] Where cast([Shift Date] as date) between '" & BeginWeek & "' and '" & EndingDate & "'"
+-Sql = Sql & " order By cast([Shift Date] as date), [Employee Name] asc"
++Sql = "Select * From [Employee Records] Where TRY_CAST([Shift Date] AS date) between '" & BeginWeek & "' and '" & EndingDate & "'"
++Sql = Sql & " order By TRY_CAST([Shift Date] AS date), [Employee Name] asc"
+ 
+ ConnectADORS Sql, Db, Tb
+   If Not Tb.EOF Then
+@@ -5213,7 +5213,7 @@
+ Print #PF, Tab(20); "Date  "; Trim(Date); EC(7)
+ Print #PF, EC(4); String(40, 45); EC(7)
+ OpenDb SvrPath.TerminalPath & TimeRecordsDb, Db
+- Sql = "Select * From [Employee Records]  order By cast([Shift Date] as datetime), [Employee Name] asc"
++ Sql = "Select * From [Employee Records]  order By TRY_CAST([Shift Date] AS datetime), [Employee Name] asc"
+ ConnectADORS Sql, Db, Tb
+  Do While Not Tb.EOF
+    If Trim(Tb(4)) > "" And Tb(4) <> "00:00" Then
+@@ -5329,10 +5329,10 @@
+ Data$ = ""
+ OpenDb SvrPath.TerminalPath & TimeRecordsDb, Db
+   Sql = "Select * From [Employee Records] Where "
+-  Sql = Sql & " cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(SDate) & " " & GetStartTime & "'"
++  Sql = Sql & " TRY_CAST([Shift Date] AS datetime) + TRY_CAST([Time In] AS datetime) Between '" & CDate(SDate) & " " & GetStartTime & "'"
+   Sql = Sql & " and '" & SetEndingDate(CDate(SDate)) & " " & SetEndingTime & "'"
+   Sql = Sql & " and [Paid By] <> 0"
+-  Sql = Sql & " order by cast([time In] as datetime) asc"
++  Sql = Sql & " order by TRY_CAST([time In] AS datetime) asc"
+ ConnectADORS Sql, Db, PRTb
+ ReDim PayRate(24)
+ For CountHrs = 0 To 23
+@@ -5494,7 +5494,7 @@
+ Dim OP      As ADODB.Recordset
+ Dim NetSale As Currency
+ ConnectADODB ProductHistory, Db
+- Sql = "select * from [Detail] where CDate([Date]) Between #" & CDate(HistoryDate) + CDate(GetStartTime) & "# and #" & CDate(SetEndingDate(HistoryDate)) + CDate(SetEndingTime) & "#"
++ Sql = "select * from [Detail] where TRY_CAST([Date] AS datetime) Between '" & Format(CDate(CDate(HistoryDate) + CDate(GetStartTime)), "yyyy-mm-dd hh:nn:ss") & "' and '" & Format(CDate(CDate(SetEndingDate(HistoryDate)) + CDate(SetEndingTime)), "yyyy-mm-dd hh:nn:ss") & "'"
+  Sql = Sql & " Order by [date] asc"
+ ConnectADORS ReturnDateString(Sql), Db, OP
+          Do While Not OP.EOF
+@@ -5555,7 +5555,7 @@
+ Dim Tb                As ADODB.Recordset
+ If ConnectADODB(SvrPath.TerminalPath & TimeRecordsDb, Db) = False Then Exit Function
+    Sql = "Select * from [Employee Records] "
+-   Sql = Sql & " order by cast([Shift Date] as datetime) asc"
++   Sql = Sql & " order by TRY_CAST([Shift Date] AS datetime) asc"
+ If ConnectADORS(Sql, Db, Tb) = False Then Exit Function
+ GetPunchRecordsDates = ""
+ EndDate = ""
+@@ -5618,9 +5618,9 @@
+    For FindEmp = 0 To UBound(EmPNames, 1)
+     If EmPNames(FindEmp).WholeName > "" Then
+         Sql = "Select * from [Employee Records] Where [employee Name] = '" & EmPNames(FindEmp).WholeName & "'"
+-        Sql = Sql & " and cast([Shift Date] as datetime) + cast([Time In] as datetime) Between '" & CDate(SearchDates.Item(1).StartDate) & " " & GetStartTime & "'"
++        Sql = Sql & " and TRY_CAST([Shift Date] AS datetime) + TRY_CAST([Time In] AS datetime) Between '" & CDate(SearchDates.Item(1).StartDate) & " " & GetStartTime & "'"
+         Sql = Sql & " and '" & SetEndingDate(CDate(SearchDates.Item(1).EndDate)) & " " & SetEndingTime & "'"
+-        Sql = Sql & " Order By cast([Shift Date] as datetime) asc"
++        Sql = Sql & " Order By TRY_CAST([Shift Date] AS datetime) asc"
+         DrawLine
+         PrintLine Trim$(EmPNames(FindEmp).WholeName), -1
+         DrawLine
+@@ -5782,7 +5782,7 @@
+  TotalRec = RecordsCount(Id) + 1
+ OpenDb SvrPath.TerminalPath & TimeRecordsDb, Db
+  Sql = "Select * from [Employee Records]  "
+- Sql = Sql & "where cast([Shift Date] as Date) between '" & CDate(BeginWeek) & "' and '" & CDate(EndingDate) & "'"
++ Sql = Sql & "where TRY_CAST([Shift Date] AS date) between '" & CDate(BeginWeek) & "' and '" & CDate(EndingDate) & "'"
+ ConnectADORS Sql, Db, Tb
+ ReDim SearchName(TotalRec)
+ ReDim EmpTwt(TotalRec)
+@@ -5887,7 +5887,7 @@
+ Do While Not Id.EOF
+     Hoursworked = 0: Income = 0
+     Sql = "Select * from [Employee Records] Where [Employee Name] = '" & Id.fields("Employee Name").Value & "'"
+-    Sql = Sql & " and cast([Shift Date] as datetime) between '" & BeginWeek & "' and '" & EndingDate & "'"
++    Sql = Sql & " and TRY_CAST([Shift Date] AS datetime) between '" & BeginWeek & "' and '" & EndingDate & "'"
+     ConnectADORS Sql, EDb, Tb
+     ShiftNo = ""
+     Do While Not Tb.EOF
