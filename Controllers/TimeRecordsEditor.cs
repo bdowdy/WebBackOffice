@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using MSaleWebServer.Models;
 using System.Configuration;
@@ -167,6 +167,10 @@ namespace MSaleWebServer.Controllers
             AddTimeRecordParams(cmd, item);
             cmd.ExecuteNonQuery();
 
+            // queue for the store sync agent to apply at the POS
+            StoreSyncController.QueueEdit(cn, "upsert", item.RecordId,
+                System.Text.Json.JsonSerializer.Serialize(item));
+
             return Json(new { success = true, message = "Time record saved." });
         }
 
@@ -185,6 +189,9 @@ namespace MSaleWebServer.Controllers
             using var cmd = new SqlCommand(sql, cn);
             cmd.Parameters.AddWithValue("@RecordId", item.RecordId);
             cmd.ExecuteNonQuery();
+
+            // queue for the store sync agent to apply at the POS
+            StoreSyncController.QueueEdit(cn, "delete", item.RecordId ?? "", null);
 
             return Json(new { success = true, message = "Time record deleted." });
         }
