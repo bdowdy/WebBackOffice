@@ -1,0 +1,45 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MicroSale Back Office — Sign in</title>
+<style>
+  * { box-sizing:border-box; margin:0; }
+  body { min-height:100vh; display:flex; align-items:center; justify-content:center;
+         background:#1c2733; font-family:'Segoe UI',Arial,sans-serif; }
+  .card { background:#fff; border-radius:12px; padding:36px 32px; width:360px;
+          box-shadow:0 10px 40px rgba(0,0,0,.35); }
+  h1 { font-size:20px; color:#1c2733; margin-bottom:4px; }
+  p.sub { color:#6b7a8c; font-size:13px; margin-bottom:22px; }
+  label { font-size:13px; color:#41505f; display:block; margin-bottom:4px; }
+  input { width:100%; padding:10px 12px; margin-bottom:16px; font-size:15px;
+          border:1px solid #c6d0da; border-radius:8px; }
+  button { width:100%; padding:11px; background:#c9a227; color:#1c2733; font-weight:600;
+           font-size:15px; border:0; border-radius:8px; cursor:pointer; }
+  button:hover { filter:brightness(1.08); }
+  .err { color:#c0392b; font-size:13px; margin-bottom:14px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>MicroSale Back Office</h1>
+    <p class="sub">Sign in to continue</p>
+    @if (ViewBag.Error != null)
+    {
+        <div class="err">@ViewBag.Error</div>
+    }
+    <form method="post" asp-action="Login" asp-route-returnUrl="@ViewBag.ReturnUrl">
+        @Html.AntiForgeryToken()
+        <label for="username">Username</label>
+        <input id="username" name="username" autocomplete="username" autofocus required>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button type="submit">Sign in</button>
+    </form>
+  </div>
+</body>
+</html>

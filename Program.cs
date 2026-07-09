@@ -1,13 +1,38 @@
 using System.Net.Http.Json;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using MSaleWebServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Allows running as a Windows Service on the cloud server (no-op when run normally)
+builder.Host.UseWindowsService();
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<SmsService>();
 builder.Services.AddSingleton<TerminalUpdateService>();
+
+// ── Authentication ────────────────────────────────────────────────────────────
+// Back-office pages: cookie login (credentials in user secrets / env vars).
+// Sync API: X-Api-Key header (see middleware below).
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(o =>
+    {
+        o.LoginPath = "/Account/Login";
+        o.ExpireTimeSpan = TimeSpan.FromHours(10);
+        o.SlidingExpiration = true;
+    });
+
+// Everything requires a signed-in user unless marked [AllowAnonymous]
+builder.Services.AddAuthorization(o =>
+    o.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build());
 
 // API documentation (Swagger / OpenAPI)
 builder.Services.AddEndpointsApiExplorer();
@@ -15,11 +40,39 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Swagger UI at /swagger
-app.UseSwagger();
-app.UseSwaggerUI();
+// Swagger only in Development - not on the public server
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseStaticFiles();
+
+app.UseAuthentication();
+
+// ── API key auth for the sync agent ──────────────────────────────────────────
+// A request with a valid X-Api-Key header is treated as the authenticated
+// sync agent. Key lives in user secrets / env var Sync__ApiKey.
+app.Use(async (ctx, next) =>
+{
+    if (ctx.User.Identity?.IsAuthenticated != true &&
+        ctx.Request.Headers.TryGetValue("X-Api-Key", out var supplied))
+    {
+        var expected = app.Configuration["Sync:ApiKey"];
+        if (!string.IsNullOrWhiteSpace(expected) &&
+            CryptographicOperations.FixedTimeEquals(
+                SHA256.HashData(Encoding.UTF8.GetBytes(supplied.ToString())),
+                SHA256.HashData(Encoding.UTF8.GetBytes(expected))))
+        {
+            ctx.User = new ClaimsPrincipal(new ClaimsIdentity(
+                new[] { new Claim(ClaimTypes.Name, "sync-agent") }, "ApiKey"));
+        }
+    }
+    await next();
+});
+
+app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
