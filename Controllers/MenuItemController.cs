@@ -7,10 +7,12 @@ namespace MSaleWebServer.Controllers
     public class MenuItemController : Controller
     {
         private readonly IConfiguration _configuration;
+        private readonly Services.TerminalUpdateService _terminals;
 
-        public MenuItemController(IConfiguration configuration)
+        public MenuItemController(IConfiguration configuration, Services.TerminalUpdateService terminals)
         {
             _configuration = configuration;
+            _terminals = terminals;
         }
 
         [HttpGet]
@@ -676,6 +678,8 @@ namespace MSaleWebServer.Controllers
                     }
 
                     tran.Commit();
+
+                    _terminals.FlagAllTerminals();  // tell POS terminals to reload
 
                     return Json(new
                     {

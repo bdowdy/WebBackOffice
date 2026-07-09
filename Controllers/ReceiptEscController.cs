@@ -19,7 +19,12 @@ namespace MSaleWebServer.Controllers
         private const string DefaultSmall = "29,33,0"; // GS ! 0x00 normal
 
         private readonly IConfiguration _configuration;
-        public ReceiptEscController(IConfiguration configuration) => _configuration = configuration;
+        private readonly Services.TerminalUpdateService _terminals;
+        public ReceiptEscController(IConfiguration configuration, Services.TerminalUpdateService terminals)
+        {
+            _configuration = configuration;
+            _terminals = terminals;
+        }
 
         private string Cs => _configuration.GetConnectionString("DefaultConnection");
 
@@ -117,6 +122,7 @@ IF @@ROWCOUNT = 0
                 cmd.Parameters.Add("@small", System.Data.SqlDbType.NVarChar, 100).Value = small;
                 cmd.ExecuteNonQuery();
 
+                _terminals.FlagAllTerminals();  // tell POS terminals to reload
                 return NoContent();
             }
             catch (Exception ex) { return StatusCode(500, "Error: " + ex.Message); }

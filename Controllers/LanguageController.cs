@@ -9,10 +9,12 @@ namespace MSaleWebServer.Controllers
     {
         private const string LanguageOnSetting = "Language On";
         private readonly IConfiguration _configuration;
+        private readonly Services.TerminalUpdateService _terminals;
 
-        public LanguageController(IConfiguration configuration)
+        public LanguageController(IConfiguration configuration, Services.TerminalUpdateService terminals)
         {
             _configuration = configuration;
+            _terminals = terminals;
         }
 
         private string Cs => _configuration.GetConnectionString("DefaultConnection");
@@ -112,6 +114,7 @@ namespace MSaleWebServer.Controllers
                 }
                 tx.Commit();
 
+                _terminals.FlagAllTerminals();  // tell POS terminals to reload
                 return NoContent();
             }
             catch (Exception ex)
@@ -137,6 +140,7 @@ namespace MSaleWebServer.Controllers
                 cmd.Parameters.Add("@Eng", System.Data.SqlDbType.NVarChar, 255).Value = english;
                 cmd.ExecuteNonQuery();
 
+                _terminals.FlagAllTerminals();  // tell POS terminals to reload
                 return NoContent();
             }
             catch (Exception ex)
@@ -192,6 +196,7 @@ IF @@ROWCOUNT = 0 INSERT INTO [dbo].[AppSetting] ([SettingName], [SettingValue])
                 }
                 tx.Commit();
 
+                _terminals.FlagAllTerminals();  // tell POS terminals to reload
                 return NoContent();
             }
             catch (Exception ex)

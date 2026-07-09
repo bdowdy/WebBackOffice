@@ -7,177 +7,239 @@
 
     <div class="flex flex-wrap items-center gap-2">
         <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="newModifier()">New Modifier</button>
-        <button type="button" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="saveModifier()">Save Modifier</button>
+        <button type="button" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="saveAll()">Save</button>
         <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50" onclick="deleteModifier()">Delete Modifier</button>
 
         <div class="flex-1"></div>
 
+        <span id="statusLine" class="text-sm text-slate-500"></span>
         <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="location.href='/MSaleAdmin'">Dashboard</button>
         <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="location.href='/'">Exit</button>
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-[320px_1fr_320px]">
+    <div class="grid gap-6 lg:grid-cols-[340px_1fr]">
 
         <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-            <h3 class="text-base font-semibold text-slate-900">Modifier Names</h3>
+            <h3 class="text-base font-semibold text-slate-900">Modifier</h3>
 
             <div class="mt-4 space-y-4">
                 <div>
                     <label for="modifierSelect" class="block text-sm font-medium text-slate-700">Select Modifier</label>
-                    <select id="modifierSelect" onchange="loadModifierItems()" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+                    <select id="modifierSelect" onchange="onModifierChange()" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
                 </div>
 
                 <div>
                     <label for="modifierName" class="block text-sm font-medium text-slate-700">Modifier Name</label>
-                    <input id="modifierName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    <input id="modifierName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" placeholder="e.g. Cheese Choices" />
+                    <p class="mt-1 text-sm text-slate-500">Pick a modifier to edit, or type a new name to create one.</p>
                 </div>
-
-                <button type="button" class="inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="saveModifier()">
-                    Save Modifier Name
-                </button>
             </div>
         </div>
 
         <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-            <h3 class="text-base font-semibold text-slate-900">Modifier Items</h3>
-
-            <select id="itemList" size="25" onchange="loadItemEditor()" class="mt-3 block w-full rounded-lg border-0 bg-white p-1 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
-
-            <div class="mt-3 flex flex-wrap gap-2">
-                <button type="button" class="inline-flex flex-1 items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="addItem()">Add Item</button>
-                <button type="button" class="inline-flex flex-1 items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50" onclick="removeItem()">Remove Item</button>
-                <button type="button" class="inline-flex flex-1 items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="saveItems()">Save Items</button>
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-semibold text-slate-900">Items</h3>
+                <button type="button" class="inline-flex items-center justify-center rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-emerald-700 shadow-sm ring-1 ring-inset ring-emerald-200 transition hover:bg-emerald-50" onclick="addItem()">+ Add Item</button>
             </div>
-        </div>
 
-        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
-            <h3 class="text-base font-semibold text-slate-900">Selected Item</h3>
+            <p class="mt-1 text-sm text-slate-500">Type item names in order. Drag with the arrows to reorder; changes are saved with the Save button.</p>
 
-            <div class="mt-4 space-y-4">
-                <div>
-                    <label for="itemName" class="block text-sm font-medium text-slate-700">Item Name</label>
-                    <input id="itemName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
-                </div>
+            <div id="itemsContainer" class="mt-4 space-y-2"></div>
 
-                <div>
-                    <label for="itemSort" class="block text-sm font-medium text-slate-700">Sort Order</label>
-                    <input id="itemSort" type="number" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
-                </div>
-
-                <button type="button" class="inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500" onclick="applyItemEditor()">
-                    Apply Item
-                </button>
-            </div>
+            <p id="emptyHint" class="mt-4 rounded-lg bg-slate-50 px-3 py-6 text-center text-sm text-slate-500">No items yet. Click "Add Item" to create one.</p>
         </div>
 
     </div>
 </div>
 
 <script>
-    let modifierItems = [];
-    let selectedItemIndex = -1;
+    // Single source of truth: array of item names (order = sort order).
+    let items = [];
+    let dirty = false;
 
-    document.addEventListener("DOMContentLoaded", function () {
-        loadModifiers();
-    });
+    document.addEventListener("DOMContentLoaded", loadModifiers);
+
+    function setStatus(msg) {
+        document.getElementById("statusLine").textContent = msg || "";
+    }
+
+    function markDirty() {
+        dirty = true;
+        setStatus("Unsaved changes");
+    }
 
     function loadModifiers() {
         fetch('/ModifierMaintenance/GetModifierNames')
             .then(r => r.json())
             .then(data => {
                 const sel = document.getElementById("modifierSelect");
+                const current = document.getElementById("modifierName").value;
                 sel.innerHTML = "";
                 sel.add(new Option("-- Select Modifier --", ""));
+                data.forEach(x => sel.add(new Option(x, x)));
 
-                data.forEach(x => {
-                    sel.add(new Option(x, x));
-                });
-
-                if (data.length > 0) {
+                if (current && data.includes(current)) {
+                    sel.value = current;
+                } else if (data.length > 0) {
                     sel.value = data[0];
                     document.getElementById("modifierName").value = data[0];
-                    loadModifierItems();
+                    loadItems(data[0]);
                 }
             })
             .catch(err => alert("Could not load modifiers: " + err.message));
     }
 
-    function loadModifierItems() {
-        const modName = document.getElementById("modifierSelect").value;
-        document.getElementById("modifierName").value = modName;
-
-        if (!modName) {
-            modifierItems = [];
-            selectedItemIndex = -1;
-            drawItems();
-            clearItemEditor();
-            return;
+    function onModifierChange() {
+        const name = document.getElementById("modifierSelect").value;
+        document.getElementById("modifierName").value = name;
+        if (name) {
+            loadItems(name);
+        } else {
+            items = [];
+            renderItems();
         }
-
-        fetch('/ModifierMaintenance/GetModifierItems?modifierName=' + encodeURIComponent(modName))
-            .then(r => r.json())
-            .then(data => {
-                modifierItems = data || [];
-                selectedItemIndex = -1;
-                drawItems();
-                clearItemEditor();
-            })
-            .catch(err => alert("Could not load modifier items: " + err.message));
     }
 
-    function drawItems() {
-        const list = document.getElementById("itemList");
-        list.innerHTML = "";
-
-        modifierItems.forEach((x, i) => {
-            const text = (x.modifierCategory || "");
-            list.add(new Option(text, i));
-        });
+    function loadItems(name) {
+        fetch('/ModifierMaintenance/GetModifierItems?modifierName=' + encodeURIComponent(name))
+            .then(r => r.json())
+            .then(data => {
+                items = (data || []).map(x => x.modifierCategory || "");
+                dirty = false;
+                setStatus("");
+                renderItems();
+            })
+            .catch(err => alert("Could not load modifier items: " + err.message));
     }
 
     function newModifier() {
         document.getElementById("modifierSelect").value = "";
         document.getElementById("modifierName").value = "";
-
-        modifierItems = [];
-        selectedItemIndex = -1;
-
-        drawItems();
-        clearItemEditor();
+        items = [];
+        dirty = false;
+        setStatus("New modifier");
+        renderItems();
+        document.getElementById("modifierName").focus();
     }
 
-    function saveModifier() {
-        const name = document.getElementById("modifierName").value.trim();
+    function addItem() {
+        items.push("");
+        markDirty();
+        renderItems();
+        const inputs = document.querySelectorAll("#itemsContainer input");
+        if (inputs.length) inputs[inputs.length - 1].focus();
+    }
 
+    function moveItem(i, dir) {
+        const j = i + dir;
+        if (j < 0 || j >= items.length) return;
+        const tmp = items[i];
+        items[i] = items[j];
+        items[j] = tmp;
+        markDirty();
+        renderItems();
+        const inputs = document.querySelectorAll("#itemsContainer input");
+        if (inputs[j]) inputs[j].focus();
+    }
+
+    function removeItem(i) {
+        items.splice(i, 1);
+        markDirty();
+        renderItems();
+    }
+
+    function renderItems() {
+        const c = document.getElementById("itemsContainer");
+        c.innerHTML = "";
+
+        document.getElementById("emptyHint").style.display =
+            items.length ? "none" : "block";
+
+        items.forEach((name, i) => {
+            const row = document.createElement("div");
+            row.className = "flex items-center gap-2";
+
+            const orderBtns = document.createElement("div");
+            orderBtns.className = "flex flex-col";
+            orderBtns.appendChild(arrowBtn("▲", i === 0, () => moveItem(i, -1)));
+            orderBtns.appendChild(arrowBtn("▼", i === items.length - 1, () => moveItem(i, 1)));
+            row.appendChild(orderBtns);
+
+            const num = document.createElement("span");
+            num.className = "w-6 text-right text-xs text-slate-400";
+            num.textContent = (i + 1);
+            row.appendChild(num);
+
+            const input = document.createElement("input");
+            input.value = name;
+            input.placeholder = "Item name";
+            input.className = "flex-1 rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500";
+            input.oninput = () => { items[i] = input.value; markDirty(); };
+            input.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); addItem(); } };
+            row.appendChild(input);
+
+            const rm = document.createElement("button");
+            rm.type = "button";
+            rm.title = "Remove item";
+            rm.className = "inline-flex h-9 w-9 items-center justify-center rounded-lg text-rose-600 ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50";
+            rm.textContent = "✕";
+            rm.onclick = () => removeItem(i);
+            row.appendChild(rm);
+
+            c.appendChild(row);
+        });
+    }
+
+    function arrowBtn(glyph, disabled, handler) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = glyph;
+        b.disabled = disabled;
+        b.className = "flex h-4 w-6 items-center justify-center text-[10px] leading-none text-slate-500 hover:text-slate-800 disabled:opacity-25";
+        if (!disabled) b.onclick = handler;
+        return b;
+    }
+
+    function saveAll() {
+        const name = document.getElementById("modifierName").value.trim();
         if (!name) {
             alert("Enter a modifier name.");
+            document.getElementById("modifierName").focus();
             return;
         }
 
-        fetch('/ModifierMaintenance/SaveModifierName', {
+        // Build payload in list order, dropping blank rows, renumbering pos.
+        const payload = items
+            .map(x => (x || "").trim())
+            .filter(x => x !== "")
+            .map((x, idx) => ({ modifierCategory: x, pos: idx }));
+
+        setStatus("Saving...");
+
+        fetch('/ModifierMaintenance/SaveModifierItems', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ modifierName: name })
+            body: JSON.stringify({ modifierName: name, items: payload })
         })
         .then(r => r.json())
         .then(x => {
-            alert(x.message || "Saved");
+            dirty = false;
+            setStatus("Saved");
+            // refresh the dropdown and keep this modifier selected
             loadModifiers();
+            loadItems(name);
         })
-        .catch(err => alert("Save failed: " + err.message));
+        .catch(err => { setStatus(""); alert("Save failed: " + err.message); });
     }
 
     function deleteModifier() {
-        const name = document.getElementById("modifierSelect").value;
-
+        const name = document.getElementById("modifierSelect").value
+            || document.getElementById("modifierName").value.trim();
         if (!name) {
             alert("Select a modifier first.");
             return;
         }
-
-        if (!confirm("Delete modifier and its items?")) {
-            return;
-        }
+        if (!confirm('Delete modifier "' + name + '" and all its items?')) return;
 
         fetch('/ModifierMaintenance/DeleteModifierName', {
             method: 'POST',
@@ -186,117 +248,14 @@
         })
         .then(r => r.json())
         .then(x => {
-            alert(x.message || "Deleted");
             newModifier();
+            setStatus("Deleted");
             loadModifiers();
         })
         .catch(err => alert("Delete failed: " + err.message));
     }
 
-    function addItem() {
-        modifierItems.push({
-            modifierCategory: "New Item",
-            pos: modifierItems.length
-        });
-
-        selectedItemIndex = modifierItems.length - 1;
-
-        drawItems();
-
-        document.getElementById("itemList").value = selectedItemIndex;
-        loadItemEditor();
-    }
-
-    function removeItem() {
-        const list = document.getElementById("itemList");
-        const idx = parseInt(list.value);
-
-        if (isNaN(idx)) {
-            alert("Select an item first.");
-            return;
-        }
-
-        modifierItems.splice(idx, 1);
-
-        modifierItems.forEach((x, i) => {
-            x.pos = i;
-        });
-
-        selectedItemIndex = -1;
-
-        drawItems();
-        clearItemEditor();
-    }
-
-    function loadItemEditor() {
-        const idx = parseInt(document.getElementById("itemList").value);
-
-        if (isNaN(idx)) {
-            return;
-        }
-
-        selectedItemIndex = idx;
-
-        const item = modifierItems[idx];
-
-        document.getElementById("itemName").value = item.modifierCategory || "";
-        document.getElementById("itemSort").value = item.pos ?? idx;
-    }
-
-    function applyItemEditor() {
-        if (selectedItemIndex < 0) {
-            return;
-        }
-
-        const name = document.getElementById("itemName").value.trim();
-        const sort = parseInt(document.getElementById("itemSort").value || selectedItemIndex);
-
-        modifierItems[selectedItemIndex].modifierCategory = name;
-        modifierItems[selectedItemIndex].pos = sort;
-
-        modifierItems.sort((a, b) => {
-            return (a.pos ?? 0) - (b.pos ?? 0);
-        });
-
-        drawItems();
-        clearItemEditor();
-        selectedItemIndex = -1;
-    }
-
-    function clearItemEditor() {
-        document.getElementById("itemName").value = "";
-        document.getElementById("itemSort").value = "";
-    }
-
-    function saveItems() {
-        const modName = document.getElementById("modifierName").value.trim();
-
-        if (!modName) {
-            alert("Enter a modifier name first.");
-            return;
-        }
-
-        if (selectedItemIndex >= 0) {
-            applyItemEditor();
-        }
-
-        modifierItems.forEach((x, i) => {
-            x.pos = i;
-        });
-
-        fetch('/ModifierMaintenance/SaveModifierItems', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                modifierName: modName,
-                items: modifierItems
-            })
-        })
-        .then(r => r.json())
-        .then(x => {
-            alert(x.message || "Saved");
-            loadModifiers();
-        })
-        .catch(err => alert("Save failed: " + err.message));
-    }
+    window.addEventListener("beforeunload", function (e) {
+        if (dirty) { e.preventDefault(); e.returnValue = ""; }
+    });
 </script>

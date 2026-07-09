@@ -469,6 +469,11 @@ WHERE [Discount Name]=@name";
             return View();
         }
         [HttpGet]
+        public IActionResult MasterDepartments()
+        {
+            return View();
+        }
+        [HttpGet]
         public IActionResult GetMasterDepartments()
         {
             List<string> list = new List<string>();
@@ -1230,8 +1235,6 @@ WHERE [Discount Name]=@name";
         ORDER BY [Button Assigned]
     ", new { category }).ToList();
 
-            var assigned = buttons.Select(x => x.MenuItem).ToList();
-
             var menuItems = conn.Query<string>(@"
         SELECT [Menu Item Name]
         FROM [Menu Items]
@@ -1254,10 +1257,12 @@ WHERE [Discount Name]=@name";
         ORDER BY [Key Name]
     ", new { category }).ToList();
 
+            // Show the category's full item set (menu items + sub-categories + shift keys),
+            // including ones already placed on a button, so the palette is never empty
+            // when editing an existing layout.
             var availableItems = menuItems
                 .Concat(subCategories)
                 .Concat(shiftKeys)
-                .Where(x => !assigned.Contains(x))
                 .Distinct()
                 .OrderBy(x => x)
                 .ToList();

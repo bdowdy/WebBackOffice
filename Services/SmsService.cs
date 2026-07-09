@@ -5,7 +5,9 @@ namespace MSaleWebServer.Services
 {
     /// <summary>
     /// Thin wrapper around the Twilio SDK — mirrors the VB6 GL.SMSText() call.
-    /// Credentials are loaded from appsettings.json "Twilio" section.
+    /// Credentials (API Key SID/secret + Account SID) come from configuration:
+    /// user-secrets in Development, environment variables (Twilio__*) in Production.
+    /// Nothing sensitive is stored in appsettings.json.
     /// </summary>
     public class SmsService
     {
@@ -15,10 +17,13 @@ namespace MSaleWebServer.Services
         public SmsService(IConfiguration config, ILogger<SmsService> logger)
         {
             _logger = logger;
-            var sid   = config["Twilio:AccountSid"] ?? "";
-            var token = config["Twilio:AuthToken"]  ?? "";
-            _from     = config["Twilio:FromNumber"] ?? "";
-            TwilioClient.Init(sid, token);
+            var accountSid = config["Twilio:AccountSid"]   ?? "";
+            var apiKeySid  = config["Twilio:ApiKeySid"]    ?? "";
+            var apiSecret  = config["Twilio:ApiKeySecret"] ?? "";
+            _from          = config["Twilio:FromNumber"]   ?? "";
+            // Initialize with a Twilio API Key (SK…) + secret scoped to the account.
+            // API keys can be revoked/rotated independently of the account Auth Token.
+            TwilioClient.Init(apiKeySid, apiSecret, accountSid);
         }
 
         /// <summary>

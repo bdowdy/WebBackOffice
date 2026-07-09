@@ -5,67 +5,131 @@
 
 <div class="space-y-4">
 
-    <div class="flex flex-wrap items-center gap-2 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+    <!-- Top toolbar: category + primary actions -->
+    <div class="flex flex-wrap items-center gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
         <label class="text-sm font-medium text-slate-700">Category</label>
-        <select id="categorySelect" onchange="loadLayout()" class="rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+        <select id="categorySelect" onchange="loadLayout()" class="min-w-[220px] rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
 
-        <button type="button" onclick="loadLayout()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Reload</button>
-        <button type="button" onclick="addBlankButton()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Add Blank Button</button>
-        <button type="button" onclick="assignSelectedItem()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Put Menu Item On Button</button>
-        <button type="button" onclick="deleteSelectedButton()" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50">Delete Selected</button>
+        <button type="button" onclick="loadLayout()" class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M5 9a7 7 0 0 1 12-3l3 3M19 15a7 7 0 0 1-12 3l-3-3"/></svg>
+            Reload
+        </button>
 
         <div class="flex-1"></div>
 
-        <button type="button" onclick="location.href='/'" class="inline-flex items-center justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Exit</button>
-        <button type="button" onclick="saveLayout()" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500">Save Layout</button>
+        <span id="saveState" class="text-xs font-medium text-slate-400"></span>
+        <button type="button" onclick="location.href='/'" class="inline-flex items-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-500 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">Exit</button>
+        <button type="button" onclick="saveLayout()" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Save Layout
+        </button>
     </div>
 
     <div class="grid items-start gap-4 xl:grid-cols-[260px_minmax(0,1fr)_280px]">
 
+        <!-- Menu items -->
         <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
             <h3 class="text-base font-semibold text-slate-900">Menu Items</h3>
-            <select id="itemList" size="30" class="mt-3 block h-[800px] w-full rounded-lg border-0 bg-white p-1 text-[15px] shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+            <p class="mt-1 text-xs text-slate-500">Double-click an item to drop it on the layout, or drag it onto the canvas.</p>
+
+            <input id="itemSearch" type="search" placeholder="Search items…" oninput="filterItems()"
+                   class="mt-3 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+
+            <select id="itemList" size="26" ondblclick="placeSelectedItem()"
+                    class="mt-3 block h-[720px] w-full rounded-lg border-0 bg-white p-1 text-[15px] shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500"></select>
+
+            <button type="button" onclick="placeSelectedItem()" class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg>
+                Place on Layout
+            </button>
         </div>
 
-        <div class="overflow-x-auto rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-            <h3 class="text-base font-semibold text-slate-900">Button Layout Area</h3>
-            <div id="canvas" class="relative mt-3 h-[820px] w-[1250px] overflow-hidden rounded-lg border-2 border-[#444444] bg-[#1b1b1b] bg-[linear-gradient(rgba(255,255,255,.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.06)_1px,transparent_1px)] bg-[length:20px_20px]"></div>
+        <!-- Canvas -->
+        <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+            <div class="flex flex-wrap items-center gap-2">
+                <h3 class="text-base font-semibold text-slate-900">Layout Area</h3>
+                <div class="flex-1"></div>
+
+                <label class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600">
+                    <input id="snapToggle" type="checkbox" checked class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                    Snap to grid
+                </label>
+
+                <button type="button" onclick="addBlankButton()" class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg>
+                    Add Blank
+                </button>
+                <button type="button" onclick="deleteSelectedButton()" class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-rose-600 shadow-sm ring-1 ring-inset ring-rose-200 transition hover:bg-rose-50">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V5h6v2M10 11v6M14 11v6M5 7l1 13h12l1-13"/></svg>
+                    Delete
+                </button>
+            </div>
+
+            <div class="mt-3 overflow-auto rounded-lg">
+                <div id="canvas" class="relative h-[820px] w-[1250px] overflow-hidden rounded-lg border-2 border-[#444444] bg-[#1b1b1b] bg-[linear-gradient(rgba(255,255,255,.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.06)_1px,transparent_1px)] bg-[length:20px_20px]"></div>
+            </div>
+
             <div class="mt-3 flex items-center justify-between text-xs text-slate-500">
                 <span id="statusButtons">0 buttons</span>
                 <span id="statusSelected">No button selected</span>
+                <span class="hidden sm:inline">Tip: double-click empty space to add · arrow keys nudge · Delete removes</span>
             </div>
         </div>
 
+        <!-- Inspector -->
         <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
             <h3 class="text-base font-semibold text-slate-900">Selected Button</h3>
+            <p id="inspectorHint" class="mt-1 text-xs text-slate-500">Select a button to edit it. Changes apply live.</p>
 
-            <div class="mt-3 space-y-4">
+            <div id="inspector" class="mt-3 space-y-4 opacity-50 pointer-events-none">
+
+                <!-- Live preview -->
+                <div class="flex items-center justify-center rounded-lg bg-[#1b1b1b] p-4">
+                    <div id="editPreview" class="flex min-h-[45px] min-w-[100px] items-center justify-center overflow-hidden rounded-md border border-white px-2 text-center font-bold" style="color:#000;background:#d9d9d9;font-size:12px;">Preview</div>
+                </div>
+
                 <div>
                     <label class="block text-sm font-medium text-slate-700">Menu Item</label>
-                    <input id="editMenuItem" onchange="applyEditor()" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    <input id="editMenuItem" oninput="applyEditor()" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Font Size</label>
-                    <input id="editFontSize" type="number" value="12" onchange="applyEditor()" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Font Size</label>
+                        <input id="editFontSize" type="number" min="6" value="12" oninput="applyEditor()" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Icon</label>
+                        <input id="editIcon" oninput="applyEditor()" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Text Color</label>
-                    <input id="editForeCol" type="color" value="#000000" onchange="applyEditor()" class="mt-1 block h-10 w-full cursor-pointer rounded-lg border-0 bg-white p-1 shadow-sm ring-1 ring-inset ring-slate-300" />
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Width</label>
+                        <input id="editWidth" type="number" min="60" value="120" oninput="applySize()" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Height</label>
+                        <input id="editHeight" type="number" min="35" value="55" oninput="applySize()" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Button Color</label>
-                    <input id="editBackCol" type="color" value="#d9d9d9" onchange="applyEditor()" class="mt-1 block h-10 w-full cursor-pointer rounded-lg border-0 bg-white p-1 shadow-sm ring-1 ring-inset ring-slate-300" />
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Text Color</label>
+                        <input id="editForeCol" type="color" value="#000000" oninput="applyEditor()" class="mt-1 block h-10 w-full cursor-pointer rounded-lg border-0 bg-white p-1 shadow-sm ring-1 ring-inset ring-slate-300" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700">Button Color</label>
+                        <input id="editBackCol" type="color" value="#d9d9d9" oninput="applyEditor()" class="mt-1 block h-10 w-full cursor-pointer rounded-lg border-0 bg-white p-1 shadow-sm ring-1 ring-inset ring-slate-300" />
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Icon</label>
-                    <input id="editIcon" onchange="applyEditor()" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
-                </div>
-
-                <button type="button" onclick="applyEditor()" class="inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500">Apply Changes</button>
+                <button type="button" onclick="duplicateSelectedButton()" class="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 transition hover:bg-slate-50">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 8h10v10H8zM6 16H4V4h12v2"/></svg>
+                    Duplicate Button
+                </button>
             </div>
         </div>
 
@@ -74,23 +138,84 @@
 
 <script>
     let buttons = [];
+    let allMenuItems = [];
     let selectedIndex = -1;
 
     let dragging = null;
     let resizing = null;
     let offsetX = 0;
     let offsetY = 0;
+    let moved = false;
 
-    // "menu-btn", "resize", and "selected" are kept as functional markers queried by this script;
+    const SNAP = 20;
+
+    // "menu-btn", "resize", and "selected" are functional markers queried by this script;
     // the Tailwind utilities alongside them provide the visual styling.
     const MENU_BTN_CLASSES = "menu-btn absolute flex min-h-[35px] min-w-[60px] cursor-move select-none items-center justify-center overflow-hidden rounded-md border border-white p-1 text-center font-bold";
     const RESIZE_CLASSES = "resize absolute bottom-0 right-0 h-3.5 w-3.5 cursor-se-resize bg-[#ffff00]";
     const SELECTED_CLASSES = ["outline", "outline-[3px]", "outline-[#ffff00]"];
 
     document.addEventListener("DOMContentLoaded", function () {
+        // The per-category available items come from loadLayout(); no separate
+        // global item fetch (which would race with and overwrite it).
         loadCategories();
-        loadMenuItems();
+
+        const canvas = document.getElementById("canvas");
+
+        // Double-click empty canvas -> add a blank button right there.
+        canvas.addEventListener("dblclick", function (e) {
+            if (e.target !== canvas) return;
+            const rect = canvas.getBoundingClientRect();
+            addBlankButtonAt(e.clientX - rect.left, e.clientY - rect.top);
+        });
+
+        // Click empty canvas -> deselect.
+        canvas.addEventListener("mousedown", function (e) {
+            if (e.target === canvas) deselect();
+        });
+
+        // Drag a menu item from the list onto the canvas.
+        canvas.addEventListener("dragover", function (e) { e.preventDefault(); });
+        canvas.addEventListener("drop", function (e) {
+            e.preventDefault();
+            const item = e.dataTransfer.getData("text/plain");
+            if (!item) return;
+            const rect = canvas.getBoundingClientRect();
+            addBlankButtonAt(e.clientX - rect.left, e.clientY - rect.top, item);
+        });
+
+        // Keyboard: Delete removes, Escape deselects, arrows nudge.
+        document.addEventListener("keydown", function (e) {
+            if (selectedIndex < 0) return;
+            const tag = (e.target.tagName || "").toLowerCase();
+            if (tag === "input" || tag === "select" || tag === "textarea") return;
+
+            if (e.key === "Delete") { deleteSelectedButton(); e.preventDefault(); }
+            else if (e.key === "Escape") { deselect(); }
+            else if (e.key.indexOf("Arrow") === 0) {
+                const b = buttons[selectedIndex];
+                const step = snapEnabled() ? SNAP : 1;
+                if (e.key === "ArrowLeft") b.left = Math.max(0, (b.left || 0) - step);
+                if (e.key === "ArrowRight") b.left = (b.left || 0) + step;
+                if (e.key === "ArrowUp") b.top = Math.max(0, (b.top || 0) - step);
+                if (e.key === "ArrowDown") b.top = (b.top || 0) + step;
+                drawButtons();
+                e.preventDefault();
+            }
+        });
     });
+
+    function snapEnabled() {
+        const c = document.getElementById("snapToggle");
+        return c ? c.checked : true;
+    }
+    function snap(v) {
+        return snapEnabled() ? Math.round(v / SNAP) * SNAP : Math.round(v);
+    }
+
+    function markDirty() {
+        document.getElementById("saveState").innerText = "Unsaved changes";
+    }
 
     function loadCategories() {
         fetch('/MSaleAdmin/GetButtonLayoutCategories')
@@ -114,12 +239,31 @@
         fetch('/MSaleAdmin/GetButtonLayoutMenuItems')
             .then(r => r.json())
             .then(data => {
-                const list = document.getElementById("itemList");
-                list.innerHTML = "";
-
-                data.forEach(x => list.add(new Option(x, x)));
+                allMenuItems = data || [];
+                renderItemList("");
             })
             .catch(err => alert("Could not load menu items: " + err.message));
+    }
+
+    function renderItemList(filter) {
+        const list = document.getElementById("itemList");
+        list.innerHTML = "";
+        const f = (filter || "").toLowerCase();
+
+        allMenuItems
+            .filter(x => !f || String(x).toLowerCase().indexOf(f) >= 0)
+            .forEach(x => {
+                const opt = new Option(x, x);
+                opt.draggable = true;
+                opt.addEventListener("dragstart", function (e) {
+                    e.dataTransfer.setData("text/plain", x);
+                });
+                list.add(opt);
+            });
+    }
+
+    function filterItems() {
+        renderItemList(document.getElementById("itemSearch").value);
     }
 
     function loadLayout() {
@@ -131,10 +275,17 @@
             .then(data => {
                 buttons = data.buttons || data || [];
 
+                // The layout endpoint returns this category's available items
+                // (department menu items + sub-categories + shift keys, minus
+                // those already placed). Refresh the palette from it.
+                allMenuItems = data.availableItems || [];
+                renderItemList(document.getElementById("itemSearch").value);
+
                 selectedIndex = -1;
                 drawButtons();
                 clearEditor();
                 updateStatus();
+                document.getElementById("saveState").innerText = "";
             })
             .catch(err => alert("Could not load layout: " + err.message));
     }
@@ -166,13 +317,8 @@
 
             resize.onmousedown = function (e) {
                 e.stopPropagation();
-
-                selectedIndex = index;
+                selectIndex(index);
                 resizing = btn;
-
-                loadEditor();
-                markSelectedButton();
-
                 document.onmousemove = resizeMove;
                 document.onmouseup = stopMouse;
             };
@@ -182,14 +328,12 @@
             btn.onmousedown = function (e) {
                 if (e.target.classList.contains("resize")) return;
 
-                selectedIndex = index;
+                selectIndex(index);
                 dragging = btn;
+                moved = false;
 
                 offsetX = e.clientX - btn.offsetLeft;
                 offsetY = e.clientY - btn.offsetTop;
-
-                loadEditor();
-                markSelectedButton();
 
                 document.onmousemove = dragMove;
                 document.onmouseup = stopMouse;
@@ -201,6 +345,18 @@
         });
 
         updateStatus();
+    }
+
+    function selectIndex(index) {
+        selectedIndex = index;
+        loadEditor();
+        markSelectedButton();
+    }
+
+    function deselect() {
+        selectedIndex = -1;
+        markSelectedButton();
+        clearEditor();
     }
 
     function markSelectedButton() {
@@ -218,6 +374,7 @@
 
     function dragMove(e) {
         if (!dragging || selectedIndex < 0) return;
+        moved = true;
 
         const canvas = document.getElementById("canvas");
 
@@ -227,22 +384,27 @@
         x = Math.max(0, Math.min(x, canvas.offsetWidth - dragging.offsetWidth));
         y = Math.max(0, Math.min(y, canvas.offsetHeight - dragging.offsetHeight));
 
+        x = snap(x);
+        y = snap(y);
+
         dragging.style.left = x + "px";
         dragging.style.top = y + "px";
 
-        buttons[selectedIndex].left = Math.round(x);
-        buttons[selectedIndex].top = Math.round(y);
+        buttons[selectedIndex].left = x;
+        buttons[selectedIndex].top = y;
 
+        markDirty();
         updateStatus();
     }
 
     function resizeMove(e) {
         if (!resizing || selectedIndex < 0) return;
+        moved = true;
 
         const rect = resizing.getBoundingClientRect();
 
-        let w = e.clientX - rect.left;
-        let h = e.clientY - rect.top;
+        let w = snap(e.clientX - rect.left);
+        let h = snap(e.clientY - rect.top);
 
         w = Math.max(60, w);
         h = Math.max(35, h);
@@ -250,9 +412,13 @@
         resizing.style.width = w + "px";
         resizing.style.height = h + "px";
 
-        buttons[selectedIndex].width = Math.round(w);
-        buttons[selectedIndex].height = Math.round(h);
+        buttons[selectedIndex].width = w;
+        buttons[selectedIndex].height = h;
 
+        document.getElementById("editWidth").value = w;
+        document.getElementById("editHeight").value = h;
+
+        markDirty();
         updateStatus();
     }
 
@@ -263,16 +429,9 @@
         document.onmouseup = null;
     }
 
-    function addBlankButton() {
-        const category = document.getElementById("categorySelect").value;
-
-        if (!category) {
-            alert("Select a category first.");
-            return;
-        }
-
-        buttons.push({
-            menuItem: "",
+    function newButton(category, item, left, top) {
+        return {
+            menuItem: item || "",
             category: category,
             foreCol: 0,
             backCol: 12632256,
@@ -280,64 +439,105 @@
             width: 120,
             height: 55,
             fontSize: 12,
-            left: 20,
-            top: 20,
+            left: left,
+            top: top,
             buttonAssigned: buttons.length
-        });
-
-        selectedIndex = buttons.length - 1;
-        drawButtons();
-        loadEditor();
+        };
     }
 
-    function assignSelectedItem() {
-        const item = document.getElementById("itemList").value;
+    function addBlankButton() {
+        const category = document.getElementById("categorySelect").value;
+        if (!category) { alert("Select a category first."); return; }
 
-        if (!item) {
-            alert("Select a menu item first.");
-            return;
-        }
-
-        if (selectedIndex < 0) {
-            addBlankButton();
-        }
-
-        if (selectedIndex < 0) return;
-
-        buttons[selectedIndex].menuItem = item;
-        document.getElementById("editMenuItem").value = item;
-
+        // Cascade new buttons so they don't stack exactly.
+        const n = buttons.length % 10;
+        buttons.push(newButton(category, "", snap(20 + n * SNAP), snap(20 + n * SNAP)));
+        selectIndex(buttons.length - 1);
         drawButtons();
-        updateStatus();
+        markDirty();
+    }
+
+    function addBlankButtonAt(x, y, item) {
+        const category = document.getElementById("categorySelect").value;
+        if (!category) { alert("Select a category first."); return; }
+
+        buttons.push(newButton(category, item || "", snap(Math.max(0, x)), snap(Math.max(0, y))));
+        selectIndex(buttons.length - 1);
+        drawButtons();
+        markDirty();
+    }
+
+    function placeSelectedItem() {
+        const item = document.getElementById("itemList").value;
+        if (!item) { alert("Select a menu item first."); return; }
+
+        if (selectedIndex >= 0 && !(buttons[selectedIndex].menuItem || "").trim()) {
+            // Fill the currently selected blank button.
+            buttons[selectedIndex].menuItem = item;
+            loadEditor();
+            drawButtons();
+        } else {
+            const category = document.getElementById("categorySelect").value;
+            if (!category) { alert("Select a category first."); return; }
+            const n = buttons.length % 10;
+            buttons.push(newButton(category, item, snap(20 + n * SNAP), snap(20 + n * SNAP)));
+            selectIndex(buttons.length - 1);
+            drawButtons();
+        }
+        markDirty();
+    }
+
+    function duplicateSelectedButton() {
+        if (selectedIndex < 0) return;
+        const src = buttons[selectedIndex];
+        const copy = Object.assign({}, src);
+        copy.left = snap((src.left || 20) + SNAP);
+        copy.top = snap((src.top || 20) + SNAP);
+        copy.buttonAssigned = buttons.length;
+        buttons.push(copy);
+        selectIndex(buttons.length - 1);
+        drawButtons();
+        markDirty();
     }
 
     function deleteSelectedButton() {
-        if (selectedIndex < 0) {
-            alert("Select a button first.");
-            return;
-        }
+        if (selectedIndex < 0) { alert("Select a button first."); return; }
 
         buttons.splice(selectedIndex, 1);
         selectedIndex = -1;
-
         drawButtons();
         clearEditor();
         updateStatus();
+        markDirty();
+    }
+
+    function setInspectorEnabled(on) {
+        const insp = document.getElementById("inspector");
+        const hint = document.getElementById("inspectorHint");
+        if (on) {
+            insp.classList.remove("opacity-50", "pointer-events-none");
+            hint.innerText = "Changes apply live.";
+        } else {
+            insp.classList.add("opacity-50", "pointer-events-none");
+            hint.innerText = "Select a button to edit it. Changes apply live.";
+        }
     }
 
     function loadEditor() {
-        if (selectedIndex < 0) {
-            clearEditor();
-            return;
-        }
+        if (selectedIndex < 0) { clearEditor(); return; }
 
         const b = buttons[selectedIndex];
 
         document.getElementById("editMenuItem").value = b.menuItem || "";
         document.getElementById("editFontSize").value = b.fontSize || 12;
+        document.getElementById("editWidth").value = b.width || 120;
+        document.getElementById("editHeight").value = b.height || 55;
         document.getElementById("editForeCol").value = vbColorToHex(b.foreCol || 0);
         document.getElementById("editBackCol").value = vbColorToHex(b.backCol || 12632256);
         document.getElementById("editIcon").value = b.icon || "";
+
+        setInspectorEnabled(true);
+        updatePreview();
     }
 
     function applyEditor() {
@@ -351,28 +551,47 @@
         b.backCol = hexToVbColor(document.getElementById("editBackCol").value).toString();
         b.icon = document.getElementById("editIcon").value;
 
+        updatePreview();
         drawButtons();
+        markDirty();
+    }
+
+    function applySize() {
+        if (selectedIndex < 0) return;
+
+        const b = buttons[selectedIndex];
+        b.width = Math.max(60, parseInt(document.getElementById("editWidth").value || 120));
+        b.height = Math.max(35, parseInt(document.getElementById("editHeight").value || 55));
+
+        updatePreview();
+        drawButtons();
+        markDirty();
+    }
+
+    function updatePreview() {
+        const p = document.getElementById("editPreview");
+        if (!p) return;
+        p.style.color = document.getElementById("editForeCol").value;
+        p.style.background = document.getElementById("editBackCol").value;
+        p.style.fontSize = (document.getElementById("editFontSize").value || 12) + "px";
+        p.innerText = document.getElementById("editMenuItem").value || "Blank";
     }
 
     function clearEditor() {
         document.getElementById("editMenuItem").value = "";
         document.getElementById("editFontSize").value = "12";
+        document.getElementById("editWidth").value = "120";
+        document.getElementById("editHeight").value = "55";
         document.getElementById("editForeCol").value = "#000000";
         document.getElementById("editBackCol").value = "#d9d9d9";
         document.getElementById("editIcon").value = "";
+        setInspectorEnabled(false);
+        updatePreview();
     }
 
     function saveLayout() {
-        if (selectedIndex >= 0) {
-            applyEditor();
-        }
-
         const category = document.getElementById("categorySelect").value;
-
-        if (!category) {
-            alert("Select a category first.");
-            return;
-        }
+        if (!category) { alert("Select a category first."); return; }
 
         const cleanButtons = buttons.map((b, i) => ({
             menuItem: b.menuItem || "",
@@ -388,30 +607,34 @@
             buttonAssigned: i
         }));
 
+        document.getElementById("saveState").innerText = "Saving…";
+
         fetch('/MSaleAdmin/SaveButtonLayout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                category: category,
-                buttons: cleanButtons
-            })
+            body: JSON.stringify({ category: category, buttons: cleanButtons })
         })
         .then(r => r.json())
-        .then(x => alert(x.message || "Saved"))
-        .catch(err => alert("Save failed: " + err.message));
+        .then(x => {
+            document.getElementById("saveState").innerText = "Saved";
+            if (x && x.message && x.message !== "Saved") alert(x.message);
+        })
+        .catch(err => {
+            document.getElementById("saveState").innerText = "Save failed";
+            alert("Save failed: " + err.message);
+        });
     }
 
     function updateStatus() {
-        document.getElementById("statusButtons").innerText =
-            buttons.length + " buttons";
+        document.getElementById("statusButtons").innerText = buttons.length + " buttons";
 
         if (selectedIndex < 0) {
-            document.getElementById("statusSelected").innerText =
-                "No button selected";
+            document.getElementById("statusSelected").innerText = "No button selected";
         } else {
             const b = buttons[selectedIndex];
             document.getElementById("statusSelected").innerText =
-                "Selected: " + (b.menuItem || "Blank Button");
+                "Selected: " + (b.menuItem || "Blank Button") +
+                " (" + (b.width || 120) + "×" + (b.height || 55) + ")";
         }
     }
 

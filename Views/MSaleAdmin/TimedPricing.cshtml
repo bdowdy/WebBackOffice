@@ -21,9 +21,8 @@
             <div class="mt-4 space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700">Event Name</label>
-                    <select id="eventName" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-emerald-500">
-                        <option value="">-- Select Event --</option>
-                    </select>
+                    <input id="eventName" list="eventNameList" onchange="selectEventByName()" placeholder="Type a new name or pick an existing one" class="mt-1 block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-emerald-500" />
+                    <datalist id="eventNameList"></datalist>
                 </div>
 
                 <div>
@@ -110,13 +109,12 @@
         fetch('/MSaleAdmin/GetTimedEvents')
             .then(r => r.json())
             .then(data => {
-                const ddl = document.getElementById("eventName");
-                ddl.innerHTML = '<option value="">-- Select Event --</option>';
+                const ddl = document.getElementById("eventNameList");
+                ddl.innerHTML = "";
 
                 data.forEach(name => {
                     const opt = document.createElement("option");
                     opt.value = name;
-                    opt.textContent = name;
                     ddl.appendChild(opt);
                 });
             })
@@ -231,6 +229,19 @@
 
         selectedIndex = events.length - 1;
         loadEditor(selectedIndex);
+        drawTimeline();
+    }
+
+    function selectEventByName() {
+        const name = document.getElementById("eventName").value;
+        if (!name) return;
+
+        // recall an existing event by name; if the name is new/unsaved, leave it for entry
+        const idx = events.findIndex(e => (e.eventName || "") === name);
+        if (idx < 0) return;
+
+        selectedIndex = idx;
+        loadEditor(idx);
         drawTimeline();
     }
 
