@@ -9,10 +9,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Controllers\MenuItemsController.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Dapper" Version="2.1.72" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.9" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
