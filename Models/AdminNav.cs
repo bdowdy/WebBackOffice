@@ -55,6 +55,7 @@ public static class AdminNav
                 new("Menu Access", "/MSaleAdmin/MenuAccess", "Assign access requirements to menus and programming areas."),
                 new("Job Titles", "/MSaleAdmin/JobTitles", "Manage job titles, tipped positions, tip pool percent, 7shifts job codes, and drawer access."),
                 new("Employee Maintenance", "/MSaleAdmin/Employees", "Manage employee names and security numbers."),
+                new("Web Back Office Users", "/WebUsers", "Manage who can sign in to this web back office - add users, disable accounts, and reset passwords."),
                 new("Check Review", "/CheckReview", "Review closed checks and payments."),
             ]),
         new(

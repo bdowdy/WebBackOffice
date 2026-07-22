@@ -27,14 +27,11 @@ namespace MSaleWebServer.Controllers
         {
             var users = GetConfiguredUsers();
 
-            if (users.Count == 0)
-            {
-                ViewBag.Error = "No admin credentials are configured on the server.";
-                return View();
-            }
-
+            // Config users (env vars / user secrets) first, then database users.
+            // Config users always work even if the database is down.
             var authenticated = users.Any(u =>
-                FixedTimeEquals(username, u.Username) & FixedTimeEquals(password, u.Password));
+                FixedTimeEquals(username, u.Username) & FixedTimeEquals(password, u.Password))
+                || Services.WebUserStore.TryValidate(_config, username, password);
 
             if (!authenticated)
             {
